@@ -39,7 +39,7 @@ The code is not implemented yet. These are the planned steps and they will be co
 
 1. Clone this repository inside the `htdocs` folder of XAMPP:
 ```
-   git clone <repository-url> studyspot
+   git clone https://github.com/930089Luu/StudySpot 
 ```
 2. Start **Apache** and **MySQL** from the XAMPP control panel.
 3. Create a MySQL database called `studyspot` (for example from phpMyAdmin at `http://localhost/phpmyadmin`).
