@@ -8,7 +8,7 @@ Team: Lucía Claver Bolea and Miguel Salado Serrano.
 
 
 ## Planned project structure
-
+```
 studyspot/
 ├── public/            User interface (HTML, CSS, JavaScript, Mapbox map)
 │   ├── index.html
@@ -24,6 +24,7 @@ studyspot/
 │   └── schema.sql     Table creation script
 ├── docs/              Sprint documents, diagrams and wireframes
 └── README.md
+```
 
 This structure is the planned one and may change during Sprint 2.
 
