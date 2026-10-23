@@ -1,6 +1,6 @@
 <div align="center">
 
-# StudySpot
+<img src="docs/img/studyspot-horizontal-color.png" alt="StudySpot" width="420">
 
 **Know how busy the library is before you leave home — and see where your friends are studying.**
 
