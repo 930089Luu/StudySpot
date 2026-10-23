@@ -26,3 +26,23 @@ studyspot/
 └── README.md
 
 This structure is the planned one and may change during Sprint 2.
+
+## Requirements
+
+- [XAMPP](https://www.apachefriends.org/) (Apache, PHP and MySQL)
+- [Git](https://git-scm.com/)
+- A [Mapbox](https://www.mapbox.com/) access token (free account)
+
+## Running the project locally (work in progress)
+
+The code is not implemented yet. These are the planned steps and they will be completed in Sprint 2.
+
+1. Clone this repository inside the `htdocs` folder of XAMPP:
+```
+   git clone <repository-url> studyspot
+```
+2. Start **Apache** and **MySQL** from the XAMPP control panel.
+3. Create a MySQL database called `studyspot` (for example from phpMyAdmin at `http://localhost/phpmyadmin`).
+4. Import `database/schema.sql` into that database (the file will be added in Sprint 2).
+5. Add your Mapbox token and the database credentials to the configuration file (to be defined in Sprint 2).
+6. Open `http://localhost/studyspot/public/` in your browser.
