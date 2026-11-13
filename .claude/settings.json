@@ -1,0 +1,35 @@
+﻿{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [ -f '.readmeAI' ] && [ ! -f '.claude/.readmeai.active' ]; then touch .claude/.readmeai.active 2>/dev/null; LINES=$(wc -l < .readmeAI 2>/dev/null || echo 0); BYTES=$(wc -c < .readmeAI 2>/dev/null || echo 0); TOKENS=$(( BYTES / 4 )); printf '\\nReadMeAI context: %s lines ~%s tokens\\n' \"$LINES\" \"$TOKENS\"; awk '/## .* QUICK REFERENCE/{f=1} f && /^---$/{c++; if(c==2)exit} f{print}' .readmeAI | head -14; fi"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "rm -f .claude/.readmeai.active 2>/dev/null; bash .claude/readmeai-sync.sh 2>/dev/null || true"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "FILE=\"$TOOL_INPUT_PATH\"; [ -f '.readmeAI' ] && grep -q \"$FILE\" .readmeAI || echo \"ReadMeAI: '$FILE' not in STRUCTURE MAP — add it at session end.\""
+          }
+        ]
+      }
+    ]
+  }
+}

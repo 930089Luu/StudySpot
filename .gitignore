@@ -1,0 +1,27 @@
+# Configuración local con credenciales y token de Mapbox (solo se sube config.example.php)
+config.php
+
+# Script de instalación de ReadMeAI (no se sube)
+setup.ps1
+
+# Configuración personal y archivos temporales de Claude Code
+.claude/settings.local.json
+.claude/.readmeai.active
+
+# Logs y temporales
+*.log
+*.tmp
+
+# Volcados de base de datos locales
+*.sql.bak
+dump*.sql
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editores
+.vscode/
+.idea/
+*.swp

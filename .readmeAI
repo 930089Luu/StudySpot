@@ -1,0 +1,519 @@
+<!--
+  ╔══════════════════════════════════════════════════════════════════════╗
+  ║  READMEAI v4.7 — AI-TO-AI PROJECT CONTEXT FILE                     ║
+  ║  Lean by default · Every line earns its place · Zero drift         ║
+  ║  Setup: bash setup.sh  ·  Docs: github.com/Oscarr36/ReadMeAI      ║
+  ╚══════════════════════════════════════════════════════════════════════╝
+-->
+
+# .readmeAI
+
+---
+
+## ⚡ QUICK REFERENCE
+> **Hot restart: read only this table, then go to SESSION STATE. Skip the full file.**
+
+| | |
+|--|--|
+| **Objective** | Sprint 2 de StudySpot: implementar y testear US01–US06. Primero US01 (registro y login). |
+| **Last action** | 2026-11-13 — Commit del contexto (.readmeAI, .gitignore, AGENTS.md, .claude/) en `chore/readmeai`. Sin push. |
+| **Next step** | Tras el commit/PR: rama `feature/registro` (con permiso), crear `src/lib/constantes.php`, `database/schema.sql` (tabla `usuario`), `src/api/registro.php`, `login.php` y `tests/run_tests.php`. |
+| **Key files** | `.readmeAI`, `README.md`, `.gitignore`, `../docs/Sprint1_StudySpot_Plano_EN.pdf`, `../plantilla/Modelo_Entregaveis_Sprint_2_Desenvolvimento (3).docx` |
+| **Blockers** | — |
+| model      | claude-opus-5-5    |
+
+---
+
+## ⚙️ AI PROTOCOL
+
+> **Read this file at the very start of EVERY session. No prompt needed. First action, always.**
+
+### Session start
+1. Read QUICK REFERENCE → go to SESSION STATE → resume without recap.
+2. **First-time setup** (SESSION STATE blank): execute FIRST-TIME SETUP at bottom. Fill every section. Never repeat after that.
+3. **Domain rules beat everything.** If a rule in DOMAIN RULES conflicts with your general knowledge, the domain rule wins.
+
+# v5.0 additions:
+# - If MCP_TOOLS section is populated, check available MCP servers before tool calls
+# - If AGENT_PROTOCOL is populated, follow multi-agent coordination rules
+
+### Git — reglas obligatorias (equipo de dos personas)
+> El repo lo usan **Lucía Claver Bolea** y **Miguel Salado Serrano**. El historial de commits debe reflejar quién hizo cada cosa.
+
+1. **Al principio de cada sesión, antes de tocar nada:** preguntar al usuario quién es (Lucía o Miguel) y su nombre y correo de GitHub. Con la respuesta, configurar la identidad **solo para este repositorio**: `git config user.name "<nombre>"` y `git config user.email "<correo>"` (nunca `--global`).
+2. **Antes de cada commit, push o pull request:** mostrar qué se va a hacer (archivos, mensaje y rama) y esperar un "sí" explícito. Nunca hacer commit, push ni merge sin preguntar.
+3. **Nunca push directo a `main`.** Siempre rama propia + pull request.
+4. **No cambiar de rama ni borrar ramas** sin preguntar.
+
+### Session end — silent, no user prompt needed
+1. Overwrite QUICK REFERENCE and SESSION STATE with current snapshot.
+2. Append to DECISIONS LOG any architectural choice made this session.
+3. Update SYMBOL INDEX for new or renamed symbols (name + purpose, no line numbers).
+
+### Core rules
+- **Trust order:** Code > this file > AI memory. If they conflict, trust the code and update this file.
+- **Navigate via SYMBOL INDEX.** Don't scan the filesystem if a symbol is listed here.
+- **Quality gate is mandatory.** Run CODE QUALITY checklist before every output. No exceptions.
+- **Scope guard.** Out-of-scope request → log in Backlog, flag to user, don't implement without approval.
+- **Append-only logs.** DECISIONS LOG and AI NOTES are never edited, only appended. Newest first.
+- **No silent drift.** If this file and the code disagree, fix this file immediately. Don't let them diverge.
+
+### When to read what
+| Situation | Action |
+|-----------|--------|
+| Hot restart / "continue" | QUICK REFERENCE → SESSION STATE only |
+| New session | Full file |
+| Writing any code | Check CODE QUALITY checklist and DOMAIN RULES |
+| Touching auth / input / data | Also read optional SECURITY section |
+| Touching API / DB / models | Also read optional API CONTRACTS section |
+| Making an architectural decision | Read DECISIONS LOG first — check if already decided |
+| Something feels tricky | Read AI NOTES first — previous AI may have left a warning |
+
+---
+
+## 📋 PROJECT IDENTITY
+
+| Field | Value |
+|-------|-------|
+| **Name** | StudySpot — app web para consultar la ocupación de bibliotecas y hacer check-in por QR |
+| **Version** | 0.1.0 |
+| **Phase** | `development` — Sprint 2 (codificación y testing), 9-11-2026 a 6-12-2026 |
+| **Type** | web app (navegador móvil, sin instalación) |
+| **Stack** | HTML + CSS + JavaScript + Mapbox GL JS · PHP en Apache (XAMPP) · MySQL con PDO |
+| **Repository** | https://github.com/930089Luu/StudySpot |
+| **Team** | Lucía Claver Bolea · Miguel Salado Serrano (Scrum Master rotatorio) |
+| **Course** | Programming Lab [22356] · ISLA Gaia · 2026/2027 |
+| **Dev command** | Arrancar Apache y MySQL en XAMPP; abrir `http://localhost/studyspot/src/public/` |
+| **Build command** | — (no hay build) |
+| **Test command** | `php tests/run_tests.php` (una línea PASS/FAIL por prueba + resumen final; sin PHPUnit) |
+| **Last updated** | 2026-11-13 |
+
+### Sprint 2 — objetivos (resumen de la plantilla de entregables)
+- **Sprint Goal sugerido:** "Tener las User Stories priorizadas implementadas, con tests funcionales ejecutados y demostrables en vivo."
+- **Entregable (iii), 30 % de la nota:** demostración en vivo en el Sprint Review + repositorio de código + registro de tests. Fecha límite de entrega: **03-12-2026**. Sprint Review con demo en vivo: **04-12-2026**.
+- **Definition of Done:**
+  - [ ] US "Must" y "Should" del Sprint 1 implementadas (datos, lógica, interfaz).
+  - [ ] Código versionado en el repo del equipo con historial de commits legible.
+  - [ ] Tests funcionales escritos y ejecutados para cada US implementada.
+  - [ ] Resultados de los tests (pasó/falló) registrados (tabla ID · descripción · pasos · esperado · obtenido).
+  - [ ] Modelo de datos, arquitectura y contrato de API actualizados **as built**, con divergencias justificadas (no sustituir en silencio lo del Sprint 1).
+  - [ ] README actualizado con la estructura real y probado por alguien distinto del autor para instalar y ejecutar.
+  - [ ] Código comentado en la lógica no obvia y en las decisiones de diseño.
+  - [ ] Daily Scrums registrados; demo preparada y ensayada.
+  - [ ] US no terminadas identificadas, justificadas y reprogramadas para el Sprint 3.
+  - [ ] Sprint Review y Sprint Retrospective realizados.
+- **Guion de la demo:** visión general (2 min) · funcionalidades en vivo (5 min) · tests en directo (3 min) · US reprogramadas (2 min).
+
+---
+
+## -- MCP_TOOLS -------------------------------------------------------- ##
+## Active MCP servers wired into Claude Code (run: setup.sh --mcp)     ##
+#
+# server-name     | capability            | when-to-use
+# -----------------|----------------------|-------------------------------
+# <server-name>   | <what-it-does>       | <trigger-condition>
+#
+## -- END MCP_TOOLS --------------------------------------------------- ##
+
+---
+
+## 🧠 DOMAIN RULES
+
+> **Highest-value section. Non-obvious rules that cause bugs when unknown.**
+> **These override conventions. These override your training. Always.**
+
+- **Check-in solo válido a ≤ 150 m** de la biblioteca (coordenadas de `biblioteca.latitud/longitud`). La distancia se calcula **en el servidor con haversine**, nunca en el cliente.
+- **Las coordenadas del móvil NO se guardan** en la base de datos. Se usan para validar y se descartan.
+- **Una sesión de estudio caduca automáticamente a las 4 horas.** Un estudiante **no puede tener dos sesiones activas** a la vez (→ 409 en `checkin.php`).
+- **La caducidad se aplica al consultar, no hay tarea programada:** cada vez que se lee el estado de una sesión o la ocupación, las sesiones activas con más de 4 h se cierran en ese momento (`estado = expired`) y se calculan sus puntos. Hacerlo **antes** de contar sesiones activas o de comprobar si hay una sesión abierta.
+- **Los puntos solo se otorgan al terminar la sesión** (check-out o caducidad), nunca durante. **No existe endpoint** para ver puntos de una sesión en curso.
+- **Fórmula de puntos:** `floor(minutos / MINUTOS_POR_PUNTO)` con `MINUTOS_POR_PUNTO = 15`, máximo `MAX_PUNTOS_SESION = 16` (4 h). Menos de 15 min → 0 puntos. En una sesión caducada se cuentan como máximo las 4 h.
+- **Fiabilidad** según usuarios activos en la biblioteca: **baja** < 5 · **media** 5–14 · **alta** ≥ 15. Umbrales como constantes (`UMBRAL_FIABILIDAD_MEDIA = 5`, `UMBRAL_FIABILIDAD_ALTA = 15`).
+- **Correo institucional:** válido si su dominio es uno de `ALLOWED_EMAIL_DOMAINS` **o un subdominio** de alguno (p. ej. `alumnos.upm.es`). Lista: `unizar.es, ucm.es, upm.es, uam.es, uc3m.es, ub.edu, uv.es, upv.es, us.es, ugr.es, usal.es`. Comparar por sufijo `"." + dominio` o igualdad exacta (que `fakeunizar.es` NO valga). La lista vive en un único archivo; nunca repetirla en el código.
+- **Los puntos totales no se guardan:** se calculan con `SUM(puntos_otorgados)` de las sesiones del usuario.
+- **Ocupación actual = recuento directo:** sesiones activas ÷ `factor_adopcion` ÷ `capacidad_maxima`. **NO es la ley de Little.** La ley de Little (L = λW) **solo** se usa para las franjas horarias típicas (US05). La ocupación actual tampoco se guarda: se calcula.
+- La ocupación siempre se devuelve con un **indicador de fiabilidad** (bajo / medio / alto) según el número de usuarios activos.
+- **Todo acceso a la BD usa PDO con sentencias preparadas.** Nunca SQL concatenado.
+- **Contraseñas con hash.** El registro solo acepta **correo del dominio institucional** y **no permite correos repetidos** (→ 409).
+- **El rol de administrador se comprueba siempre en el servidor**, nunca solo en la interfaz (→ 403).
+- **Ubicación con amigos:** desactivada por defecto (`comparte_ubicacion = false`), voluntaria y solo entre amistades aceptadas por ambos.
+- **Fuera de alcance:** estadísticas personales (horas semanales, rachas), sesiones de grupo, logros, alerta de ocupación.
+- **Nombres de tablas, columnas y endpoints en español** tal como están en el diseño del Sprint 1 (`usuario`, `sesion_estudio`, `checkin.php`…). No traducirlos.
+
+### Deprecated / Renamed
+> **Anti-hallucination anchors. Never reach for these — use the replacement instead.**
+
+| Dead symbol / API | Replaced by | Why |
+|-------------------|-------------|-----|
+| Ley de Little para la ocupación actual | Recuento directo de sesiones activas | Corrección del profesor en el Sprint 1 (el README aún lo menciona) |
+| Carpetas raíz `public/`, `api/`, `db/` | `src/public/`, `src/api/`, `database/` | Se sigue la estructura del README (decisión 2026-11-13) |
+| `src/Ocupacion/`, `src/Gamificacion/`, `src/Database/` del README | `src/lib/` (lógica compartida) | Decisión del equipo 2026-11-13; corregir README |
+
+---
+
+## 🏗 STRUCTURE MAP
+
+> **Replaces filesystem scanning. Navigate from here — never glob or list directories.**
+> **Update at session end when files are added, moved, or deleted.**
+
+```
+codigo/  (raíz del repo)
+│
+├── .readmeAI                   ← este archivo
+├── AGENTS.md                   ← punteros ReadMeAI para otros agentes
+├── setup.ps1                   ← script de instalación de ReadMeAI
+├── .claude/                    ← config de Claude Code (CLAUDE.md, settings.json, readmeai-sync.sh)
+├── .gitignore                  ← config.php, setup.ps1 y archivos locales
+├── setup.ps1    (ignorado)     ← script de instalación de ReadMeAI, no se sube
+├── README.md                   ← descripción del proyecto (desactualizado: ver Backlog)
+├── docs/img/                   ← logo del README
+│
+├── src/
+│   ├── public/  (previsto)     ← interfaz: index.html, css/, js/, img/, Mapbox
+│   ├── api/     (previsto)     ← un archivo PHP por endpoint (registro.php, login.php, checkin.php…)
+│   └── lib/     (previsto)     ← lógica compartida: constantes, conexión PDO, haversine, ocupación, puntos
+├── database/
+│   └── schema.sql (previsto)   ← script de creación de tablas
+├── tests/
+│   └── run_tests.php (previsto) ← ejecutor: PASS/FAIL por prueba + resumen
+├── config.example.php (previsto) ← plantilla de config sin secretos (versionada)
+└── config.php   (local, ignorado) ← credenciales BD + token Mapbox
+```
+
+Fuera del repo (solo lectura): `../docs/Sprint1_StudySpot_Plano_EN.pdf`, `../plantilla/`.
+
+### Enforced directory rules
+> Active every session. Violations must be flagged immediately — do not silently accept drift.
+
+| Directory | Owns | Must NOT contain |
+|-----------|------|-----------------|
+| `src/public/` | HTML, CSS, JS de la interfaz | PHP con lógica, SQL, secretos |
+| `src/api/` | Un endpoint PHP por archivo: valida entrada, llama a `src/lib/`, devuelve JSON + código HTTP | HTML, SQL o cálculos duplicados de `src/lib/` |
+| `src/lib/` | Lógica compartida y constantes de negocio (`ALLOWED_EMAIL_DOMAINS`, puntos, fiabilidad, 150 m, 4 h) | Salida HTTP/HTML, secretos |
+| `database/` | Scripts SQL | Datos personales reales, contraseñas |
+| `tests/` | Tests funcionales en PHP + `run_tests.php` | Credenciales reales, PHPUnit |
+| raíz | `config.example.php` | `config.php` en git (está en `.gitignore`) |
+
+---
+
+## 🔍 SYMBOL INDEX
+
+> **Jump directly to any symbol without scanning. Name + file + purpose.**
+> **No exact line numbers — they go stale. Use file path + purpose to locate.**
+
+| Symbol | File | Purpose |
+|--------|------|---------|
+| — | — | — _(sin código todavía)_ |
+
+---
+
+## 📐 CONVENTIONS
+
+### Naming — enforced on all output
+| Identifier | Rule | Example |
+|-----------|------|---------|
+| Functions/methods | verb prefix | `getUser`, `validateEmail`, `buildQuery` |
+| Booleans | `is`/`has`/`can`/`should` | `isLoggedIn`, `hasPermission` |
+| Event handlers | `handle`/`on` | `handleSubmit`, `onClose` |
+| Classes | PascalCase noun | `UserProfile`, `AuthService` |
+| Constants | SCREAMING_SNAKE_CASE | `MAX_RETRIES`, `API_BASE_URL` |
+| Collections | plural noun | `users`, `activeConnections` |
+| Tablas / columnas / endpoints | español, snake_case, como en Sprint 1 | `sesion_estudio.puntos_otorgados`, `api/checkin.php` |
+
+_AI: adapt to actual language. Apply the same semantic rules with language-appropriate casing._
+
+### Arquitectura
+- Tres capas: interfaz (`src/public/`, HTML/CSS/JS) → lógica (PHP, **un archivo por endpoint en `src/api/`**, lógica común en `src/lib/`) → datos (MySQL, scripts en `database/`).
+- Constantes de negocio en **un único archivo** versionado de `src/lib/` : **`src/lib/constantes.php`**, solo con constantes **no secretas** (dominios permitidos, minutos por punto, máximo de puntos, umbrales de fiabilidad…). Las credenciales de MySQL y el token de Mapbox van **solo** en `config.php` (gitignored).
+- Monolito por capas cliente-servidor (ver DECISIONS LOG).
+
+### Git
+- Una rama por funcionalidad: `feature/registro`, `feature/checkin`, `fix/login-validacion`. **Nunca trabajar directamente en `main`.**
+- Commits pequeños con mensajes que cuenten qué se hizo: p. ej. `add haversine distance check in checkin.php`. **Nada de "update".**
+- Integrar en `main` cada 1–2 días mediante pull request.
+- Ver también las reglas obligatorias en AI PROTOCOL → Git.
+
+### Tests
+- **Cada User Story implementada debe tener al menos un test funcional**, y su resultado (pasó/falló) se registra.
+
+### Comments
+- Comentar la lógica no obvia: **haversine, expiración de sesiones, cálculo de ocupación** (y franjas con Little).
+- Only write comments for WHY — a hidden constraint, a workaround, a non-obvious invariant. Never leave TODOs in committed code (use Backlog below).
+
+---
+
+## ✅ CODE QUALITY
+
+> **Run this before every output. Mandatory. If any item fails, fix it first.**
+
+- [ ] Every function does one thing. If you can say "and", split it.
+- [ ] No function longer than ~30 lines. Extract helpers.
+- [ ] No nesting deeper than 3 levels. Use early returns to flatten.
+- [ ] No duplicated logic. Extract if the same block appears twice.
+- [ ] No hardcoded values (strings, numbers, URLs). Use constants or config (150 m, 4 h, 15 min → constantes).
+- [ ] No unused variables, imports, or parameters.
+- [ ] Error paths handled. No silent `catch (e) {}`.
+- [ ] New files placed in the correct directory per STRUCTURE MAP rules.
+- [ ] Pattern match: if this pattern exists elsewhere in the codebase, mirror it exactly.
+- [ ] Consultas SQL con PDO y sentencias preparadas.
+
+### Forbidden — never produce this
+- `eval()` or `Function()` constructor
+- SQL strings built by concatenation (parameterized queries always)
+- `innerHTML` with unsanitized data (use `textContent` or a sanitizer)
+- Secrets or credentials in source code (incluido el token de Mapbox)
+- Mutable function arguments
+- Boolean flags that change function behavior (`doThing(true)`) — use named options
+
+---
+
+## 🎯 SESSION STATE
+
+> **Overwrite every session. This is the primary hot-restart entry point.**
+> **A cold AI should be able to continue from this section alone.**
+
+### Active objective
+Cerrar el setup del contexto (primer commit + PR) y arrancar US01 (registro y login).
+
+### Context
+- Primer setup de `.readmeAI` hecho el 2026-11-13 a partir de README.md, el PDF del Sprint 1 y la plantilla Word del Sprint 2. FIRST-TIME SETUP completado: no repetir.
+- Open questions resueltas el 2026-11-13 (dominios, puntos, fiabilidad, tests, caducidad, archivos a subir): ver DOMAIN RULES y DECISIONS LOG.
+- Todavía no hay código. Estructura prevista: `src/public/ src/api/ src/lib/ database/ tests/`.
+- Identidad git local configurada para esta sesión: Lucía Claver Bolea (`930089Luu`). En cada sesión nueva hay que volver a preguntar.
+- Orden previsto: US01 → US02 (check-in QR) → US03 y US05 (mapa, ocupación, franjas) → US04 (puntos) → US06 (amigos). (El plan del Sprint 1 ponía US04 en las semanas 1–2; el equipo ha fijado este orden.)
+- Tareas US01 del Sprint 1: ajustar pantallas 1A/1B, tabla `usuario` (hash), `registro.php` y `login.php` (PDO, validación, sesión PHP), formularios en el frontend, tests (registro válido, correo duplicado, login incorrecto).
+
+### Última acción realizada
+Actualizado `.readmeAI` con las respuestas del equipo y `.gitignore` (añadidos `setup.ps1` y `.claude/.readmeai.active`). Configurada la identidad git local. Sin commit.
+
+### Next immediate step
+1. Esperar el OK de Lucía al commit propuesto en `chore/readmeai` (y luego push + PR, también con OK).
+2. Con permiso: rama `feature/registro` desde `main`; crear `src/lib/constantes.php`, `database/schema.sql` (tabla `usuario`), `src/api/registro.php`, `src/api/login.php`, formularios en `src/public/` y `tests/run_tests.php` con los tests de US01.
+
+### Do NOT touch this session
+- `README.md` (se actualizará as built más adelante, con permiso).
+- `../docs/` y `../plantilla/` (documentos de referencia).
+
+### Branch / workspace
+_Branch: `chore/readmeai` · Uncommitted: `.claude/`, `.readmeAI`, `AGENTS.md`, `setup.ps1`, `.gitignore` · Open PR: —_
+
+### Blockers
+- —
+
+### Open questions
+- ¿Nombres de las claves de `config.php`? (se definirán al crear `config.example.php`).
+
+---
+
+## 📚 DECISIONS LOG
+
+> **Append per architectural decision. Newest first. Never delete entries.**
+> **Before making a significant decision, read this log — it may already be decided.**
+
+| Date | Decision | Alternatives considered | Rationale |
+|------|---------|------------------------|-----------|
+| 2026-11-13 | Constantes no secretas en `src/lib/constantes.php` (versionado); credenciales MySQL y token Mapbox solo en `config.php` (gitignored) | Todo en `config.php` | Que las reglas de negocio se compartan por git sin exponer secretos |
+| 2026-11-13 | Se suben `.readmeAI`, `AGENTS.md`, `.claude/CLAUDE.md`, `.claude/settings.json`, `.claude/readmeai-sync.sh`; se ignoran `setup.ps1`, `.claude/settings.local.json` y `.claude/.readmeai.active` | Ignorar todo lo de IA | Contexto compartido por los dos miembros del equipo |
+| 2026-11-13 | Caducidad de 4 h aplicada al consultar (lazy): al leer sesión u ocupación se cierran las vencidas y se calculan sus puntos | Tarea programada (cron) | Sin infraestructura extra en XAMPP |
+| 2026-11-13 | Tests: scripts PHP en `tests/`, `php tests/run_tests.php`, PASS/FAIL por línea + resumen | PHPUnit | Fácil de ejecutar en directo en la demo y de copiar al registro de tests |
+| 2026-11-13 | Fiabilidad: baja < 5, media 5–14, alta ≥ 15 usuarios activos; umbrales como constantes | — | Concreta el indicador del Sprint 1 |
+| 2026-11-13 | Puntos: 1 por cada 15 min completos, máx. 16; < 15 min = 0; minutos por punto como constante | Otras proporciones | Concreta "proporcional a la duración" del Sprint 1; 16 = 4 h / 15 min |
+| 2026-11-13 | Correo institucional por lista `ALLOWED_EMAIL_DOMAINS` (dominio exacto o subdominio), en un único archivo; ampliar = añadir a la lista | Un solo dominio fijo | No hay un único dominio institucional; extensible sin tocar la lógica |
+| 2026-11-13 | **Sustituye a la fila de abajo:** estructura del README: `src/api/`, `src/public/`, `src/lib/`, `database/`, `tests/` | `public/ api/ db/` en raíz | Coherencia con el README del Sprint 1; capas separadas dentro de `src/` |
+| 2026-11-13 | Estructura `public/ api/ db/ tests/`, un PHP por endpoint | `src/` + `database/` del README del Sprint 1 | Decisión del equipo para el Sprint 2; registrar como divergencia as built |
+| 2026-11-13 | Configuración en `config.php` (gitignored); solo se sube `config.example.php` | Variables de entorno | Sin secretos en el repo; sencillo con XAMPP |
+| Sprint 1 | Ocupación actual = recuento directo ajustado por `factor_adopcion`; Little solo para franjas | Little para todo | Feedback del profesor (2-11-2026) |
+| Sprint 1 | ADR-001 (propuesto): presencia con QR por zona (zona + token) + comprobación haversine ≤ 150 m en servidor; coordenadas descartadas | Sensores, reservas | Sin hardware, minimización de datos (RGPD). Contras: requiere permiso de ubicación, precisión limitada en interiores, ubicación falsificable, token fijo |
+| Sprint 1 | Monolito por capas cliente-servidor; PHP + MySQL + XAMPP | Microservicios | Coste de infraestructura excesivo para un semestre |
+| Sprint 1 | Puntos totales y ocupación no se almacenan; se calculan | Columnas agregadas | Evitar redundancia (normalización) |
+
+---
+
+## ✅ PROGRESS
+
+### In Progress
+- Setup del contexto del Sprint 2.
+
+### Backlog
+_Out-of-scope requests land here, not in the code._
+- US01 Registro con correo institucional (Must, 3 pts) — **siguiente**.
+- US02 Check-in QR ≤ 150 m, check-out y caducidad 4 h (Must, 8).
+- US03 Mapa con ocupación % + fiabilidad (Must, 8).
+- US05 Franjas típicas por día y hora (Should, 5).
+- US04 Puntos por sesión (Must, 3).
+- US06 Amigos y ubicación voluntaria (Should, 8).
+- US07 Ranking semanal y objetivo compartido (Could, 5) — Sprint 3.
+- US08 Horarios y calendario especial, admin (Could, 3) — Sprint 3.
+- Transversal: estructura del repo + Kanban GitHub Projects; script SQL del esquema; CI mínima en GitHub Actions (check de sintaxis PHP).
+- Docs as built (cuando haya código): corregir README — la ocupación actual NO usa la ley de Little (solo las franjas), la estructura debe coincidir con la real (`src/api`, `src/public`, `src/lib`, `database/`, `tests/`), URL `src/public/`, badge de estado, pasos de instalación y `php tests/run_tests.php`. Actualizar también modelo de datos, arquitectura y contrato de API.
+
+### Completed
+- [x] 2026-11-13 — `.readmeAI` rellenado y `.gitignore` creado.
+
+---
+
+## 🐛 KNOWN ISSUES
+
+| ID | Status | Description | Workaround | Root cause |
+|----|--------|-------------|-----------|------------|
+| K01 | `open` | README describe la ocupación actual con la ley de Little y subcarpetas `src/Ocupacion`, `src/Gamificacion`, `src/Database` que no se usarán | Seguir DOMAIN RULES y STRUCTURE MAP | README del Sprint 1 no actualizado |
+| K02 | `open` | El hook Stop (`.claude/readmeai-sync.sh`) reemplaza con `sed` **toda línea** que contenga la frase en inglés "Last" + "action" por el último commit | Usar esa frase solo en la fila de QUICK REFERENCE; en el resto, "Última acción" | El patrón del `sed` no está anclado a la fila de la tabla |
+
+---
+
+## ❌ ERROR PATTERNS
+
+> **Confirmed mistakes the AI has repeated across sessions. Read before writing code.**
+> **Format: symptom → root cause → correct approach. Append only.**
+
+| Symptom | Root cause | Correct approach |
+|---------|-----------|-----------------|
+| — | — | — |
+
+---
+
+## 🔐 SECURITY
+### Auth model
+- Method: sesión PHP (cookie de sesión). Todos los endpoints salvo `registro.php` y `login.php` exigen sesión → 401 si no hay.
+- Contraseñas: hash (función concreta sin decidir). Comunicación por HTTPS (NF03).
+
+### Authorization
+- Model: rol en `usuario.rol` (`student` / `admin`).
+- Permission check location: **en el servidor**, en cada endpoint de administración (`horarios.php`) → 403.
+
+### Sensitive data
+| Data | Location | Storage | Encryption |
+|------|----------|---------|-----------|
+| Contraseña | `usuario.password_hash` | MySQL | hash |
+| Coordenadas del móvil | petición a `checkin.php` | **no se guardan** | — |
+| Credenciales BD, token Mapbox | `config.php` | local, gitignored | — |
+
+### Forbidden (in addition to CODE QUALITY gate)
+- No raw SQL with user input (PDO + sentencias preparadas siempre)
+- No auth/role checks client-side only
+- No secrets in committed files: nada de contraseñas, claves ni token de Mapbox en el repo ni en `.readmeAI`
+- No verbose error messages to the client (log server-side, return generic)
+- No passwords stored without hash
+
+## 🔌 API CONTRACTS
+> As designed (Sprint 1). Actualizar as built en el Sprint 2. Códigos: 200, 201, 400, 401, 403, 404, 409.
+> Los archivos estarán en `src/api/`, así que la URL real será `/studyspot/src/api/…` y no `/api/…`. Registrarlo como divergencia as built.
+
+### Endpoints
+| Method | Path | Auth | Input | Output | US |
+|--------|------|------|-------|--------|----|
+| POST | `/api/registro.php` | no | email, password | 201 creada · 400 datos inválidos o correo no institucional · 409 correo ya registrado | US01 |
+| POST | `/api/login.php` | no | email, password | 200 sesión iniciada · 401 credenciales incorrectas | US01 |
+| POST | `/api/checkin.php` | sí | zona, token (del QR), latitud, longitud | 201 sesión iniciada con hora · 400 token inválido o sin ubicación · 403 fuera del radio 150 m · 409 ya hay sesión activa | US02 |
+| POST | `/api/checkout.php` | sí | — (usuario de sesión) | 200 sesión cerrada con duración y puntos · 404 sin sesión activa | US02/US04 |
+| GET | `/api/ocupacion.php` | sí | biblioteca (opcional) | 200 JSON por biblioteca: id, nombre, latitud, longitud, % ocupación, fiabilidad · 404 | US03 |
+| GET | `/api/biblioteca.php` | sí | id | 200 foto, nombre, dirección, horario de hoy, ocupación, fiabilidad · 404 | US03 |
+| GET | `/api/franjas.php` | sí | biblioteca, día | 200 ocupación media por hora · 400 día inválido · 404 | US05 |
+| GET | `/api/perfil.php` | sí | — | 200 puntos totales del estudiante | US04 |
+| GET | `/api/amigos.php` | sí | — | 200 amigos y, si comparten ubicación, biblioteca donde estudian | US06 |
+| POST | `/api/amigos.php` | sí | friend_email | 201 solicitud enviada · 400 a uno mismo · 404 usuario no existe · 409 ya existe | US06 |
+| GET | `/api/solicitudes.php` | sí | — | 200 solicitudes pendientes recibidas | US06 |
+| POST | `/api/solicitudes.php` | sí | request_id, action (accept/reject) | 200 actualizada · 404 | US06 |
+| POST | `/api/visibilidad.php` | sí | share (yes/no) | 200 nuevo estado · 400 valor inválido | US06 |
+| GET | `/api/ranking.php` | sí | — | 200 ranking semanal entre amigos y progreso del objetivo | US07 |
+| POST | `/api/horarios.php` | admin | library, hours o special_date | 200 guardado · 400 · 403 sin rol admin | US08 |
+
+### Core data models
+```
+usuario             id PK, nombre, email UNIQUE, password_hash, rol (student/admin),
+                    comparte_ubicacion (false por defecto), fecha_registro
+amistad             id PK, solicitante_id FK, destinatario_id FK,
+                    estado (pending/accepted/rejected), fecha_solicitud
+biblioteca          id PK, nombre, direccion, foto_url, latitud, longitud,
+                    capacidad_maxima, factor_adopcion          ← coords del edificio (radio 150 m)
+zona                id PK, biblioteca_id FK, nombre, token_qr  ← un QR impreso por zona
+sesion_estudio      id PK, usuario_id FK, zona_id FK, hora_inicio, hora_fin (null si activa),
+                    estado (active/finished/expired), puntos_otorgados   ← SIN coordenadas
+horario_biblioteca  id PK, biblioteca_id FK, dia_semana, hora_apertura, hora_cierre
+calendario_especial id PK, biblioteca_id FK, fecha_inicio, fecha_fin, descripcion,
+                    cerrado / horario especial
+```
+Cardinalidades: biblioteca 1..* zona, 0..* horario, 0..* calendario · zona 0..* sesiones · usuario 0..* sesiones · usuario N-N usuario vía `amistad`.
+Índices previstos: sesiones por zona y estado (NF02).
+
+### Configuración
+- `config.php` (gitignored) con credenciales de BD y token de Mapbox; `config.example.php` versionado con valores de ejemplo. Nombres de claves: _sin definir_.
+- Constantes de negocio (versionadas, un único archivo en `src/lib/`): `ALLOWED_EMAIL_DOMAINS`, `MINUTOS_POR_PUNTO` (15), `MAX_PUNTOS_SESION` (16), `UMBRAL_FIABILIDAD_MEDIA` (5), `UMBRAL_FIABILIDAD_ALTA` (15), radio de check-in (150 m), duración máxima de sesión (4 h). Nombres de las dos últimas: _a fijar al programar_.
+
+## 🧪 TESTING
+### Coverage
+| Layer | Tested? | Type | Location |
+|-------|---------|------|----------|
+| API / lógica | no (aún) | funcional (scripts PHP, sin PHPUnit) | `tests/`, ejecutar con `php tests/run_tests.php` |
+
+### Tests previstos (Sprint 1 · 7.1)
+- US01: registro válido, correo duplicado, login incorrecto, dominio no permitido, subdominio permitido (`alumnos.upm.es`), dominio parecido rechazado (`fakeunizar.es`).
+- US04 (puntos): 14 min → 0, 15 min → 1, 4 h → 16, sesión caducada → 16 como máximo.
+- US03 (fiabilidad): 4 → baja, 5 → media, 14 → media, 15 → alta.
+- US02: check-in dentro y fuera del radio, token inválido, check-out, caducidad.
+- US03: cálculo de ocupación con sesiones de ejemplo.
+- US04: sesión corta (sin puntos) y válida (con puntos).
+- US05: franjas con histórico de ejemplo.
+- US06: solo se muestran amigos aceptados con visibilidad activada.
+
+### Rules
+- Cada US implementada → al menos un test funcional; registrar resultado (ID T01…, descripción, pasos, esperado, obtenido: pasó/falló).
+- Los tests se ejecutan en directo en el Sprint Review.
+
+---
+
+## 🗒 AI NOTES
+
+> **Most valuable section. Append only. Newest first. Dated.**
+> **Severity tags: `[!]` breaks if ignored · `[~]` non-obvious gotcha · `[?]` unresolved question**
+
+`2026-11-13 [~] — El hook Stop de .claude/settings.json ejecuta readmeai-sync.sh, que reescribe la fila de última acción de QUICK REFERENCE con el último commit (y cualquier otra línea con esa frase en inglés: ver K02). Revisarla al empezar cada sesión.`
+`2026-11-13 [~] — Validar dominios con sufijo ".dominio" o igualdad exacta; un endsWith("unizar.es") a secas aceptaría "fakeunizar.es".`
+`2026-11-13 [~] — Open questions del setup resueltas (dominios, puntos, fiabilidad, tests, caducidad). La nota [?] de abajo ya no aplica salvo los nombres de claves de config.php.`
+`2026-11-13 [!] — El README todavía describe la ocupación actual con la ley de Little. Es incorrecto: manda DOMAIN RULES (recuento directo).`
+`2026-11-13 [~] — El PDF del Sprint 1 está en inglés, pero tablas, columnas y endpoints van en español. No traducir.`
+`2026-11-13 [~] — En el PDF hay wireframes 1A–9 (login, mapa, check-in, perfil, amigos, admin). El 5 ya no muestra puntos durante la sesión y el 6 no muestra estadísticas: ambos fuera de alcance.`
+`2026-11-13 [?] — Dominio institucional, fórmula de puntos y umbrales de fiabilidad no definidos en los documentos.`
+
+---
+
+<!--
+════════════════════════════════════════════════════════════════════════
+OPTIONAL SECTIONS (not used yet)
+════════════════════════════════════════════════════════════════════════
+
+## ⚡ PERFORMANCE
+### Targets
+| Operation | Target | Current |
+|-----------|--------|---------|
+| Mostrar ocupación (NF02) | < 3 s, datos < 60 s | — |
+
+### Rules
+- No N+1 queries. Use joins or eager loading. Check query count before shipping.
+- Paginate all list endpoints. No unbounded queries.
+- No blocking scripts in `<head>`. Use `defer` or `async`.
+
+## 📦 DEPENDENCIES
+### Critical (version-locked)
+| Package | Version | Why critical |
+|---------|---------|-------------|
+| — | — | — |
+
+## 🔧 ENVIRONMENT
+### Setup sequence
+```
+1. Clonar el repo dentro de htdocs de XAMPP como "studyspot".
+2. Arrancar Apache y MySQL en XAMPP.
+3. Crear la BD "studyspot" e importar database/schema.sql.
+4. Copiar config.example.php a config.php y rellenar credenciales y token de Mapbox.
+5. Abrir http://localhost/studyspot/src/public/
+6. Tests: php tests/run_tests.php
+```
+
+════════════════════════════════════════════════════════════════════════
+FIRST-TIME SETUP — completed 2026-11-13. Do not repeat.
+See github.com/Oscarr36/ReadMeAI for the original setup steps.
+════════════════════════════════════════════════════════════════════════
+Context powered by ReadMeAI v4.7 — https://github.com/Oscarr36/ReadMeAI
+════════════════════════════════════════════════════════════════════════
+-->
