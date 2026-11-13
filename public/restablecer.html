@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <!-- La URL lleva el token del correo: no se envía como Referer a ningún otro sitio -->
+  <meta name="referrer" content="no-referrer">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#121316" media="(prefers-color-scheme: dark)">
+  <title>Nueva contraseña · StudySpot</title>
+  <link rel="icon" href="img/studyspot-simbolo-color.png" type="image/png">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <script type="module" src="js/restablecer.js"></script>
+</head>
+<body class="page">
+  <!-- US09: elegir una contraseña nueva desde el enlace del correo -->
+  <main class="auth">
+    <header class="auth__header">
+      <img class="auth__logo" src="img/studyspot-simbolo-color.png" alt="" width="88" height="88">
+      <h1 class="auth__title auth__title--small">Crea una contraseña nueva</h1>
+      <p class="auth__subtitle">Después podrás iniciar sesión con ella.</p>
+    </header>
+
+    <div class="alert alert--error notice" id="enlace-invalido" role="alert" hidden>
+      <p id="enlace-invalido-texto">Este enlace no es válido. Pide uno nuevo.</p>
+      <a class="link" href="recuperar.html">Pedir un enlace nuevo</a>
+    </div>
+
+    <!-- Las longitudes coinciden con src/constantes.php (el servidor vuelve a validarlas) -->
+    <form class="form" id="form-restablecer" novalidate>
+      <input type="hidden" name="token">
+
+      <div class="field">
+        <label class="field__label" for="password">Contraseña nueva</label>
+        <input class="field__input" id="password" name="password" type="password"
+               autocomplete="new-password" minlength="8" maxlength="72" required
+               aria-describedby="password-ayuda password-error">
+        <p class="field__hint" id="password-ayuda">Mínimo 8 caracteres.</p>
+        <p class="field__error" id="password-error"></p>
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="password-repetida">Repite la contraseña</label>
+        <input class="field__input" id="password-repetida" name="password_repetida" type="password"
+               autocomplete="new-password" maxlength="72" required
+               aria-describedby="password-repetida-error">
+        <p class="field__error" id="password-repetida-error"></p>
+      </div>
+
+      <p class="alert alert--error" id="form-restablecer-alerta" role="alert" hidden></p>
+
+      <button class="button button--primary form__submit" type="submit">Guardar contraseña</button>
+    </form>
+  </main>
+
+  <footer class="page__footer">
+    <p><a class="link" href="index.html">Volver a iniciar sesión</a></p>
+  </footer>
+</body>
+</html>

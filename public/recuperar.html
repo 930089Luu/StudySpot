@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="Recupera el acceso a tu cuenta de StudySpot.">
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#121316" media="(prefers-color-scheme: dark)">
+  <title>Recuperar contraseña · StudySpot</title>
+  <link rel="icon" href="img/studyspot-simbolo-color.png" type="image/png">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <script type="module" src="js/recuperar.js"></script>
+</head>
+<body class="page">
+  <!-- US09: pedir el correo de recuperación de contraseña -->
+  <main class="auth auth--start">
+    <nav aria-label="Navegación">
+      <a class="back-link" href="index.html" aria-label="Volver a iniciar sesión">
+        <svg class="back-link__icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+          <path d="M12.5 4 6.5 10l6 6" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+    </nav>
+
+    <header class="auth__header auth__header--start">
+      <h1 class="auth__title auth__title--small">¿Has olvidado tu contraseña?</h1>
+      <p class="auth__subtitle">Escribe el correo de tu cuenta y te enviaremos un enlace para crear una nueva.</p>
+    </header>
+
+    <p class="alert alert--success" id="confirmacion-recuperar" role="status" tabindex="-1" hidden></p>
+
+    <form class="form" id="form-recuperar" novalidate>
+      <div class="field">
+        <label class="field__label" for="email">Correo institucional</label>
+        <input class="field__input" id="email" name="email" type="email"
+               autocomplete="email" inputmode="email" autocapitalize="none" spellcheck="false"
+               placeholder="nombre@unizar.es" maxlength="254" required
+               aria-describedby="email-error">
+        <p class="field__error" id="email-error"></p>
+      </div>
+
+      <p class="alert alert--error" id="form-recuperar-alerta" role="alert" hidden></p>
+
+      <button class="button button--primary form__submit" type="submit">Enviar enlace</button>
+    </form>
+  </main>
+
+  <footer class="page__footer">
+    <p>¿Ya la recuerdas? <a class="link" href="index.html">Iniciar sesión</a></p>
+  </footer>
+</body>
+</html>
