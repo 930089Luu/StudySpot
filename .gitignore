@@ -1,5 +1,5 @@
 # Configuración local con credenciales y token de Mapbox (solo se sube config.example.php)
-config.php
+/config.php
 
 # Script de instalación de ReadMeAI (no se sube)
 setup.ps1
