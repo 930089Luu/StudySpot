@@ -25,3 +25,6 @@ desktop.ini
 .vscode/
 .idea/
 *.swp
+
+# Correos guardados en local en modo "archivo" (pueden contener enlaces de recuperación)
+storage/
