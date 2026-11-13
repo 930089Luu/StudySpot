@@ -16,8 +16,8 @@
 | | |
 |--|--|
 | **Objective** | Sprint 2 de StudySpot: implementar y testear US01–US06. Hechas US01 (registro y login) y US09 (recuperar contraseña). Siguiente: US02. |
-| **Last action** | 2026-11-13 — add functional tests for registration, login and password recovery |
-| **Next step** | Preguntar identidad git → con OK: push + PR de `chore/readmeai` y `feature/registro` → empezar US02 (check-in QR) en rama nueva. |
+| **Last action** | 2026-11-13 — add shared config loader and ignore only the root config.php |
+| **Next step** | Preguntar identidad git → con OK: PR de `feature/registro` a `main` y merge → empezar US02 (check-in QR) en rama nueva. |
 | **Key files** | `.readmeAI`, `src/Usuarios/`, `src/Correo/correo.php`, `api/`, `public/`, `tests/run_tests.php`, `../docs/Sprint1_StudySpot_Plano_EN.pdf` |
 | **Blockers** | — |
 | model      | claude-opus-5-5    |
@@ -366,7 +366,7 @@ Sesión 2026-11-13 cerrada. US01 (registro y login) y US09 (recuperar contraseñ
 - `../docs/` y `../plantilla/` (documentos de referencia).
 
 ### Branch / workspace
-_Branch: `feature/registro` (creada desde `chore/readmeai`, commits locales, sin push) · Uncommitted: solo la fila que reescribe el hook post-commit · Open PR: —_
+_Branch: `feature/registro` (creada desde `chore/readmeai`, subida a GitHub el 2026-11-13) · Uncommitted: solo la fila que reescribe el hook post-commit · Open PR: — (pendiente PR a `main`)_
 
 ### Blockers
 - —
