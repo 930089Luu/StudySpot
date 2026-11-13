@@ -15,10 +15,10 @@
 
 | | |
 |--|--|
-| **Objective** | Sprint 2 de StudySpot: implementar y testear US01–US06. Primero US01 (registro y login). |
-| **Last action** | 2026-11-13 — Commit del contexto (.readmeAI, .gitignore, AGENTS.md, .claude/) en `chore/readmeai`. Sin push. |
-| **Next step** | Tras el commit/PR: rama `feature/registro` (con permiso), crear `src/lib/constantes.php`, `database/schema.sql` (tabla `usuario`), `src/api/registro.php`, `login.php` y `tests/run_tests.php`. |
-| **Key files** | `.readmeAI`, `README.md`, `.gitignore`, `../docs/Sprint1_StudySpot_Plano_EN.pdf`, `../plantilla/Modelo_Entregaveis_Sprint_2_Desenvolvimento (3).docx` |
+| **Objective** | Sprint 2 de StudySpot: implementar y testear US01–US06. Hechas US01 (registro y login) y US09 (recuperar contraseña). Siguiente: US02. |
+| **Last action** | 2026-11-13 — add functional tests for registration, login and password recovery |
+| **Next step** | Preguntar identidad git → con OK: push + PR de `chore/readmeai` y `feature/registro` → empezar US02 (check-in QR) en rama nueva. |
+| **Key files** | `.readmeAI`, `src/Usuarios/`, `src/Correo/correo.php`, `api/`, `public/`, `tests/run_tests.php`, `../docs/Sprint1_StudySpot_Plano_EN.pdf` |
 | **Blockers** | — |
 | model      | claude-opus-5-5    |
 
@@ -83,9 +83,9 @@
 | **Repository** | https://github.com/930089Luu/StudySpot |
 | **Team** | Lucía Claver Bolea · Miguel Salado Serrano (Scrum Master rotatorio) |
 | **Course** | Programming Lab [22356] · ISLA Gaia · 2026/2027 |
-| **Dev command** | Arrancar Apache y MySQL en XAMPP; abrir `http://localhost/studyspot/src/public/` |
+| **Dev command** | MySQL (XAMPP) + Apache con el repo en `htdocs/studyspot` → `http://localhost/studyspot/public/`; o sin Apache: `C:\xampp\php\php.exe -S 127.0.0.1:8765 -t .` → `http://127.0.0.1:8765/public/` |
 | **Build command** | — (no hay build) |
-| **Test command** | `php tests/run_tests.php` (una línea PASS/FAIL por prueba + resumen final; sin PHPUnit) |
+| **Test command** | `C:\xampp\php\php.exe tests/run_tests.php` (PASS/FAIL por prueba + resumen; necesita MySQL y `config.php`; sin PHPUnit) |
 | **Last updated** | 2026-11-13 |
 
 ### Sprint 2 — objetivos (resumen de la plantilla de entregables)
@@ -146,8 +146,8 @@
 | Dead symbol / API | Replaced by | Why |
 |-------------------|-------------|-----|
 | Ley de Little para la ocupación actual | Recuento directo de sesiones activas | Corrección del profesor en el Sprint 1 (el README aún lo menciona) |
-| Carpetas raíz `public/`, `api/`, `db/` | `src/public/`, `src/api/`, `database/` | Se sigue la estructura del README (decisión 2026-11-13) |
-| `src/Ocupacion/`, `src/Gamificacion/`, `src/Database/` del README | `src/lib/` (lógica compartida) | Decisión del equipo 2026-11-13; corregir README |
+| `src/public/`, `src/api/`, `src/lib/` (usados al principio de US01) | `public/`, `api/`, `src/{Database,Usuarios,…}/` del README | La estructura manda la del README del Sprint 1 (decisión 2026-11-13, 2ª sesión) |
+| Carpeta `db/` | `database/` | README |
 
 ---
 
@@ -168,15 +168,34 @@ codigo/  (raíz del repo)
 ├── README.md                   ← descripción del proyecto (desactualizado: ver Backlog)
 ├── docs/img/                   ← logo del README
 │
-├── src/
-│   ├── public/  (previsto)     ← interfaz: index.html, css/, js/, img/, Mapbox
-│   ├── api/     (previsto)     ← un archivo PHP por endpoint (registro.php, login.php, checkin.php…)
-│   └── lib/     (previsto)     ← lógica compartida: constantes, conexión PDO, haversine, ocupación, puntos
+├── public/                     ← interfaz (mobile-first) — estructura del README
+│   ├── index.html              ← login (wireframe 1A); página de entrada
+│   ├── registro.html           ← registro (wireframe 1B)
+│   ├── recuperar.html          ← pedir enlace de recuperación (US09)
+│   ├── restablecer.html        ← nueva contraseña desde el enlace del correo (US09)
+│   ├── inicio.html             ← provisional tras login (lo sustituye el mapa, US03)
+│   ├── css/                    ← tokens.css (variables) · base.css (reset) · components.css (BEM)
+│   ├── js/                     ← api.js (único fetch) · formulario.js · rutas.js · login.js · registro.js · recuperar.js · restablecer.js
+│   └── img/                    ← logos oficiales: studyspot-simbolo-color.png (icono) y studyspot-horizontal-color.png
+├── api/                        ← un PHP por endpoint: registro.php, login.php, recuperar.php, restablecer.php; _http.php = helpers (no es endpoint)
+├── src/                        ← lógica de aplicación por módulos (README)
+│   ├── constantes.php          ← constantes de negocio no secretas (única fuente)
+│   ├── config.php              ← leerConfig()/getConfig(): lee config.php de la raíz
+│   ├── Correo/                 ← correo.php (PHPMailer, smtp|archivo) · plantilla.php · plantillas/recuperar_password.{html,txt}  (US09)
+│   ├── Database/conexion.php   ← conexión PDO
+│   ├── Usuarios/               ← validacion.php · usuarios.php (SQL) · auth.php · sesion.php · recuperacion.php · recuperaciones.php (SQL)  (US01, US09; añadido al README)
+│   ├── Ocupacion/  (US03/US05) ← ocupación, fiabilidad, franjas
+│   └── Gamificacion/ (US04/US07) ← puntos, ranking, objetivo semanal
+├── lib/PHPMailer/              ← librería de terceros (PHPMailer 6.9.3, LGPL): PHPMailer.php, SMTP.php, Exception.php, LICENSE. No editar
+├── storage/     (ignorado)     ← correos guardados en modo 'archivo' (storage/correos/*.eml)
 ├── database/
-│   └── schema.sql (previsto)   ← script de creación de tablas
+│   └── schema.sql              ← BD studyspot + tablas usuario y recuperacion_password
 ├── tests/
-│   └── run_tests.php (previsto) ← ejecutor: PASS/FAIL por prueba + resumen
-├── config.example.php (previsto) ← plantilla de config sin secretos (versionada)
+│   ├── run_tests.php           ← ejecutor: PASS/FAIL por prueba + resumen; borra los usuarios de prueba
+│   ├── helpers.php             ← ejecutarTest, crearEmailPrueba, borrarUsuariosPrueba
+│   ├── us01_registro_login.php ← T01–T12
+│   └── us09_recuperar_password.php ← T13–T22 (enviador falso: no manda correos)
+├── config.example.php          ← plantilla de config sin secretos (versionada)
 └── config.php   (local, ignorado) ← credenciales BD + token Mapbox
 ```
 
@@ -187,9 +206,11 @@ Fuera del repo (solo lectura): `../docs/Sprint1_StudySpot_Plano_EN.pdf`, `../pla
 
 | Directory | Owns | Must NOT contain |
 |-----------|------|-----------------|
-| `src/public/` | HTML, CSS, JS de la interfaz | PHP con lógica, SQL, secretos |
-| `src/api/` | Un endpoint PHP por archivo: valida entrada, llama a `src/lib/`, devuelve JSON + código HTTP | HTML, SQL o cálculos duplicados de `src/lib/` |
-| `src/lib/` | Lógica compartida y constantes de negocio (`ALLOWED_EMAIL_DOMAINS`, puntos, fiabilidad, 150 m, 4 h) | Salida HTTP/HTML, secretos |
+| `public/` | HTML, CSS, JS de la interfaz | PHP con lógica, SQL, secretos |
+| `api/` | Un endpoint PHP por archivo: valida entrada, llama a `src/`, devuelve JSON + código HTTP | HTML, SQL o cálculos duplicados de `src/` |
+| `src/` | Lógica por módulos del README: `Database/` (conexión PDO), `Usuarios/` (registro, login, sesión, recuperación), `Correo/` (envío y plantillas), `Ocupacion/` (US03/US05), `Gamificacion/` (US04/US07); constantes de negocio en `src/constantes.php` | Salida HTTP/HTML, secretos |
+| `lib/` | Librerías de terceros copiadas tal cual (PHPMailer) | Código propio, cambios en la librería |
+| `storage/` | Archivos generados en local (correos .eml) — gitignored | Nada versionado |
 | `database/` | Scripts SQL | Datos personales reales, contraseñas |
 | `tests/` | Tests funcionales en PHP + `run_tests.php` | Credenciales reales, PHPUnit |
 | raíz | `config.example.php` | `config.php` en git (está en `.gitignore`) |
@@ -203,7 +224,26 @@ Fuera del repo (solo lectura): `../docs/Sprint1_StudySpot_Plano_EN.pdf`, `../pla
 
 | Symbol | File | Purpose |
 |--------|------|---------|
-| — | — | — _(sin código todavía)_ |
+| `ALLOWED_EMAIL_DOMAINS`, `PASSWORD_MIN_LENGTH`/`MAX` (8/72), `NOMBRE_MAX_LENGTH`, `EMAIL_MAX_LENGTH` | `src/constantes.php` | Constantes de negocio (única fuente) |
+| `getConexion` | `src/Database/conexion.php` | PDO único por petición (credenciales vía `getConfig`) |
+| `validarRegistro`, `validarEmailRegistro`, `isDominioInstitucional`, `normalizarEmail` | `src/Usuarios/validacion.php` | Validación pura (sin BD/HTTP); dominio exacto o subdominio |
+| `findUsuarioPorEmail`, `existeEmail`, `insertUsuario` | `src/Usuarios/usuarios.php` | Acceso a `usuario`; `insertUsuario` devuelve null si el email ya existe (UNIQUE) |
+| `registrarUsuario`, `autenticarUsuario`, `REGISTRO_*` | `src/Usuarios/auth.php` | Lógica de US01; login con hash ficticio para no revelar correos |
+| `abrirSesionUsuario`, `iniciarSesionPhp` | `src/Usuarios/sesion.php` | Sesión PHP con `session_regenerate_id`; guarda `usuario_id` y `rol` |
+| `responderJson`, `exigirMetodo`, `leerCuerpoJson`, `leerCampoTexto`, `ejecutarEndpoint`, `HTTP_*` | `api/_http.php` | Helpers de los endpoints; `ejecutarEndpoint` convierte excepciones en 500 genérico |
+| `registrarUsuario`, `iniciarSesion` (JS) | `public/js/api.js` | `fetch` a la API → `{ estado, cuerpo }` |
+| `enviarFormulario`, `validarFormulario`, `activarValidacionEnVivo`, `mostrarErroresServidor`, `mostrarAlerta` | `public/js/formulario.js` | Comportamiento común de formularios (reutilizar en todas las pantallas) |
+| `RUTA_LOGIN`, `RUTA_INICIO` | `public/js/rutas.js` | Rutas entre pantallas |
+| `ejecutarTest`, `crearEmailPrueba`, `borrarUsuariosPrueba`, `crearUsuarioPrueba`, `caducarRecuperaciones` | `tests/helpers.php` | Utilidades de test; correos de prueba con prefijo `test.studyspot.` |
+| `leerConfig`, `getConfig` | `src/config.php` | Lee `config.php`; `getConfig` falla con mensaje claro si falta una clave |
+| `validarPasswordNueva` | `src/Usuarios/validacion.php` | Contraseña + repetición; la usan registro y restablecimiento |
+| `updatePasswordHash` | `src/Usuarios/usuarios.php` | Cambia el hash de un usuario |
+| `solicitarRecuperacion`, `restablecerPassword`, `cambiarPasswordConToken`, `generarToken`, `hashToken`, `RESTABLECER_*` | `src/Usuarios/recuperacion.php` | Lógica de US09; el envío se inyecta como callable (tests sin correo) |
+| `insertRecuperacion`, `haySolicitudReciente`, `consumirRecuperacion`, `anularRecuperaciones` | `src/Usuarios/recuperaciones.php` | SQL de `recuperacion_password`; fechas con NOW() de MySQL |
+| `enviarCorreoRecuperacion`, `crearCorreo`, `enviarCorreo`, `guardarCorreoEnArchivo` | `src/Correo/correo.php` | PHPMailer; transporte `smtp` (Gmail) o `archivo` (.eml en storage/) |
+| `renderPlantillaHtml`, `renderPlantillaTexto` | `src/Correo/plantilla.php` | Variables `{{clave}}`; en HTML se escapan |
+| `activarComprobacionRepeticion`, `sincronizarRepeticion`, `mostrarErrorRespuesta` (JS) | `public/js/formulario.js` | Repetir contraseña y errores de la API, comunes a registro y restablecer |
+| `crearRutaLoginConAviso`, `PARAM_AVISO`, `AVISO_*` | `public/js/rutas.js` | El login muestra avisos (cuenta creada, contraseña cambiada) según `?aviso=` |
 
 ---
 
@@ -223,8 +263,8 @@ Fuera del repo (solo lectura): `../docs/Sprint1_StudySpot_Plano_EN.pdf`, `../pla
 _AI: adapt to actual language. Apply the same semantic rules with language-appropriate casing._
 
 ### Arquitectura
-- Tres capas: interfaz (`src/public/`, HTML/CSS/JS) → lógica (PHP, **un archivo por endpoint en `src/api/`**, lógica común en `src/lib/`) → datos (MySQL, scripts en `database/`).
-- Constantes de negocio en **un único archivo** versionado de `src/lib/` : **`src/lib/constantes.php`**, solo con constantes **no secretas** (dominios permitidos, minutos por punto, máximo de puntos, umbrales de fiabilidad…). Las credenciales de MySQL y el token de Mapbox van **solo** en `config.php` (gitignored).
+- Tres capas: interfaz (`public/`, HTML/CSS/JS) → lógica (PHP, **un archivo por endpoint en `api/`**, lógica en los módulos de `src/`) → datos (MySQL, scripts en `database/`).
+- Constantes de negocio en **un único archivo** versionado: **`src/constantes.php`**, solo con constantes **no secretas** (dominios permitidos, minutos por punto, máximo de puntos, umbrales de fiabilidad…). Las credenciales de MySQL y el token de Mapbox van **solo** en `config.php` (gitignored).
 - Monolito por capas cliente-servidor (ver DECISIONS LOG).
 
 ### Git
@@ -239,6 +279,23 @@ _AI: adapt to actual language. Apply the same semantic rules with language-appro
 ### Comments
 - Comentar la lógica no obvia: **haversine, expiración de sesiones, cálculo de ocupación** (y franjas con Little).
 - Only write comments for WHY — a hidden constraint, a workaround, a non-obvious invariant. Never leave TODOs in committed code (use Backlog below).
+
+### Diseño de la interfaz — obligatorio en TODAS las pantallas
+- **Mobile-first:** se diseña para móvil y se amplía con `min-width`. `<meta name="viewport" content="width=device-width, initial-scale=1">` en cada página. Zonas táctiles de **≥ 44 px**. Nada depende del ratón ni del hover (el hover solo como extra).
+- **Estructura:** wireframes del Sprint 1 (`../docs/Sprint1_StudySpot_Plano_EN.pdf`, págs. 10–11). Los textos de la interfaz van **en español**.
+- **Estilo inspirado en apple.com (solo inspiración):** minimalista, mucho espacio en blanco, jerarquía tipográfica clara, esquinas redondeadas, sombras muy suaves, paleta sobria con **un único color de acento: el azul de la marca** (`#3d3bf3` del logo; versión más clara `#8b8aff` en modo oscuro), texto en el azul marino del logotipo (`#16154a`). Usar siempre los logos oficiales de `public/img/`, nunca dibujar otros, animaciones sutiles (≤ 250 ms, desactivadas con `prefers-reduced-motion`) y modo claro/oscuro con `prefers-color-scheme`.
+- **No copiar nada de Apple:** ni logotipos, ni imágenes, ni textos, ni tipografías. Fuentes: `-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`.
+- Todos los colores, espacios, radios, sombras y tipografías salen de **variables CSS** en `public/css/tokens.css`. Ningún valor de color suelto fuera de ese archivo.
+- Accesibilidad: `label` visible asociado a cada campo, `autocomplete`, tipo de `input` correcto, `alt` en imágenes, contraste AA (≥ 4,5:1 en texto), foco visible (`:focus-visible`), errores bajo su campo con `aria-describedby` + `aria-invalid`.
+
+### Estándares de código — obligatorio
+- **Separación estricta:** HTML solo estructura, CSS solo estilo, JS solo comportamiento. **Nada de `style=""` ni `onclick=""`** ni `<style>`/`<script>` en línea en el HTML. **Única excepción:** las plantillas de correo de `src/Correo/plantillas/` (Gmail/Outlook ignoran CSS externo): estilos en línea y maqueta con tablas, colores copiados de `tokens.css`.
+- **HTML5 semántico** (`main`, `header`, `form`, `footer`…).
+- **CSS:** archivos separados en `public/css/` (`tokens.css` variables · `base.css` reset y elementos · `components.css` componentes). Nombres **BEM** (`bloque__elemento--modificador`). Sin estilos duplicados: se reutilizan los componentes existentes.
+- **JS:** módulos ES (`<script type="module">`), funciones pequeñas de una sola responsabilidad, **sin variables globales**. Validación en el cliente con la Constraint Validation API (las restricciones viven en los atributos HTML). Llamadas `fetch` **solo** en `public/js/api.js`.
+- **PHP por capas:** `api/*.php` solo leen la petición, llaman a `src/` y responden JSON + código HTTP (helpers HTTP en `api/_http.php`, que no es un endpoint). La lógica va en los módulos de `src/`; el acceso a datos con PDO y sentencias preparadas. **Validación siempre también en el servidor.** Nada de SQL mezclado con HTML.
+- Carpetas: `public/` (`*.html`, `css/`, `js/`, `img/`), `api/`, `src/` (`Database/`, `Usuarios/`, `Ocupacion/`, `Gamificacion/`, `constantes.php`), `database/`, `tests/`. Ningún archivo mezcla responsabilidades de distintas capas.
+- Nombres claros y consistentes, comentarios solo donde la lógica no es obvia, funciones ≤ ~30 líneas.
 
 ---
 
@@ -273,35 +330,49 @@ _AI: adapt to actual language. Apply the same semantic rules with language-appro
 > **A cold AI should be able to continue from this section alone.**
 
 ### Active objective
-Cerrar el setup del contexto (primer commit + PR) y arrancar US01 (registro y login).
+Sesión 2026-11-13 cerrada. US01 (registro y login) y US09 (recuperar contraseña por correo) terminadas, probadas y commiteadas en `feature/registro` (sin push). Siguiente: revisar, push + PR, y empezar US02.
 
 ### Context
-- Primer setup de `.readmeAI` hecho el 2026-11-13 a partir de README.md, el PDF del Sprint 1 y la plantilla Word del Sprint 2. FIRST-TIME SETUP completado: no repetir.
-- Open questions resueltas el 2026-11-13 (dominios, puntos, fiabilidad, tests, caducidad, archivos a subir): ver DOMAIN RULES y DECISIONS LOG.
-- Todavía no hay código. Estructura prevista: `src/public/ src/api/ src/lib/ database/ tests/`.
-- Identidad git local configurada para esta sesión: Lucía Claver Bolea (`930089Luu`). En cada sesión nueva hay que volver a preguntar.
-- Orden previsto: US01 → US02 (check-in QR) → US03 y US05 (mapa, ocupación, franjas) → US04 (puntos) → US06 (amigos). (El plan del Sprint 1 ponía US04 en las semanas 1–2; el equipo ha fijado este orden.)
-- Tareas US01 del Sprint 1: ajustar pantallas 1A/1B, tabla `usuario` (hash), `registro.php` y `login.php` (PDO, validación, sesión PHP), formularios en el frontend, tests (registro válido, correo duplicado, login incorrecto).
+- Primer setup de `.readmeAI` hecho el 2026-11-13 (README, PDF del Sprint 1, plantilla Sprint 2). FIRST-TIME SETUP completado: no repetir.
+- **Estructura = README del Sprint 1** (`public/`, `api/`, `src/<Módulo>/`, `database/`, `tests/`, `lib/` para terceros). Ver STRUCTURE MAP. Lo que en logs antiguos diga `src/public`, `src/api` o `src/lib` está obsoleto.
+- Reglas de diseño (inspiración apple.com, mobile-first, colores de marca `#3d3bf3` / `#16154a`, logos oficiales en `public/img/`) y estándares de código en CONVENTIONS → aplicarlas a todas las pantallas nuevas reutilizando `tokens.css`, `components.css`, `formulario.js` y `api.js`.
+- **Commits:** solo a nombre de la persona que trabaja (2026-11-13: Lucía Claver Bolea, `248369023+930089Luu@users.noreply.github.com`). **Nunca** añadir `Co-Authored-By`, menciones a Claude ni a IA en los mensajes. Mensajes en inglés, cortos y descriptivos, como el historial.
+- **En cada sesión nueva hay que preguntar quién es** (Lucía o Miguel) y reconfigurar `git config user.name/user.email` sin `--global`.
+- Correo: cuenta del proyecto `studyspotapp26@gmail.com` (verificación en 2 pasos + contraseña de aplicación). Datos SMTP solo en el `config.php` local de Lucía (`mail_transporte = 'smtp'`); Miguel debe pedírselos por un canal privado. Envío real probado: llega a unizar con retraso por Proofpoint (ver AI NOTES).
+- `config.php` local de Lucía tiene `app_url = http://127.0.0.1:8765` (servidor de pruebas de PHP). Con Apache en `htdocs/studyspot` cambiarlo a `http://localhost/studyspot`.
+- Cómo arrancar sin Apache: MySQL con el panel de XAMPP y, desde la raíz del repo, `C:\xampp\php\php.exe -S 127.0.0.1:8765 -t .` → abrir `http://127.0.0.1:8765/public/`. Tests: `C:\xampp\php\php.exe tests/run_tests.php` (22/22).
+- En la BD local de Lucía existe su cuenta real de unizar (creada por ella al probar). Los tests solo borran usuarios `test.studyspot.*`.
+- Hook `post-commit` (y hook Stop) reescriben la fila de última acción de QUICK REFERENCE: tras cada commit `.readmeAI` sale modificado (K02). Es normal.
+- Orden previsto: US02 (check-in QR) → US03 y US05 (mapa, ocupación, franjas) → US04 (puntos) → US06 (amigos).
 
 ### Última acción realizada
-Actualizado `.readmeAI` con las respuestas del equipo y `.gitignore` (añadidos `setup.ps1` y `.claude/.readmeai.active`). Configurada la identidad git local. Sin commit.
+2026-11-13, segunda sesión (Lucía):
+1. Reglas de diseño y estándares añadidos a CONVENTIONS; decisiones en el DECISIONS LOG.
+2. Rama `feature/registro` creada desde `chore/readmeai`.
+3. **US01 registro y login:** esquema `usuario`, `src/Usuarios/` (validación de dominio institucional, hash, sesión PHP), `api/registro.php` y `login.php`, pantallas 1A (`index.html`) y 1B (`registro.html`) + `inicio.html` provisional.
+4. Estructura corregida a la del README a petición de Lucía; logos oficiales y colores de marca aplicados ("Study" marino, "Spot" azul).
+5. **US09 recuperar contraseña (nueva):** tabla `recuperacion_password`, `src/Usuarios/recuperacion*.php`, `src/Correo/` con PHPMailer 6.9.3 (`lib/PHPMailer/`) y plantilla HTML con el logo, `api/recuperar.php` y `restablecer.php`, pantallas `recuperar.html` y `restablecer.html`.
+6. Verificado: 22/22 tests (T01–T22); endpoints con curl; navegador emulando móvil 390/320 px en claro y oscuro (sin desbordamiento, controles ≥ 44 px, contraste AA); flujo completo de recuperación con correo real de Gmail recibido en unizar.
+7. Commits en `feature/registro` a nombre de Lucía (esquema y config · backend de registro y login · pantallas · PHPMailer · recuperación por correo · tests · `.readmeAI`). **Sin push.**
 
 ### Next immediate step
-1. Esperar el OK de Lucía al commit propuesto en `chore/readmeai` (y luego push + PR, también con OK).
-2. Con permiso: rama `feature/registro` desde `main`; crear `src/lib/constantes.php`, `database/schema.sql` (tabla `usuario`), `src/api/registro.php`, `src/api/login.php`, formularios en `src/public/` y `tests/run_tests.php` con los tests de US01.
+1. Preguntar quién es (Lucía o Miguel) y configurar `git config` local.
+2. Con OK: integrar `chore/readmeai` en `main` (push + PR) y después push de `feature/registro` + PR a `main`.
+3. Registrar T01–T22 en la tabla de tests del entregable y añadir US09 al Product Backlog.
+4. Empezar US02 (check-in QR ≤ 150 m, check-out, caducidad 4 h) en una rama nueva `feature/checkin` desde `main` actualizado.
 
 ### Do NOT touch this session
 - `README.md` (se actualizará as built más adelante, con permiso).
 - `../docs/` y `../plantilla/` (documentos de referencia).
 
 ### Branch / workspace
-_Branch: `chore/readmeai` · Uncommitted: `.claude/`, `.readmeAI`, `AGENTS.md`, `setup.ps1`, `.gitignore` · Open PR: —_
+_Branch: `feature/registro` (creada desde `chore/readmeai`, commits locales, sin push) · Uncommitted: solo la fila que reescribe el hook post-commit · Open PR: —_
 
 ### Blockers
 - —
 
 ### Open questions
-- ¿Nombres de las claves de `config.php`? (se definirán al crear `config.example.php`).
+- —  (claves de `config.php` resueltas: ver DECISIONS LOG)
 
 ---
 
@@ -312,6 +383,20 @@ _Branch: `chore/readmeai` · Uncommitted: `.claude/`, `.readmeAI`, `AGENTS.md`, 
 
 | Date | Decision | Alternatives considered | Rationale |
 |------|---------|------------------------|-----------|
+| 2026-11-13 | Commits solo a nombre de quien trabaja; sin `Co-Authored-By` ni menciones a Claude/IA en los mensajes | Trailer de coautoría | Petición de Lucía; el historial debe reflejar al equipo |
+| 2026-11-13 | US09 nueva: recuperar contraseña por correo, hecha ya en el Sprint 2 (aprobado por Lucía) | Dejarla para el Sprint 3 | Petición del equipo; registrar en el Product Backlog |
+| 2026-11-13 | Correo con PHPMailer 6.9.3 copiado en `lib/PHPMailer/` (sin Composer); SMTP de Gmail con contraseña de aplicación en `config.php`; transporte `archivo` para desarrollo/demo | Composer; `mail()` de PHP | XAMPP no envía correo por sí solo; instalación sin herramientas extra |
+| 2026-11-13 | Token de recuperación: 256 bits, SHA-256 en BD, 60 min, un uso (UPDATE atómico), 1 correo/60 s por cuenta, respuesta idéntica exista o no la cuenta | password_hash del token; JWT | El token es aleatorio (no necesita bcrypt) y hay que buscarlo por igualdad |
+| 2026-11-13 | Plantillas de correo con estilos en línea y tablas: única excepción a la regla de separar CSS | CSS externo | Gmail/Outlook ignoran hojas de estilo externas |
+| 2026-11-13 | **Sustituye a las filas de estructura y de rutas `src/lib/…` de abajo:** se sigue la estructura del README del Sprint 1: `public/`, `api/`, `src/Database/`, `src/Ocupacion/`, `src/Gamificacion/`, más `src/Usuarios/` (registro y login, no previsto en el README), `src/constantes.php` y `tests/`. URL: `localhost/studyspot/public/` | `src/public`, `src/api`, `src/lib` | Lo pide el equipo: respetar el README y el PDF del Sprint 1 |
+| 2026-11-13 | Logos oficiales en `public/img/` (`studyspot-simbolo-color.png`, `studyspot-horizontal-color.png`); acento de la interfaz = azul de marca `#3d3bf3` (oscuro: `#8b8aff`), texto `#16154a` | Logo SVG propio y acento azul genérico | Identidad visual real de la app |
+| 2026-11-13 | **Estilo visual inspirado en apple.com** (minimalista, espacio en blanco, un solo acento, esquinas redondeadas, sombras suaves, claro/oscuro con `prefers-color-scheme`), mobile-first, fuentes del sistema; sin copiar logos, imágenes, textos ni tipografías de Apple. Aplica a todas las pantallas | Estilo propio libre, framework CSS | Petición del equipo; coherencia visual en todas las US |
+| 2026-11-13 | US01: el registro pide **nombre** (columna `usuario.nombre`) además de correo y contraseña; divergencia con wireframe 1B y contrato de API del Sprint 1 | Dejar `nombre` vacío | El modelo de datos lo exige y US06 necesita mostrar nombres |
+| 2026-11-13 | El cliente solo valida el formato del correo; **el dominio institucional solo lo valida el servidor** | Endpoint que exponga la lista | La lista `ALLOWED_EMAIL_DOMAINS` no debe repetirse en el código |
+| 2026-11-13 | Tras registrarse → login con aviso "cuenta creada"; tras login → página provisional `inicio.html` hasta US03 | Login automático tras registro | Criterio de aceptación de US01 ("después de registrarse puede iniciar sesión") |
+| 2026-11-13 | Contraseña 8–72 caracteres (constantes); `password_hash(PASSWORD_DEFAULT)`; repetir contraseña validado en cliente y servidor; `session_regenerate_id` al iniciar sesión | — | bcrypt ignora lo que pase de 72 bytes; evitar fijación de sesión |
+| 2026-11-13 | `config.php` devuelve un array (`return [...]`) con claves `db_host`, `db_name`, `db_user`, `db_pass`, `mapbox_token` | Constantes globales | Sin variables globales; fácil de leer desde `src/lib/conexion.php` |
+| 2026-11-13 | `feature/registro` creada desde `chore/readmeai` (no desde `main`) | Desde `main` | `chore/readmeai` aún no está integrada y contiene `.readmeAI` |
 | 2026-11-13 | Constantes no secretas en `src/lib/constantes.php` (versionado); credenciales MySQL y token Mapbox solo en `config.php` (gitignored) | Todo en `config.php` | Que las reglas de negocio se compartan por git sin exponer secretos |
 | 2026-11-13 | Se suben `.readmeAI`, `AGENTS.md`, `.claude/CLAUDE.md`, `.claude/settings.json`, `.claude/readmeai-sync.sh`; se ignoran `setup.ps1`, `.claude/settings.local.json` y `.claude/.readmeai.active` | Ignorar todo lo de IA | Contexto compartido por los dos miembros del equipo |
 | 2026-11-13 | Caducidad de 4 h aplicada al consultar (lazy): al leer sesión u ocupación se cierran las vencidas y se calculan sus puntos | Tarea programada (cron) | Sin infraestructura extra en XAMPP |
@@ -332,11 +417,15 @@ _Branch: `chore/readmeai` · Uncommitted: `.claude/`, `.readmeAI`, `AGENTS.md`, 
 ## ✅ PROGRESS
 
 ### In Progress
-- Setup del contexto del Sprint 2.
+- Integrar `chore/readmeai` y `feature/registro` en `main` (pendiente push + PR).
+- US01 Registro y login (Must, 3 pts): hecha, probada y commiteada; pendiente push + PR.
+- US09 Recuperar contraseña por correo (nueva): hecha, probada (modo 'archivo' y envío real por Gmail SMTP) y commiteada; pendiente push + PR.
 
 ### Backlog
 _Out-of-scope requests land here, not in the code._
-- US01 Registro con correo institucional (Must, 3 pts) — **siguiente**.
+- US09 (nueva, pedida y aprobada por Lucía el 2026-11-13): añadirla al Product Backlog y al registro de tests del entregable.
+- Limitar intentos de login (fuerza bruta) y endpoint de cierre de sesión — no pedidos en US01.
+- Proteger las páginas privadas (comprobar la sesión) cuando exista la primera pantalla real tras el login (US03).
 - US02 Check-in QR ≤ 150 m, check-out y caducidad 4 h (Must, 8).
 - US03 Mapa con ocupación % + fiabilidad (Must, 8).
 - US05 Franjas típicas por día y hora (Should, 5).
@@ -345,9 +434,10 @@ _Out-of-scope requests land here, not in the code._
 - US07 Ranking semanal y objetivo compartido (Could, 5) — Sprint 3.
 - US08 Horarios y calendario especial, admin (Could, 3) — Sprint 3.
 - Transversal: estructura del repo + Kanban GitHub Projects; script SQL del esquema; CI mínima en GitHub Actions (check de sintaxis PHP).
-- Docs as built (cuando haya código): corregir README — la ocupación actual NO usa la ley de Little (solo las franjas), la estructura debe coincidir con la real (`src/api`, `src/public`, `src/lib`, `database/`, `tests/`), URL `src/public/`, badge de estado, pasos de instalación y `php tests/run_tests.php`. Actualizar también modelo de datos, arquitectura y contrato de API.
+- Docs as built (cuando haya código): corregir README — la ocupación actual NO usa la ley de Little (solo las franjas), añadir a la estructura `src/Usuarios/`, `src/constantes.php` y `tests/`, badge de estado, pasos de instalación y `php tests/run_tests.php`. Actualizar también modelo de datos, arquitectura y contrato de API.
 
 ### Completed
+- [x] 2026-11-13 — Open questions resueltas y decisiones registradas; commit `893e302` en `chore/readmeai`.
 - [x] 2026-11-13 — `.readmeAI` rellenado y `.gitignore` creado.
 
 ---
@@ -356,7 +446,9 @@ _Out-of-scope requests land here, not in the code._
 
 | ID | Status | Description | Workaround | Root cause |
 |----|--------|-------------|-----------|------------|
-| K01 | `open` | README describe la ocupación actual con la ley de Little y subcarpetas `src/Ocupacion`, `src/Gamificacion`, `src/Database` que no se usarán | Seguir DOMAIN RULES y STRUCTURE MAP | README del Sprint 1 no actualizado |
+| K01 | `open` | README describe la ocupación actual con la ley de Little (la estructura del README sí se sigue; solo falta añadir `src/Usuarios/`, `src/constantes.php` y `tests/`) | Seguir DOMAIN RULES y STRUCTURE MAP | README del Sprint 1 no actualizado |
+| K04 | `open` | `recuperar.php` tarda más cuando la cuenta existe (envío SMTP), así que el tiempo de respuesta podría delatar qué correos están registrados | Aceptado para el alcance del curso | Apache con mod_php no permite responder antes de enviar; arreglo: cola de envío |
+| K03 | `open` | El PHP de XAMPP avisa "Unable to load dynamic library 'interbase'" en cada ejecución por CLI | Inofensivo; ignorar o comentar `extension=interbase` en `C:\xampp\php\php.ini` | php.ini de XAMPP activa una extensión que no está instalada |
 | K02 | `open` | El hook Stop (`.claude/readmeai-sync.sh`) reemplaza con `sed` **toda línea** que contenga la frase en inglés "Last" + "action" por el último commit | Usar esa frase solo en la fila de QUICK REFERENCE; en el resto, "Última acción" | El patrón del `sed` no está anclado a la fila de la tabla |
 
 ---
@@ -375,15 +467,22 @@ _Out-of-scope requests land here, not in the code._
 ## 🔐 SECURITY
 ### Auth model
 - Method: sesión PHP (cookie de sesión). Todos los endpoints salvo `registro.php` y `login.php` exigen sesión → 401 si no hay.
-- Contraseñas: hash (función concreta sin decidir). Comunicación por HTTPS (NF03).
+- Contraseñas: `password_hash(PASSWORD_DEFAULT)` / `password_verify`, 8–72 caracteres. Cookie de sesión `HttpOnly`, `SameSite=Lax`, `Secure` si hay HTTPS; `session_regenerate_id` al iniciar sesión. Comunicación por HTTPS (NF03).
 
 ### Authorization
 - Model: rol en `usuario.rol` (`student` / `admin`).
 - Permission check location: **en el servidor**, en cada endpoint de administración (`horarios.php`) → 403.
 
+### Recuperación de contraseña (US09)
+- Token aleatorio de 256 bits; en BD solo su SHA-256. Caduca a los 60 min, un solo uso (UPDATE condicional atómico), se anulan los anteriores al pedir uno nuevo y al cambiar la contraseña. Máx. 1 correo por cuenta cada 60 s.
+- `recuperar.php` responde lo mismo exista o no la cuenta; los fallos de envío solo van al log.
+- `restablecer.html` quita el token de la URL nada más cargar y usa `referrer: no-referrer`.
+
 ### Sensitive data
 | Data | Location | Storage | Encryption |
 |------|----------|---------|-----------|
+| Token de recuperación | `recuperacion_password.token_hash` | MySQL | SHA-256 |
+| Contraseña de aplicación de Gmail | `config.php` (`smtp_pass`) | local, gitignored | — |
 | Contraseña | `usuario.password_hash` | MySQL | hash |
 | Coordenadas del móvil | petición a `checkin.php` | **no se guardan** | — |
 | Credenciales BD, token Mapbox | `config.php` | local, gitignored | — |
@@ -397,13 +496,15 @@ _Out-of-scope requests land here, not in the code._
 
 ## 🔌 API CONTRACTS
 > As designed (Sprint 1). Actualizar as built en el Sprint 2. Códigos: 200, 201, 400, 401, 403, 404, 409.
-> Los archivos estarán en `src/api/`, así que la URL real será `/studyspot/src/api/…` y no `/api/…`. Registrarlo como divergencia as built.
+> Los endpoints están en `api/` (raíz del repo): la URL real es `/studyspot/api/…`, como en el diseño.
 
 ### Endpoints
 | Method | Path | Auth | Input | Output | US |
 |--------|------|------|-------|--------|----|
-| POST | `/api/registro.php` | no | email, password | 201 creada · 400 datos inválidos o correo no institucional · 409 correo ya registrado | US01 |
-| POST | `/api/login.php` | no | email, password | 200 sesión iniciada · 401 credenciales incorrectas | US01 |
+| POST | `/api/registro.php` | no | **as built:** JSON `nombre, email, password, password_repetida` | 201 `{mensaje}` · 400 `{errores:{campo:msg}}` · 409 `{errores:{email}}` · 405 · 500 genérico | US01 |
+| POST | `/api/login.php` | no | JSON `email, password` | 200 `{usuario:{nombre}}` + cookie de sesión · 400 faltan campos · 401 credenciales incorrectas · 405 | US01 |
+| POST | `/api/recuperar.php` | no | JSON `email` | 200 `{mensaje}` siempre (exista o no la cuenta) · 400 formato inválido | US09 |
+| POST | `/api/restablecer.php` | no | JSON `token, password, password_repetida` | 200 cambiada · 400 `{errores}` contraseña inválida · 400 `{error}` enlace inválido/caducado/usado | US09 |
 | POST | `/api/checkin.php` | sí | zona, token (del QR), latitud, longitud | 201 sesión iniciada con hora · 400 token inválido o sin ubicación · 403 fuera del radio 150 m · 409 ya hay sesión activa | US02 |
 | POST | `/api/checkout.php` | sí | — (usuario de sesión) | 200 sesión cerrada con duración y puntos · 404 sin sesión activa | US02/US04 |
 | GET | `/api/ocupacion.php` | sí | biblioteca (opcional) | 200 JSON por biblioteca: id, nombre, latitud, longitud, % ocupación, fiabilidad · 404 | US03 |
@@ -422,6 +523,8 @@ _Out-of-scope requests land here, not in the code._
 ```
 usuario             id PK, nombre, email UNIQUE, password_hash, rol (student/admin),
                     comparte_ubicacion (false por defecto), fecha_registro
+recuperacion_password id PK, usuario_id FK (cascade), token_hash UNIQUE (SHA-256),
+                    fecha_creacion, fecha_caducidad, usado      ← US09 (as built)
 amistad             id PK, solicitante_id FK, destinatario_id FK,
                     estado (pending/accepted/rejected), fecha_solicitud
 biblioteca          id PK, nombre, direccion, foto_url, latitud, longitud,
@@ -437,14 +540,14 @@ Cardinalidades: biblioteca 1..* zona, 0..* horario, 0..* calendario · zona 0..*
 Índices previstos: sesiones por zona y estado (NF02).
 
 ### Configuración
-- `config.php` (gitignored) con credenciales de BD y token de Mapbox; `config.example.php` versionado con valores de ejemplo. Nombres de claves: _sin definir_.
-- Constantes de negocio (versionadas, un único archivo en `src/lib/`): `ALLOWED_EMAIL_DOMAINS`, `MINUTOS_POR_PUNTO` (15), `MAX_PUNTOS_SESION` (16), `UMBRAL_FIABILIDAD_MEDIA` (5), `UMBRAL_FIABILIDAD_ALTA` (15), radio de check-in (150 m), duración máxima de sesión (4 h). Nombres de las dos últimas: _a fijar al programar_.
+- `config.php` (gitignored) devuelve un array; claves: `db_host, db_name, db_user, db_pass, mapbox_token, app_url, mail_transporte (smtp|archivo), mail_from, mail_from_name, smtp_host, smtp_port, smtp_user, smtp_pass`. `config.example.php` versionado con valores de ejemplo.
+- Constantes de negocio (versionadas, un único archivo: `src/constantes.php`): `ALLOWED_EMAIL_DOMAINS`, `MINUTOS_POR_PUNTO` (15), `MAX_PUNTOS_SESION` (16), `UMBRAL_FIABILIDAD_MEDIA` (5), `UMBRAL_FIABILIDAD_ALTA` (15), radio de check-in (150 m), duración máxima de sesión (4 h). Nombres de las dos últimas: _a fijar al programar_.
 
 ## 🧪 TESTING
 ### Coverage
 | Layer | Tested? | Type | Location |
 |-------|---------|------|----------|
-| API / lógica | no (aún) | funcional (scripts PHP, sin PHPUnit) | `tests/`, ejecutar con `php tests/run_tests.php` |
+| API / lógica | sí, US01 (T01–T12) y US09 (T13–T22): 22/22 PASS el 2026-11-13 | funcional (scripts PHP, sin PHPUnit) | `tests/`, ejecutar con `C:\xampp\php\php.exe tests/run_tests.php` |
 
 ### Tests previstos (Sprint 1 · 7.1)
 - US01: registro válido, correo duplicado, login incorrecto, dominio no permitido, subdominio permitido (`alumnos.upm.es`), dominio parecido rechazado (`fakeunizar.es`).
@@ -467,6 +570,13 @@ Cardinalidades: biblioteca 1..* zona, 0..* horario, 0..* calendario · zona 0..*
 > **Most valuable section. Append only. Newest first. Dated.**
 > **Severity tags: `[!]` breaks if ignored · `[~]` non-obvious gotcha · `[?]` unresolved question**
 
+`2026-11-13 [~] — unizar.es filtra el correo entrante con Proofpoint (MX *.pphosted.com): los correos de studyspotapp26@gmail.com tardaron ~15-30 min en llegar al correo de unizar de Lucía la primera vez (Gmail respondió 250 OK, sin devolución). No es un fallo de la app. Para la demo en directo usar mail_transporte='archivo' o enviar con antelación; no hacer muchos envíos seguidos.`
+`2026-11-13 [~] — Gmail SMTP exige verificación en 2 pasos y una "contraseña de aplicación" (16 letras); la contraseña normal de la cuenta NO funciona. Con mail_transporte='archivo' los correos quedan en storage/correos/*.eml (se abren con Outlook/Thunderbird).`
+`2026-11-13 [~] — Si un correo de recuperación no llega, mirar el log de PHP/Apache: recuperar.php oculta los fallos de envío al cliente a propósito. Ojo también con la espera de 60 s entre correos a la misma cuenta.`
+`2026-11-13 [!] — Estructura = README (public/, api/, src/<Módulo>/). Las notas y decisiones anteriores que citan src/public, src/api o src/lib están obsoletas. Servidor de pruebas: abrir /public/ (no /src/public/).`
+`2026-11-13 [~] — Para probar sin Apache: `C:\xampp\php\php.exe -S 127.0.0.1:8765 -t .` desde la raíz y abrir /src/public/. MySQL: C:\xampp\mysql\bin\mysqld.exe --defaults-file=C:\xampp\mysql\bin\my.ini (o el panel de XAMPP). php no está en el PATH.`
+`2026-11-13 [~] — Capturas de móvil: Chrome headless no baja de ~500 px de ventana con --window-size; usar emulación por DevTools (Emulation.setDeviceMetricsOverride) para ver 390/320 px reales.`
+`2026-11-13 [~] — Los name de los input coinciden con los campos de la API (password_repetida…): mostrarErroresServidor() los usa para colocar cada error bajo su campo. Mantener esa correspondencia.`
 `2026-11-13 [~] — El hook Stop de .claude/settings.json ejecuta readmeai-sync.sh, que reescribe la fila de última acción de QUICK REFERENCE con el último commit (y cualquier otra línea con esa frase en inglés: ver K02). Revisarla al empezar cada sesión.`
 `2026-11-13 [~] — Validar dominios con sufijo ".dominio" o igualdad exacta; un endsWith("unizar.es") a secas aceptaría "fakeunizar.es".`
 `2026-11-13 [~] — Open questions del setup resueltas (dominios, puntos, fiabilidad, tests, caducidad). La nota [?] de abajo ya no aplica salvo los nombres de claves de config.php.`
@@ -506,7 +616,7 @@ OPTIONAL SECTIONS (not used yet)
 2. Arrancar Apache y MySQL en XAMPP.
 3. Crear la BD "studyspot" e importar database/schema.sql.
 4. Copiar config.example.php a config.php y rellenar credenciales y token de Mapbox.
-5. Abrir http://localhost/studyspot/src/public/
+5. Abrir http://localhost/studyspot/public/
 6. Tests: php tests/run_tests.php
 ```
 
