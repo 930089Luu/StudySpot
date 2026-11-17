@@ -5,10 +5,14 @@
  */
 declare(strict_types=1);
 
+require_once __DIR__ . '/../src/Usuarios/sesion.php';
+
 const HTTP_OK = 200;
 const HTTP_CREATED = 201;
 const HTTP_BAD_REQUEST = 400;
 const HTTP_UNAUTHORIZED = 401;
+const HTTP_FORBIDDEN = 403;
+const HTTP_NOT_FOUND = 404;
 const HTTP_METHOD_NOT_ALLOWED = 405;
 const HTTP_CONFLICT = 409;
 const HTTP_INTERNAL_ERROR = 500;
@@ -41,6 +45,30 @@ function leerCampoTexto(array $datos, string $campo): string
 {
     $valor = $datos[$campo] ?? '';
     return is_string($valor) ? $valor : '';
+}
+
+/** Devuelve el campo como entero, o 0 si falta o no es un entero. */
+function leerCampoEntero(array $datos, string $campo): int
+{
+    $valor = filter_var($datos[$campo] ?? null, FILTER_VALIDATE_INT);
+    return $valor === false ? 0 : $valor;
+}
+
+/** Devuelve el campo como número decimal, o null si falta o no es un número. */
+function leerCampoDecimal(array $datos, string $campo): ?float
+{
+    $valor = filter_var($datos[$campo] ?? null, FILTER_VALIDATE_FLOAT);
+    return $valor === false ? null : $valor;
+}
+
+/** Devuelve el id del usuario con sesión iniciada; si no hay sesión responde 401. */
+function exigirSesion(): int
+{
+    $usuarioId = getUsuarioIdSesion();
+    if ($usuarioId === null) {
+        responderJson(HTTP_UNAUTHORIZED, ['error' => 'Inicia sesión para continuar.']);
+    }
+    return $usuarioId;
 }
 
 /**

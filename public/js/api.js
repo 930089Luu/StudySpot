@@ -21,6 +21,27 @@ export function restablecerPassword(datos) {
   return postJson('restablecer.php', datos);
 }
 
+export function getSesionActiva() {
+  return getJson('sesion.php');
+}
+
+export function hacerCheckin(datos) {
+  return postJson('checkin.php', datos);
+}
+
+export function hacerCheckout() {
+  return postJson('checkout.php', {});
+}
+
+async function getJson(endpoint) {
+  const respuesta = await fetch(`${API_BASE_URL}/${endpoint}`, {
+    headers: { Accept: 'application/json' },
+    credentials: 'same-origin',
+    cache: 'no-store',
+  });
+  return { estado: respuesta.status, cuerpo: await leerCuerpoJson(respuesta) };
+}
+
 async function postJson(endpoint, datos) {
   const respuesta = await fetch(`${API_BASE_URL}/${endpoint}`, {
     method: 'POST',

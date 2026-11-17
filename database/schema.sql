@@ -38,3 +38,51 @@ CREATE TABLE IF NOT EXISTS recuperacion_password (
     CONSTRAINT fk_recuperacion_usuario FOREIGN KEY (usuario_id)
         REFERENCES usuario (id) ON DELETE CASCADE
 ) ENGINE = InnoDB;
+
+-- US02: bibliotecas. Las coordenadas son las del edificio: el check-in solo vale a
+-- RADIO_CHECKIN_METROS de este punto (src/constantes.php).
+-- factor_adopcion (0–1] = fracción estimada de estudiantes que usan la app (US03).
+CREATE TABLE IF NOT EXISTS biblioteca (
+    id               INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    nombre           VARCHAR(150) NOT NULL,
+    direccion        VARCHAR(255) NOT NULL,
+    foto_url         VARCHAR(255) NULL,
+    latitud          DECIMAL(9, 6) NOT NULL,
+    longitud         DECIMAL(9, 6) NOT NULL,
+    capacidad_maxima INT UNSIGNED NOT NULL,
+    factor_adopcion  DECIMAL(4, 3) NOT NULL DEFAULT 1.000,
+    PRIMARY KEY (id)
+) ENGINE = InnoDB;
+
+-- US02: zonas de cada biblioteca. Cada zona tiene un QR impreso con su token_qr.
+CREATE TABLE IF NOT EXISTS zona (
+    id            INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    biblioteca_id INT UNSIGNED NOT NULL,
+    nombre        VARCHAR(100) NOT NULL,
+    token_qr      CHAR(32) NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY uq_zona_token (token_qr),
+    CONSTRAINT fk_zona_biblioteca FOREIGN KEY (biblioteca_id)
+        REFERENCES biblioteca (id) ON DELETE CASCADE
+) ENGINE = InnoDB;
+
+-- US02: sesiones de estudio. A propósito NO hay columnas de latitud ni longitud:
+-- las coordenadas del móvil solo se usan para validar el check-in (RGPD).
+-- hora_fin y puntos_otorgados son NULL mientras la sesión está activa.
+CREATE TABLE IF NOT EXISTS sesion_estudio (
+    id               INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    usuario_id       INT UNSIGNED NOT NULL,
+    zona_id          INT UNSIGNED NOT NULL,
+    hora_inicio      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    hora_fin         DATETIME NULL,
+    estado           ENUM('active', 'finished', 'expired') NOT NULL DEFAULT 'active',
+    puntos_otorgados TINYINT UNSIGNED NULL,
+    PRIMARY KEY (id),
+    KEY idx_sesion_usuario_estado (usuario_id, estado),
+    KEY idx_sesion_zona_estado (zona_id, estado),
+    KEY idx_sesion_estado_inicio (estado, hora_inicio),
+    CONSTRAINT fk_sesion_usuario FOREIGN KEY (usuario_id)
+        REFERENCES usuario (id) ON DELETE CASCADE,
+    CONSTRAINT fk_sesion_zona FOREIGN KEY (zona_id)
+        REFERENCES zona (id) ON DELETE CASCADE
+) ENGINE = InnoDB;

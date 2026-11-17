@@ -245,6 +245,203 @@
   text-decoration: underline;
 }
 
+/* ---------- button--secondary: acción secundaria con borde (p. ej. "Ahora no") ---------- */
+.button--secondary {
+  border: var(--border-width) solid var(--color-border);
+  background-color: transparent;
+  color: var(--color-text);
+}
+
+.button--secondary:active {
+  background-color: var(--color-field);
+  transform: scale(var(--press-scale));
+}
+
+/* ---------- state: pantalla con icono, título, texto y acciones (4B, 4C, check-in) ---------- */
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  text-align: center;
+}
+
+.state__title {
+  font-size: var(--font-size-title);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-title);
+}
+
+.state__text {
+  color: var(--color-text-muted);
+}
+
+.state__text--strong {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text);
+}
+
+.state__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: 100%;
+  margin-block-start: var(--space-4);
+}
+
+/* ---------- icon-badge: icono dentro de un círculo ---------- */
+.icon-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--badge-size);
+  height: var(--badge-size);
+  margin-block-end: var(--space-2);
+  border-radius: var(--radius-full);
+  background-color: var(--color-field);
+  color: var(--color-accent-text);
+}
+
+.icon-badge--small {
+  width: var(--tap-target);
+  height: var(--tap-target);
+  margin-block-end: 0;
+  border-radius: var(--radius-md);
+}
+
+.icon-badge--danger {
+  background-color: var(--color-danger-surface);
+  color: var(--color-danger);
+}
+
+.icon-badge--success {
+  background-color: var(--color-success-surface);
+  color: var(--color-success);
+}
+
+.icon-badge__icon {
+  width: var(--badge-icon-size);
+  height: var(--badge-icon-size);
+}
+
+.icon-badge--small .icon-badge__icon {
+  width: var(--icon-size);
+  height: var(--icon-size);
+}
+
+/* ---------- scanner: visor de la cámara para leer el QR (wireframe 4A) ---------- */
+.scanner {
+  position: relative;
+  width: var(--scanner-size);
+  max-width: 100%;
+  aspect-ratio: 1;
+  margin-block-end: var(--space-3);
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background-color: var(--color-scanner-bg);
+}
+
+.scanner__video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Recuadro donde colocar el QR; la sombra oscurece lo de fuera */
+.scanner__frame {
+  position: absolute;
+  inset: var(--scanner-frame-inset);
+  border: var(--scanner-frame-width) solid var(--color-scanner-frame);
+  border-radius: var(--radius-md);
+  box-shadow: 0 0 0 100vmax var(--color-scanner-dim);
+}
+
+.state__text:empty {
+  display: none;
+}
+
+/* ---------- session: sesión de estudio activa (wireframe 5) ---------- */
+.session {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.session__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.session__place {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.session__library {
+  font-weight: var(--font-weight-semibold);
+}
+
+.session__detail {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+/* ---------- status-pill: etiqueta de estado con punto ---------- */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  background-color: var(--color-success-surface);
+  color: var(--color-success);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+.status-pill::before {
+  content: "";
+  width: var(--space-2);
+  height: var(--space-2);
+  border-radius: var(--radius-full);
+  background-color: currentColor;
+}
+
+/* ---------- timer: cronómetro dentro de un anillo ---------- */
+.timer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: var(--timer-size);
+  max-width: 100%;
+  aspect-ratio: 1;
+  margin-inline: auto;
+  border: var(--timer-ring-width) solid var(--color-field);
+  border-radius: var(--radius-full);
+}
+
+.timer__label {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.timer__value {
+  font-size: var(--font-size-display);
+  font-weight: var(--font-weight-bold);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--letter-spacing-title);
+}
+
 /* El hover es solo un extra para dispositivos con puntero */
 @media (hover: hover) {
   .link:hover {
@@ -255,7 +452,8 @@
     background-color: var(--color-accent-pressed);
   }
 
-  .back-link:hover {
+  .back-link:hover,
+  .button--secondary:hover {
     background-color: var(--color-field);
   }
 }

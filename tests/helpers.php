@@ -54,6 +54,62 @@ function existeTokenEnClaro(PDO $pdo, string $token): bool
     return $consulta->fetchColumn() !== false;
 }
 
+// ---------- US02: biblioteca, zona y sesiones de prueba ----------
+
+const TEST_BIBLIOTECA_PREFIJO = 'TEST StudySpot ';
+const TEST_LATITUD = 41.6833;
+const TEST_LONGITUD = -0.8875;
+
+/** Crea un usuario de prueba y devuelve su id. */
+function crearUsuarioPruebaConId(PDO $pdo): int
+{
+    return (int) findUsuarioPorEmail($pdo, crearUsuarioPrueba($pdo))['id'];
+}
+
+/** Crea una biblioteca y una zona de prueba. Devuelve id, token y coordenadas de la zona. */
+function crearZonaPrueba(PDO $pdo): array
+{
+    $biblioteca = $pdo->prepare(
+        'INSERT INTO biblioteca (nombre, direccion, latitud, longitud, capacidad_maxima)
+         VALUES (:nombre, :direccion, :latitud, :longitud, 100)'
+    );
+    $biblioteca->execute([
+        'nombre'    => TEST_BIBLIOTECA_PREFIJO . bin2hex(random_bytes(4)),
+        'direccion' => 'Dirección de prueba',
+        'latitud'   => TEST_LATITUD,
+        'longitud'  => TEST_LONGITUD,
+    ]);
+    $token = bin2hex(random_bytes(16));
+    $zona = $pdo->prepare('INSERT INTO zona (biblioteca_id, nombre, token_qr) VALUES (:biblioteca_id, :nombre, :token)');
+    $zona->execute(['biblioteca_id' => $pdo->lastInsertId(), 'nombre' => 'Zona de prueba', 'token' => $token]);
+    return ['id' => (int) $pdo->lastInsertId(), 'token' => $token, 'latitud' => TEST_LATITUD, 'longitud' => TEST_LONGITUD];
+}
+
+/** Borra las bibliotecas de prueba (sus zonas y sesiones se borran en cascada). */
+function borrarBibliotecasPrueba(PDO $pdo): void
+{
+    $consulta = $pdo->prepare('DELETE FROM biblioteca WHERE nombre LIKE :prefijo');
+    $consulta->execute(['prefijo' => TEST_BIBLIOTECA_PREFIJO . '%']);
+}
+
+/** Simula que la sesión activa del usuario empezó hace $minutos. */
+function retrasarSesionActiva(PDO $pdo, int $usuarioId, int $minutos): void
+{
+    $consulta = $pdo->prepare(
+        "UPDATE sesion_estudio SET hora_inicio = NOW() - INTERVAL :minutos MINUTE
+         WHERE usuario_id = :usuario_id AND estado = 'active'"
+    );
+    $consulta->execute(['minutos' => $minutos, 'usuario_id' => $usuarioId]);
+}
+
+/** Fila completa (todas las columnas) de la última sesión del usuario, o [] si no tiene. */
+function findUltimaSesion(PDO $pdo, int $usuarioId): array
+{
+    $consulta = $pdo->prepare('SELECT * FROM sesion_estudio WHERE usuario_id = :usuario_id ORDER BY id DESC LIMIT 1');
+    $consulta->execute(['usuario_id' => $usuarioId]);
+    return $consulta->fetch() ?: [];
+}
+
 /**
  * Ejecuta un test y devuelve true si pasa. Imprime una línea PASS/FAIL.
  * Una excepción dentro del test cuenta como FAIL y se muestra su mensaje.
