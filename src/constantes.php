@@ -25,3 +25,15 @@ const RECUPERACION_TOKEN_BYTES = 32;
 
 // Código SQLSTATE de violación de restricción (p. ej. email UNIQUE repetido).
 const SQLSTATE_INTEGRITY_VIOLATION = '23000';
+
+// Check-in y sesiones de estudio (US02)
+// El check-in solo vale a esta distancia (en metros) de las coordenadas de la biblioteca.
+const RADIO_CHECKIN_METROS = 150;
+// Una sesión activa caduca sola pasado este tiempo (4 h).
+const DURACION_MAX_SESION_MINUTOS = 240;
+// Radio medio de la Tierra para la fórmula de haversine.
+const RADIO_TIERRA_METROS = 6371000;
+
+// Puntos (US04): 1 punto por cada 15 minutos completos, como máximo 16 (= 4 h).
+const MINUTOS_POR_PUNTO = 15;
+const MAX_PUNTOS_SESION = 16;
