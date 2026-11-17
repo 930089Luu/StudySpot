@@ -31,3 +31,11 @@ function abrirSesionUsuario(array $usuario): void
     $_SESSION['usuario_id'] = (int) $usuario['id'];
     $_SESSION['rol'] = $usuario['rol'];
 }
+
+/** Id del usuario con sesión iniciada, o null si no ha iniciado sesión. */
+function getUsuarioIdSesion(): ?int
+{
+    iniciarSesionPhp();
+    $id = $_SESSION['usuario_id'] ?? null;
+    return is_int($id) ? $id : null;
+}
