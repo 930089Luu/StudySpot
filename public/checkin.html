@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#121316" media="(prefers-color-scheme: dark)">
+  <title>Check-in · StudySpot</title>
+  <link rel="icon" href="img/studyspot-simbolo-color.png" type="image/png">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <!-- jsQR (UMD) antes que el módulo: los dos son diferidos y se ejecutan en este orden -->
+  <script src="js/vendor/jsQR.js" defer></script>
+  <script type="module" src="js/checkin.js"></script>
+</head>
+<body class="page">
+  <!--
+    Wireframes 4A (escanear), 4B (permiso), 4C (fallo) y 5 (sesión activa).
+    El QR se puede leer aquí con la cámara o abrir con la cámara del móvil (?zona=…&token=…).
+    Solo se muestra un <section> a la vez (checkin.js).
+  -->
+  <main class="auth auth--start">
+    <nav aria-label="Navegación">
+      <a class="back-link" href="inicio.html" aria-label="Volver al inicio">
+        <svg class="back-link__icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+          <path d="M12.5 4 6.5 10l6 6" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+    </nav>
+
+    <section class="state" id="estado-cargando" aria-busy="true">
+      <p class="state__text" role="status">Cargando…</p>
+    </section>
+
+    <!-- Wireframe 4A: visor de la cámara; escaner.js lee el QR con jsQR -->
+    <section class="state" id="estado-escanear" aria-labelledby="titulo-escanear" hidden>
+      <div class="scanner" id="escaner-visor">
+        <video class="scanner__video" id="escaner-video" muted playsinline
+               aria-label="Imagen de la cámara para leer el QR"></video>
+        <span class="scanner__frame" aria-hidden="true"></span>
+      </div>
+      <h1 class="state__title" id="titulo-escanear">Escanea el QR de tu zona</h1>
+      <p class="state__text">Lo encontrarás en la entrada de la biblioteca.</p>
+      <p class="state__text state__text--strong" id="escaner-aviso" role="status"></p>
+      <div class="state__actions" id="escaner-acciones" hidden>
+        <button class="button button--primary" id="boton-camara" type="button">Activar cámara</button>
+      </div>
+    </section>
+
+    <section class="state" id="estado-permiso" aria-labelledby="titulo-permiso" hidden>
+      <span class="icon-badge" aria-hidden="true">
+        <svg class="icon-badge__icon" viewBox="0 0 24 24" focusable="false">
+          <path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z" fill="none"
+                stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+          <circle cx="12" cy="10" r="2.4" fill="none" stroke="currentColor" stroke-width="1.8"/>
+        </svg>
+      </span>
+      <h1 class="state__title" id="titulo-permiso">Permitir ubicación</h1>
+      <p class="state__text">
+        StudySpot usa tu ubicación solo para comprobar que estás en la biblioteca. No la guardamos.
+      </p>
+      <div class="state__actions">
+        <button class="button button--primary" id="boton-permitir" type="button">Permitir</button>
+        <button class="button button--secondary" id="boton-ahora-no" type="button">Ahora no</button>
+      </div>
+    </section>
+
+    <section class="state" id="estado-error" aria-labelledby="titulo-error" hidden>
+      <span class="icon-badge icon-badge--danger" aria-hidden="true">
+        <svg class="icon-badge__icon" viewBox="0 0 24 24" focusable="false">
+          <path d="M12 4 2.8 20h18.4zM12 10v4.5M12 17.2v.1" fill="none" stroke="currentColor"
+                stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <h1 class="state__title" id="titulo-error">No se ha podido hacer el check-in</h1>
+      <p class="state__text state__text--strong" id="error-mensaje" role="alert"></p>
+      <p class="state__text" id="error-detalle" hidden></p>
+      <div class="state__actions">
+        <button class="button button--primary" id="boton-reintentar" type="button">Intentar de nuevo</button>
+        <a class="button button--secondary" href="inicio.html">Volver al inicio</a>
+      </div>
+    </section>
+
+    <section class="session" id="estado-activa" aria-labelledby="titulo-sesion" hidden>
+      <header class="session__header">
+        <h1 class="state__title" id="titulo-sesion">Sesión de estudio</h1>
+        <span class="status-pill">Check-in hecho</span>
+      </header>
+
+      <div class="session__place">
+        <span class="icon-badge icon-badge--small" aria-hidden="true">
+          <svg class="icon-badge__icon" viewBox="0 0 24 24" focusable="false">
+            <path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z" fill="none"
+                  stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+            <circle cx="12" cy="10" r="2.4" fill="none" stroke="currentColor" stroke-width="1.8"/>
+          </svg>
+        </span>
+        <div>
+          <p class="session__library" id="sesion-biblioteca"></p>
+          <p class="session__detail" id="sesion-detalle"></p>
+        </div>
+      </div>
+
+      <div class="timer">
+        <p class="timer__label">Tiempo de estudio</p>
+        <p class="timer__value" id="sesion-tiempo">00:00:00</p>
+      </div>
+
+      <p class="alert alert--error" id="alerta-checkout" role="alert" hidden></p>
+      <button class="button button--primary" id="boton-checkout" type="button">Check-out</button>
+    </section>
+
+    <section class="state" id="estado-terminada" aria-labelledby="titulo-terminada" hidden>
+      <span class="icon-badge icon-badge--success" aria-hidden="true">
+        <svg class="icon-badge__icon" viewBox="0 0 24 24" focusable="false">
+          <path d="m5 12.5 4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <h1 class="state__title" id="titulo-terminada">Sesión terminada</h1>
+      <p class="state__text state__text--strong" id="resumen-sesion" role="status"></p>
+      <div class="state__actions">
+        <a class="button button--primary" href="inicio.html">Volver al inicio</a>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

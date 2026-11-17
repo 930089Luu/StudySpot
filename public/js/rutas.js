@@ -13,3 +13,26 @@ export const AVISO_PASSWORD_CAMBIADA = 'password-cambiada';
 export function crearRutaLoginConAviso(aviso) {
   return `${RUTA_LOGIN}?${PARAM_AVISO}=${encodeURIComponent(aviso)}`;
 }
+
+// El QR de cada zona lleva el enlace checkin.html?zona=<id>&token=<token_qr> (US02).
+export const PARAM_ZONA = 'zona';
+export const PARAM_TOKEN = 'token';
+
+/**
+ * Saca la zona y el token de un enlace de QR. Devuelve { zona, token } o null si el enlace
+ * no tiene ese formato. Que el token sea el correcto lo comprueba solo el servidor.
+ */
+export function leerZonaDeUrl(url) {
+  const zona = Number(url.searchParams.get(PARAM_ZONA));
+  const token = url.searchParams.get(PARAM_TOKEN) ?? '';
+  return Number.isInteger(zona) && zona > 0 && token !== '' ? { zona, token } : null;
+}
+
+/** Como leerZonaDeUrl, pero a partir del texto leído en un QR (puede no ser un enlace). */
+export function leerZonaDeTexto(texto) {
+  try {
+    return leerZonaDeUrl(new URL(texto));
+  } catch {
+    return null;
+  }
+}
