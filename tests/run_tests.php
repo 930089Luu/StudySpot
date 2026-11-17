@@ -12,6 +12,7 @@ require_once __DIR__ . '/../src/Database/conexion.php';
 const ARCHIVOS_DE_TESTS = [
     'us01_registro_login.php',
     'us09_recuperar_password.php',
+    'us02_checkin.php',
 ];
 
 function ejecutarArchivo(PDO $pdo, string $archivo): array
@@ -34,6 +35,7 @@ function main(): int
         }
     } finally {
         borrarUsuariosPrueba($pdo);
+        borrarBibliotecasPrueba($pdo);
     }
 
     $aprobados = count(array_filter($resultados));
