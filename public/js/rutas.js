@@ -9,6 +9,7 @@ export const RUTA_INICIO = 'inicio.html';
 export const PARAM_AVISO = 'aviso';
 export const AVISO_CUENTA_CREADA = 'cuenta-creada';
 export const AVISO_PASSWORD_CAMBIADA = 'password-cambiada';
+export const AVISO_SESION_CERRADA = 'sesion-cerrada';
 
 export function crearRutaLoginConAviso(aviso) {
   return `${RUTA_LOGIN}?${PARAM_AVISO}=${encodeURIComponent(aviso)}`;

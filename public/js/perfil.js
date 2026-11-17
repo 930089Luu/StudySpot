@@ -2,9 +2,9 @@
  * Pantalla de perfil con los puntos totales (wireframe 6) (US04).
  * Los puntos los calcula el servidor (suma de los de cada sesión); aquí solo se muestran.
  */
-import { getPerfil } from './api.js';
+import { cerrarSesion, getPerfil } from './api.js';
 import { MENSAJE_ERROR_GENERICO, mostrarAlerta } from './formulario.js';
-import { RUTA_LOGIN } from './rutas.js';
+import { AVISO_SESION_CERRADA, RUTA_LOGIN, crearRutaLoginConAviso } from './rutas.js';
 
 const HTTP_OK = 200;
 const HTTP_UNAUTHORIZED = 401;
@@ -13,6 +13,7 @@ const MENSAJE_SIN_CONEXION = 'No se ha podido conectar. Revisa tu conexión e in
 const formatoPuntos = new Intl.NumberFormat('es-ES');
 
 async function init() {
+  document.getElementById('boton-cerrar-sesion').addEventListener('click', handleCerrarSesion);
   try {
     const respuesta = await getPerfil();
     if (respuesta.estado === HTTP_UNAUTHORIZED) {
@@ -42,6 +43,26 @@ function mostrarPerfil({ nombre, email, puntos_totales: puntos }) {
 function mostrarError(mensaje) {
   document.getElementById('perfil-cargando').hidden = true;
   mostrarAlerta(document.getElementById('perfil-alerta'), mensaje);
+}
+
+/** Cierra la sesión en el servidor y vuelve al login con el aviso "Has cerrado sesión". */
+async function handleCerrarSesion(evento) {
+  const boton = evento.currentTarget;
+  const alerta = document.getElementById('cerrar-sesion-alerta');
+  boton.disabled = true;
+  mostrarAlerta(alerta, '');
+  try {
+    const respuesta = await cerrarSesion();
+    if (respuesta.estado === HTTP_OK) {
+      window.location.assign(crearRutaLoginConAviso(AVISO_SESION_CERRADA));
+      return;
+    }
+    mostrarAlerta(alerta, respuesta.cuerpo.error ?? MENSAJE_ERROR_GENERICO);
+  } catch (error) {
+    console.error(error);
+    mostrarAlerta(alerta, MENSAJE_SIN_CONEXION);
+  }
+  boton.disabled = false;
 }
 
 /** "Lucía Claver Bolea" → "LC". */

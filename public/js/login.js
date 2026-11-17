@@ -9,12 +9,19 @@ import {
   getAlertaFormulario,
   mostrarAlerta,
 } from './formulario.js';
-import { AVISO_CUENTA_CREADA, AVISO_PASSWORD_CAMBIADA, PARAM_AVISO, RUTA_INICIO } from './rutas.js';
+import {
+  AVISO_CUENTA_CREADA,
+  AVISO_PASSWORD_CAMBIADA,
+  AVISO_SESION_CERRADA,
+  PARAM_AVISO,
+  RUTA_INICIO,
+} from './rutas.js';
 
 const HTTP_OK = 200;
 const MENSAJES_AVISO = {
   [AVISO_CUENTA_CREADA]: 'Cuenta creada. Ya puedes iniciar sesión.',
   [AVISO_PASSWORD_CAMBIADA]: 'Contraseña cambiada. Ya puedes iniciar sesión con la nueva.',
+  [AVISO_SESION_CERRADA]: 'Has cerrado sesión.',
 };
 
 function init() {
