@@ -15,10 +15,10 @@
 
 | | |
 |--|--|
-| **Objective** | Sprint 2 de StudySpot: implementar y testear US01–US06. Hechas US01 (registro y login) y US09 (recuperar contraseña). Siguiente: US02. |
-| **Last action** | 2026-11-13 — add shared config loader and ignore only the root config.php |
-| **Next step** | Preguntar identidad git → con OK: PR de `feature/registro` a `main` y merge → empezar US02 (check-in QR) en rama nueva. |
-| **Key files** | `.readmeAI`, `src/Usuarios/`, `src/Correo/correo.php`, `api/`, `public/`, `tests/run_tests.php`, `../docs/Sprint1_StudySpot_Plano_EN.pdf` |
+| **Objective** | Sprint 2 de StudySpot: implementar y testear US01–US06. Hechas US01, US09 y US02 (check-in QR, check-out, caducidad). Siguiente: US03/US05. |
+| **Last action** | 2026-11-17 — add functional tests for check-in, check-out, expiry and privacy |
+| **Next step** | Con OK de Lucía: push de `feature/checkin` + PR → HTTPS para la demo (cámara y ubicación en el móvil) → US03 y US05. |
+| **Key files** | `.readmeAI`, `src/Sesiones/estudio.php`, `src/Usuarios/`, `api/`, `public/checkin.html`, `tests/run_tests.php`, `../docs/Sprint1_StudySpot_Plano_EN.pdf` |
 | **Blockers** | — |
 | model      | claude-opus-5-5    |
 
@@ -55,6 +55,7 @@
 - **Navigate via SYMBOL INDEX.** Don't scan the filesystem if a symbol is listed here.
 - **Quality gate is mandatory.** Run CODE QUALITY checklist before every output. No exceptions.
 - **Scope guard.** Out-of-scope request → log in Backlog, flag to user, don't implement without approval.
+- **No añadir User Stories nuevas** (ni al backlog ni al código) sin preguntar antes a Lucía. La única añadida en el Sprint 2 es US09.
 - **Append-only logs.** DECISIONS LOG and AI NOTES are never edited, only appended. Newest first.
 - **No silent drift.** If this file and the code disagree, fix this file immediately. Don't let them diverge.
 
@@ -167,34 +168,40 @@ codigo/  (raíz del repo)
 ├── setup.ps1    (ignorado)     ← script de instalación de ReadMeAI, no se sube
 ├── README.md                   ← descripción del proyecto (desactualizado: ver Backlog)
 ├── docs/img/                   ← logo del README
+├── docs/qr/                    ← QR en PNG de cada zona (zona-1-isla-gaia, zona-2-kadora-campus-street) con su enlace
 │
 ├── public/                     ← interfaz (mobile-first) — estructura del README
 │   ├── index.html              ← login (wireframe 1A); página de entrada
 │   ├── registro.html           ← registro (wireframe 1B)
 │   ├── recuperar.html          ← pedir enlace de recuperación (US09)
 │   ├── restablecer.html        ← nueva contraseña desde el enlace del correo (US09)
-│   ├── inicio.html             ← provisional tras login (lo sustituye el mapa, US03)
+│   ├── inicio.html             ← provisional tras login (lo sustituye el mapa, US03); botón a checkin.html
+│   ├── checkin.html            ← escáner QR, check-in, sesión activa y check-out (wireframes 4A, 4B, 4C, 5) (US02)
 │   ├── css/                    ← tokens.css (variables) · base.css (reset) · components.css (BEM)
-│   ├── js/                     ← api.js (único fetch) · formulario.js · rutas.js · login.js · registro.js · recuperar.js · restablecer.js
+│   ├── js/                     ← api.js (único fetch) · formulario.js · rutas.js · login.js · registro.js · recuperar.js · restablecer.js · checkin.js · escaner.js (cámara + jsQR)
+│   │   └── vendor/             ← jsQR.js 1.4.0 (UMD, sin modificar) + jsQR-LICENSE.txt (Apache-2.0). No editar
 │   └── img/                    ← logos oficiales: studyspot-simbolo-color.png (icono) y studyspot-horizontal-color.png
-├── api/                        ← un PHP por endpoint: registro.php, login.php, recuperar.php, restablecer.php; _http.php = helpers (no es endpoint)
+├── api/                        ← un PHP por endpoint: registro.php, login.php, recuperar.php, restablecer.php, checkin.php, checkout.php, sesion.php (US02); _http.php = helpers (no es endpoint)
 ├── src/                        ← lógica de aplicación por módulos (README)
 │   ├── constantes.php          ← constantes de negocio no secretas (única fuente)
 │   ├── config.php              ← leerConfig()/getConfig(): lee config.php de la raíz
 │   ├── Correo/                 ← correo.php (PHPMailer, smtp|archivo) · plantilla.php · plantillas/recuperar_password.{html,txt}  (US09)
 │   ├── Database/conexion.php   ← conexión PDO
 │   ├── Usuarios/               ← validacion.php · usuarios.php (SQL) · auth.php · sesion.php · recuperacion.php · recuperaciones.php (SQL)  (US01, US09; añadido al README)
+│   ├── Sesiones/   (US02)      ← estudio.php (check-in/out, caducidad) · distancia.php (haversine) · sesiones.php y zonas.php (SQL)  (divergencia: no estaba en el README)
 │   ├── Ocupacion/  (US03/US05) ← ocupación, fiabilidad, franjas
-│   └── Gamificacion/ (US04/US07) ← puntos, ranking, objetivo semanal
+│   └── Gamificacion/ (US04/US07) ← puntos.php (calcularPuntos, US02/US04); ranking, objetivo semanal
 ├── lib/PHPMailer/              ← librería de terceros (PHPMailer 6.9.3, LGPL): PHPMailer.php, SMTP.php, Exception.php, LICENSE. No editar
 ├── storage/     (ignorado)     ← correos guardados en modo 'archivo' (storage/correos/*.eml)
 ├── database/
-│   └── schema.sql              ← BD studyspot + tablas usuario y recuperacion_password
+│   ├── schema.sql              ← BD studyspot + tablas usuario, recuperacion_password, biblioteca, zona, sesion_estudio
+│   └── datos_ejemplo.sql       ← Biblioteca ISLA Gaia (zona 1) y Kadora Campus Street, Porto (zona 2), con su token_qr; coordenadas de OpenStreetMap
 ├── tests/
 │   ├── run_tests.php           ← ejecutor: PASS/FAIL por prueba + resumen; borra los usuarios de prueba
 │   ├── helpers.php             ← ejecutarTest, crearEmailPrueba, borrarUsuariosPrueba
 │   ├── us01_registro_login.php ← T01–T12
-│   └── us09_recuperar_password.php ← T13–T22 (enviador falso: no manda correos)
+│   ├── us09_recuperar_password.php ← T13–T22 (enviador falso: no manda correos)
+│   └── us02_checkin.php        ← T23–T38 (biblioteca de prueba propia; incluye T29 privacidad y puntos)
 ├── config.example.php          ← plantilla de config sin secretos (versionada)
 └── config.php   (local, ignorado) ← credenciales BD + token Mapbox
 ```
@@ -208,8 +215,9 @@ Fuera del repo (solo lectura): `../docs/Sprint1_StudySpot_Plano_EN.pdf`, `../pla
 |-----------|------|-----------------|
 | `public/` | HTML, CSS, JS de la interfaz | PHP con lógica, SQL, secretos |
 | `api/` | Un endpoint PHP por archivo: valida entrada, llama a `src/`, devuelve JSON + código HTTP | HTML, SQL o cálculos duplicados de `src/` |
-| `src/` | Lógica por módulos del README: `Database/` (conexión PDO), `Usuarios/` (registro, login, sesión, recuperación), `Correo/` (envío y plantillas), `Ocupacion/` (US03/US05), `Gamificacion/` (US04/US07); constantes de negocio en `src/constantes.php` | Salida HTTP/HTML, secretos |
+| `src/` | Lógica por módulos del README: `Database/` (conexión PDO), `Usuarios/` (registro, login, sesión, recuperación), `Correo/` (envío y plantillas), `Sesiones/` (US02), `Ocupacion/` (US03/US05), `Gamificacion/` (US04/US07); constantes de negocio en `src/constantes.php` | Salida HTTP/HTML, secretos |
 | `lib/` | Librerías de terceros copiadas tal cual (PHPMailer) | Código propio, cambios en la librería |
+| `public/js/vendor/` | Librerías JS de terceros copiadas tal cual (jsQR) con su licencia | Código propio, cambios en la librería |
 | `storage/` | Archivos generados en local (correos .eml) — gitignored | Nada versionado |
 | `database/` | Scripts SQL | Datos personales reales, contraseñas |
 | `tests/` | Tests funcionales en PHP + `run_tests.php` | Credenciales reales, PHPUnit |
@@ -244,6 +252,21 @@ Fuera del repo (solo lectura): `../docs/Sprint1_StudySpot_Plano_EN.pdf`, `../pla
 | `renderPlantillaHtml`, `renderPlantillaTexto` | `src/Correo/plantilla.php` | Variables `{{clave}}`; en HTML se escapan |
 | `activarComprobacionRepeticion`, `sincronizarRepeticion`, `mostrarErrorRespuesta` (JS) | `public/js/formulario.js` | Repetir contraseña y errores de la API, comunes a registro y restablecer |
 | `crearRutaLoginConAviso`, `PARAM_AVISO`, `AVISO_*` | `public/js/rutas.js` | El login muestra avisos (cuenta creada, contraseña cambiada) según `?aviso=` |
+| `RADIO_CHECKIN_METROS` (150), `DURACION_MAX_SESION_MINUTOS` (240), `RADIO_TIERRA_METROS`, `MINUTOS_POR_PUNTO` (15), `MAX_PUNTOS_SESION` (16) | `src/constantes.php` | Constantes de US02/US04 |
+| `hacerCheckin`, `hacerCheckout`, `getSesionActiva`, `cerrarSesionesCaducadas`, `ejecutarEnTransaccion`, `findZonaValida`, `formatearSesionActiva`, `CHECKIN_*`, `CHECKOUT_*` | `src/Sesiones/estudio.php` | Lógica de US02; caducidad al consultar; transacción + bloqueo de la fila del usuario |
+| `calcularDistanciaMetros`, `isDentroDelRadio`, `isCoordenadaValida` | `src/Sesiones/distancia.php` | Haversine (funciones puras) |
+| `bloquearUsuario`, `findSesionActiva`, `insertSesion`, `updateSesionTerminada`, `updateSesionesCaducadas` | `src/Sesiones/sesiones.php` | SQL de `sesion_estudio`; horas con NOW() de MySQL |
+| `findZonaConBiblioteca` | `src/Sesiones/zonas.php` | Zona + coordenadas de su biblioteca |
+| `calcularPuntos` | `src/Gamificacion/puntos.php` | floor(min/15), máx. 16; única fórmula de puntos |
+| `exigirSesion`, `leerCampoEntero`, `leerCampoDecimal`, `HTTP_FORBIDDEN`, `HTTP_NOT_FOUND` | `api/_http.php` | 401 si no hay sesión; lectura de números del JSON |
+| `getUsuarioIdSesion`, `isPeticionHttps` | `src/Usuarios/sesion.php` | Id del usuario logueado o null; `isPeticionHttps` decide la cookie `Secure` |
+| `iniciarEscaner`, `isCamaraDisponible` | `public/js/escaner.js` | Cámara → canvas → `globalThis.jsQR`; devuelve la función que apaga la cámara |
+| `PARAM_ZONA`, `PARAM_TOKEN`, `leerZonaDeUrl`, `leerZonaDeTexto` | `public/js/rutas.js` | Zona y token del enlace del QR (lo usan el enlace directo y el escáner) |
+| `getSesionActiva`, `hacerCheckin`, `hacerCheckout` (JS) | `public/js/api.js` | Llamadas de US02 (`getJson` para GET) |
+| `isSesionIniciada`, `isSesionSinPuntos`, `hacerCheckoutTras`, `isCaducadaConPuntos`, `guardaCoordenadas` | `tests/us02_checkin.php` | Comprobaciones de T23–T38 (`guardaCoordenadas` = T29 privacidad) |
+| `contarRecuperaciones`, `existeTokenEnClaro` | `tests/helpers.php` | Comprobaciones de US09 |
+| `ejecutarArchivo`, `ARCHIVOS_DE_TESTS` | `tests/run_tests.php` | Lista y ejecuta los archivos de tests |
+| `crearZonaPrueba`, `borrarBibliotecasPrueba`, `retrasarSesionActiva`, `findUltimaSesion`, `crearUsuarioPruebaConId` | `tests/helpers.php` | Utilidades de test de US02; bibliotecas de prueba con prefijo `TEST StudySpot ` |
 
 ---
 
@@ -330,43 +353,44 @@ _AI: adapt to actual language. Apply the same semantic rules with language-appro
 > **A cold AI should be able to continue from this section alone.**
 
 ### Active objective
-Sesión 2026-11-13 cerrada. US01 (registro y login) y US09 (recuperar contraseña por correo) terminadas, probadas y commiteadas en `feature/registro` (sin push). Siguiente: revisar, push + PR, y empezar US02.
+Sesión 2026-11-17 (Lucía). US02 (check-in por QR, check-out y caducidad de 4 h) implementada y probada en `feature/checkin` (creada desde `feature/registro`). Commiteada en 8 commits (`52a5a11`…, todos a nombre de Lucía). **Sin push.**
 
 ### Context
-- Primer setup de `.readmeAI` hecho el 2026-11-13 (README, PDF del Sprint 1, plantilla Sprint 2). FIRST-TIME SETUP completado: no repetir.
-- **Estructura = README del Sprint 1** (`public/`, `api/`, `src/<Módulo>/`, `database/`, `tests/`, `lib/` para terceros). Ver STRUCTURE MAP. Lo que en logs antiguos diga `src/public`, `src/api` o `src/lib` está obsoleto.
-- Reglas de diseño (inspiración apple.com, mobile-first, colores de marca `#3d3bf3` / `#16154a`, logos oficiales en `public/img/`) y estándares de código en CONVENTIONS → aplicarlas a todas las pantallas nuevas reutilizando `tokens.css`, `components.css`, `formulario.js` y `api.js`.
-- **Commits:** solo a nombre de la persona que trabaja (2026-11-13: Lucía Claver Bolea, `248369023+930089Luu@users.noreply.github.com`). **Nunca** añadir `Co-Authored-By`, menciones a Claude ni a IA en los mensajes. Mensajes en inglés, cortos y descriptivos, como el historial.
-- **En cada sesión nueva hay que preguntar quién es** (Lucía o Miguel) y reconfigurar `git config user.name/user.email` sin `--global`.
-- Correo: cuenta del proyecto `studyspotapp26@gmail.com` (verificación en 2 pasos + contraseña de aplicación). Datos SMTP solo en el `config.php` local de Lucía (`mail_transporte = 'smtp'`); Miguel debe pedírselos por un canal privado. Envío real probado: llega a unizar con retraso por Proofpoint (ver AI NOTES).
-- `config.php` local de Lucía tiene `app_url = http://127.0.0.1:8765` (servidor de pruebas de PHP). Con Apache en `htdocs/studyspot` cambiarlo a `http://localhost/studyspot`.
-- Cómo arrancar sin Apache: MySQL con el panel de XAMPP y, desde la raíz del repo, `C:\xampp\php\php.exe -S 127.0.0.1:8765 -t .` → abrir `http://127.0.0.1:8765/public/`. Tests: `C:\xampp\php\php.exe tests/run_tests.php` (22/22).
-- En la BD local de Lucía existe su cuenta real de unizar (creada por ella al probar). Los tests solo borran usuarios `test.studyspot.*`.
-- Hook `post-commit` (y hook Stop) reescriben la fila de última acción de QUICK REFERENCE: tras cada commit `.readmeAI` sale modificado (K02). Es normal.
-- Orden previsto: US02 (check-in QR) → US03 y US05 (mapa, ocupación, franjas) → US04 (puntos) → US06 (amigos).
+- Primer setup de `.readmeAI` hecho el 2026-11-13. FIRST-TIME SETUP completado: no repetir.
+- **Estructura = README del Sprint 1** + divergencias apuntadas (`src/Usuarios/`, `src/Sesiones/`, `api/sesion.php`). Ver STRUCTURE MAP y DECISIONS LOG.
+- Reglas de diseño y estándares en CONVENTIONS → reutilizar `tokens.css`, `components.css` (ahora también `state`, `icon-badge`, `session`, `status-pill`, `timer`, `button--secondary`), `formulario.js` y `api.js`.
+- **Commits:** solo a nombre de la persona que trabaja (Lucía Claver Bolea, `248369023+930089Luu@users.noreply.github.com`). **Nunca** `Co-Authored-By` ni menciones a Claude/IA (tampoco en PRs). Mensajes en inglés, cortos. Enseñar archivos antes de cada commit y esperar OK.
+- **En cada sesión nueva hay que preguntar quién es** (Lucía o Miguel) y comprobar `git config user.name/user.email` (sin `--global`).
+- `gh` tiene sesión iniciada como `930089Luu` (2026-11-17). PR #1 `feature/registro` → `main` abierto, **sin merge** (lo decide Lucía).
+- Correo: ver AI NOTES (Gmail SMTP, Proofpoint de unizar).
+- Arrancar sin Apache: MySQL (panel de XAMPP) y `C:\xampp\php\php.exe -S 127.0.0.1:8765 -t .` → `http://127.0.0.1:8765/public/`. Tests: `C:\xampp\php\php.exe tests/run_tests.php` (38/38).
+- BD: tras `schema.sql`, importar `database/datos_ejemplo.sql` (bibliotecas y zonas). URL del QR de una zona: `<app_url>/public/checkin.html?zona=<id>&token=<token_qr>`.
+- **Geolocalización solo en HTTPS o `localhost`/`127.0.0.1`.** Desde el móvil por `http://192.168.x.x` no funciona → resolver HTTPS antes de la demo (Lucía: "más adelante").
+- Hook `post-commit` (y hook Stop) reescriben la fila de última acción de QUICK REFERENCE (K02). Es normal.
+- Orden previsto: US03 y US05 (mapa, ocupación, franjas) → US04 (perfil con puntos totales) → US06 (amigos).
 
 ### Última acción realizada
-2026-11-13, segunda sesión (Lucía):
-1. Reglas de diseño y estándares añadidos a CONVENTIONS; decisiones en el DECISIONS LOG.
-2. Rama `feature/registro` creada desde `chore/readmeai`.
-3. **US01 registro y login:** esquema `usuario`, `src/Usuarios/` (validación de dominio institucional, hash, sesión PHP), `api/registro.php` y `login.php`, pantallas 1A (`index.html`) y 1B (`registro.html`) + `inicio.html` provisional.
-4. Estructura corregida a la del README a petición de Lucía; logos oficiales y colores de marca aplicados ("Study" marino, "Spot" azul).
-5. **US09 recuperar contraseña (nueva):** tabla `recuperacion_password`, `src/Usuarios/recuperacion*.php`, `src/Correo/` con PHPMailer 6.9.3 (`lib/PHPMailer/`) y plantilla HTML con el logo, `api/recuperar.php` y `restablecer.php`, pantallas `recuperar.html` y `restablecer.html`.
-6. Verificado: 22/22 tests (T01–T22); endpoints con curl; navegador emulando móvil 390/320 px en claro y oscuro (sin desbordamiento, controles ≥ 44 px, contraste AA); flujo completo de recuperación con correo real de Gmail recibido en unizar.
-7. Commits en `feature/registro` a nombre de Lucía (esquema y config · backend de registro y login · pantallas · PHPMailer · recuperación por correo · tests · `.readmeAI`). **Sin push.**
+2026-11-17 (Lucía):
+1. US09 marcada como "añadida en el Sprint 2"; regla: no añadir US nuevas sin preguntar.
+2. Comprobado que no hay credenciales en archivos versionados ni en el historial.
+3. `gh auth login` y PR #1 (`feature/registro` → `main`) abierto, sin merge.
+4. Rama `feature/checkin` desde `feature/registro`. Bibliotecas de ejemplo: ISLA Gaia y Kadora Campus Street (commit 1 corregido con --amend, sin push).
+5. US02: tablas `biblioteca`, `zona`, `sesion_estudio` + `datos_ejemplo.sql`; `src/Sesiones/`; `src/Gamificacion/puntos.php`; `api/checkin.php`, `checkout.php`, `sesion.php`; `public/checkin.html` + `checkin.js`; tests T23–T38.
+6. Escáner QR dentro de la web (wireframe 4A) con jsQR 1.4.0 en `public/js/vendor/` (hash del paquete npm comprobado); QR de las dos zonas en `docs/qr/` (generados con el paquete npm `qrcode` y comprobados con jsQR).
+7. Verificado: 38/38 tests; endpoints con curl (401/201/400/403/409/200/404/405); Chrome headless emulando móvil 390/320 px claro/oscuro con geolocalización simulada (lejos, cerca, recarga, check-out, permiso denegado, "Ahora no", token malo, sin login → login). Sin desbordamiento; controles ≥ 44 px. Escáner con cámara falsa de Chrome: QR válido → permiso → check-in en ISLA Gaia; QR ajeno → aviso; cámara denegada → aviso + "Activar cámara".
 
 ### Next immediate step
-1. Preguntar quién es (Lucía o Miguel) y configurar `git config` local.
-2. Con OK: integrar `chore/readmeai` en `main` (push + PR) y después push de `feature/registro` + PR a `main`.
-3. Registrar T01–T22 en la tabla de tests del entregable y añadir US09 al Product Backlog.
-4. Empezar US02 (check-in QR ≤ 150 m, check-out, caducidad 4 h) en una rama nueva `feature/checkin` desde `main` actualizado.
+1. Con OK de Lucía: push de `feature/checkin` y PR (base: `feature/registro` mientras el PR #1 no esté integrado, o `main` después).
+2. Registrar T01–T38 en la tabla de tests del entregable.
+3. HTTPS para la demo (cámara y geolocalización en el móvil); después, regenerar los QR de `docs/qr/` con la URL HTTPS. Probar el check-in de verdad en ISLA Gaia y en Kadora Campus Street (si la entrada de OSM queda a > 150 m de la sala, ajustar coordenadas).
+4. US03 y US05 en rama nueva.
 
 ### Do NOT touch this session
 - `README.md` (se actualizará as built más adelante, con permiso).
 - `../docs/` y `../plantilla/` (documentos de referencia).
 
 ### Branch / workspace
-_Branch: `feature/registro` (creada desde `chore/readmeai`, subida a GitHub el 2026-11-13) · Uncommitted: solo la fila que reescribe el hook post-commit · Open PR: — (pendiente PR a `main`)_
+_Branch: `feature/checkin` (desde `feature/registro`, solo local) · Uncommitted: solo la fila que reescribe el hook post-commit · Open PR: #1 `feature/registro` → `main` (sin merge)_
 
 ### Blockers
 - —
@@ -383,6 +407,17 @@ _Branch: `feature/registro` (creada desde `chore/readmeai`, subida a GitHub el 2
 
 | Date | Decision | Alternatives considered | Rationale |
 |------|---------|------------------------|-----------|
+| 2026-11-17 | **Sustituye a la fila "Divergencia con wireframe 4A":** sí hay escáner dentro de la web (4A). jsQR 1.4.0 copiado en `public/js/vendor/` con su licencia; el QR sigue llevando el enlace `checkin.html?zona=&token=`, así vale para el escáner y para la cámara del móvil | Solo cámara del móvil; BarcodeDetector (no existe en Safari ni en Chrome de escritorio) | Petición de Lucía: desde la web no se podía escanear. jsQR funciona en todos los navegadores y sin internet |
+| 2026-11-17 | jsQR solo convierte la imagen en texto; el token y la distancia los sigue validando el servidor. Un 400 del check-in (QR inválido) borra el QR y "Intentar de nuevo" vuelve al escáner; un 409 muestra la sesión activa | — | El cliente no es de fiar |
+| 2026-11-17 | QR de las zonas como PNG en `docs/qr/` con la URL de `app_url` (de momento `http://127.0.0.1:8765`) | Generarlos en la web | Los tokens ya están en `datos_ejemplo.sql`; hay que regenerarlos cuando haya URL HTTPS |
+| 2026-11-17 | **Divergencia as built:** la lógica de US02 va en un módulo nuevo `src/Sesiones/` (no previsto en el README del Sprint 1) | `src/Ocupacion/` | Decisión de Lucía: separar las sesiones del cálculo de ocupación |
+| 2026-11-17 | **Divergencia justificada del contrato:** nuevo `GET api/sesion.php` → 200 `{sesion: {zona, biblioteca, hora_inicio, segundos}}` o `{sesion: null}` · 401. Sin puntos | No añadirlo | Sin él, al recargar la pantalla no se sabe si hay sesión activa. `segundos` lo calcula el servidor para el cronómetro (evita líos de zona horaria) |
+| 2026-11-17 | **Divergencia con wireframe 4A:** no hay visor de cámara en la app; el QR codifica `checkin.html?zona=<id>&token=<token_qr>` y se escanea con la cámara del móvil | Lector QR en la web (librería JS) | Sin librerías; mismos pasos (NF01 ≤ 3 toques); el visor también exigiría HTTPS |
+| 2026-11-17 | Dos sesiones activas imposibles: check-in/out en transacción con `SELECT … FOR UPDATE` sobre la fila del usuario | Columna generada + UNIQUE | Fácil de explicar; cubre dos peticiones simultáneas |
+| 2026-11-17 | El check-out ya calcula y guarda `puntos_otorgados` (contrato de `checkout.php`); fórmula única en `src/Gamificacion/puntos.php`. US04 queda en mostrar el total en el perfil | Dejar los puntos para US04 | El contrato del Sprint 1 pide duración y puntos en el check-out |
+| 2026-11-17 | Sesión caducada: `hora_fin = hora_inicio + 4 h`, `estado = expired`, 16 puntos; caducidad global antes de cada lectura/escritura de sesiones | Hora de fin = ahora | Solo cuentan 4 h como máximo |
+| 2026-11-17 | Datos de demo en `database/datos_ejemplo.sql` (separado del esquema, re-ejecutable, `SET NAMES utf8mb4`) | Meterlos en `schema.sql` | El esquema queda limpio; las coordenadas se cambian fácil para probar desde otro sitio |
+| 2026-11-17 | Errores de check-in: 400 sin ubicación / QR inválido (zona inexistente y token malo dan el mismo mensaje), 403 lejos (+ nombre de la biblioteca), 409 ya activa; token comparado con `hash_equals` | — | Mensajes claros (criterio de aceptación) sin revelar qué zonas existen |
 | 2026-11-13 | Commits solo a nombre de quien trabaja; sin `Co-Authored-By` ni menciones a Claude/IA en los mensajes | Trailer de coautoría | Petición de Lucía; el historial debe reflejar al equipo |
 | 2026-11-13 | US09 nueva: recuperar contraseña por correo, hecha ya en el Sprint 2 (aprobado por Lucía) | Dejarla para el Sprint 3 | Petición del equipo; registrar en el Product Backlog |
 | 2026-11-13 | Correo con PHPMailer 6.9.3 copiado en `lib/PHPMailer/` (sin Composer); SMTP de Gmail con contraseña de aplicación en `config.php`; transporte `archivo` para desarrollo/demo | Composer; `mail()` de PHP | XAMPP no envía correo por sí solo; instalación sin herramientas extra |
@@ -417,16 +452,18 @@ _Branch: `feature/registro` (creada desde `chore/readmeai`, subida a GitHub el 2
 ## ✅ PROGRESS
 
 ### In Progress
-- Integrar `chore/readmeai` y `feature/registro` en `main` (pendiente push + PR).
+- US02 Check-in QR ≤ 150 m, check-out y caducidad 4 h (Must, 8): hecha, probada y commiteada en `feature/checkin` (incluye escáner QR 4A); pendiente de push y PR.
+- PR #1 `feature/registro` → `main`: abierto el 2026-11-17, sin merge.
 - US01 Registro y login (Must, 3 pts): hecha, probada y commiteada; pendiente push + PR.
-- US09 Recuperar contraseña por correo (nueva): hecha, probada (modo 'archivo' y envío real por Gmail SMTP) y commiteada; pendiente push + PR.
+- US09 Recuperar contraseña por correo (**añadida en el Sprint 2**): hecha, probada (modo 'archivo' y envío real por Gmail SMTP) y commiteada; pendiente push + PR.
 
 ### Backlog
 _Out-of-scope requests land here, not in the code._
-- US09 (nueva, pedida y aprobada por Lucía el 2026-11-13): añadirla al Product Backlog y al registro de tests del entregable.
+- US09 (añadida en el Sprint 2, aprobada por Lucía el 2026-11-13): reflejarla en el Product Backlog y en el registro de tests del entregable.
 - Limitar intentos de login (fuerza bruta) y endpoint de cierre de sesión — no pedidos en US01.
 - Proteger las páginas privadas (comprobar la sesión) cuando exista la primera pantalla real tras el login (US03).
-- US02 Check-in QR ≤ 150 m, check-out y caducidad 4 h (Must, 8).
+- HTTPS para la demo en el móvil (la geolocalización no funciona por `http://` salvo en localhost).
+- Tras el login, volver al QR escaneado (ahora va a `inicio.html` y hay que escanear otra vez).
 - US03 Mapa con ocupación % + fiabilidad (Must, 8).
 - US05 Franjas típicas por día y hora (Should, 5).
 - US04 Puntos por sesión (Must, 3).
@@ -437,6 +474,7 @@ _Out-of-scope requests land here, not in the code._
 - Docs as built (cuando haya código): corregir README — la ocupación actual NO usa la ley de Little (solo las franjas), añadir a la estructura `src/Usuarios/`, `src/constantes.php` y `tests/`, badge de estado, pasos de instalación y `php tests/run_tests.php`. Actualizar también modelo de datos, arquitectura y contrato de API.
 
 ### Completed
+- [x] 2026-11-17 — Comprobado: sin credenciales en archivos versionados ni en el historial de git.
 - [x] 2026-11-13 — Open questions resueltas y decisiones registradas; commit `893e302` en `chore/readmeai`.
 - [x] 2026-11-13 — `.readmeAI` rellenado y `.gitignore` creado.
 
@@ -505,8 +543,9 @@ _Out-of-scope requests land here, not in the code._
 | POST | `/api/login.php` | no | JSON `email, password` | 200 `{usuario:{nombre}}` + cookie de sesión · 400 faltan campos · 401 credenciales incorrectas · 405 | US01 |
 | POST | `/api/recuperar.php` | no | JSON `email` | 200 `{mensaje}` siempre (exista o no la cuenta) · 400 formato inválido | US09 |
 | POST | `/api/restablecer.php` | no | JSON `token, password, password_repetida` | 200 cambiada · 400 `{errores}` contraseña inválida · 400 `{error}` enlace inválido/caducado/usado | US09 |
-| POST | `/api/checkin.php` | sí | zona, token (del QR), latitud, longitud | 201 sesión iniciada con hora · 400 token inválido o sin ubicación · 403 fuera del radio 150 m · 409 ya hay sesión activa | US02 |
-| POST | `/api/checkout.php` | sí | — (usuario de sesión) | 200 sesión cerrada con duración y puntos · 404 sin sesión activa | US02/US04 |
+| POST | `/api/checkin.php` | sí | **as built:** JSON `zona` (int), `token`, `latitud`, `longitud` | 201 `{sesion:{zona, biblioteca, hora_inicio, segundos}}` · 400 `{error}` sin ubicación o QR inválido · 401 · 403 `{error, biblioteca}` fuera de 150 m · 409 `{error}` ya hay sesión activa · 405 | US02 |
+| POST | `/api/checkout.php` | sí | — (usuario de sesión) | **as built:** 200 `{minutos, puntos}` · 401 · 404 `{error}` sin sesión activa | US02/US04 |
+| GET | `/api/sesion.php` | sí | — | **nuevo (divergencia):** 200 `{sesion:{zona, biblioteca, hora_inicio, segundos}}` o `{sesion:null}` · 401. Nunca puntos | US02 |
 | GET | `/api/ocupacion.php` | sí | biblioteca (opcional) | 200 JSON por biblioteca: id, nombre, latitud, longitud, % ocupación, fiabilidad · 404 | US03 |
 | GET | `/api/biblioteca.php` | sí | id | 200 foto, nombre, dirección, horario de hoy, ocupación, fiabilidad · 404 | US03 |
 | GET | `/api/franjas.php` | sí | biblioteca, día | 200 ocupación media por hora · 400 día inválido · 404 | US05 |
@@ -547,7 +586,7 @@ Cardinalidades: biblioteca 1..* zona, 0..* horario, 0..* calendario · zona 0..*
 ### Coverage
 | Layer | Tested? | Type | Location |
 |-------|---------|------|----------|
-| API / lógica | sí, US01 (T01–T12) y US09 (T13–T22): 22/22 PASS el 2026-11-13 | funcional (scripts PHP, sin PHPUnit) | `tests/`, ejecutar con `C:\xampp\php\php.exe tests/run_tests.php` |
+| API / lógica | sí, US01 (T01–T12), US09 (T13–T22) y US02 (T23–T38, incluye T29 privacidad y puntos T36–T38): 38/38 PASS el 2026-11-17 | funcional (scripts PHP, sin PHPUnit) | `tests/`, ejecutar con `C:\xampp\php\php.exe tests/run_tests.php` |
 
 ### Tests previstos (Sprint 1 · 7.1)
 - US01: registro válido, correo duplicado, login incorrecto, dominio no permitido, subdominio permitido (`alumnos.upm.es`), dominio parecido rechazado (`fakeunizar.es`).
@@ -570,6 +609,14 @@ Cardinalidades: biblioteca 1..* zona, 0..* horario, 0..* calendario · zona 0..*
 > **Most valuable section. Append only. Newest first. Dated.**
 > **Severity tags: `[!]` breaks if ignored · `[~]` non-obvious gotcha · `[?]` unresolved question**
 
+`2026-11-17 [~] — Probar el escáner sin webcam: Chrome --use-fake-device-for-media-stream --use-fake-ui-for-media-stream --use-file-for-fake-video-capture=<video.mjpeg> (MJPEG = JPEG concatenados, se hacen con PIL a partir del PNG del QR).`
+`2026-11-17 [~] — La cámara (getUserMedia), igual que la ubicación, solo funciona en HTTPS o localhost. En el móvil por http:// el escáner muestra un aviso y se puede usar la cámara normal del móvil con el enlace del QR.`
+`2026-11-17 [~] — jsQR.js es UMD: se carga con <script defer> antes del módulo en checkin.html y se usa como globalThis.jsQR solo en escaner.js.`
+`2026-11-17 [!] — El cliente mysql.exe de XAMPP lee los .sql con la codificación de la consola: sin SET NAMES utf8mb4 las tildes se guardan rotas ("Alejandr├¡a"). datos_ejemplo.sql ya lo lleva; ponerlo en cualquier .sql nuevo con texto.`
+`2026-11-17 [!] — navigator.geolocation solo funciona en contexto seguro (HTTPS, localhost o 127.0.0.1). checkin.js lo detecta y lo dice en pantalla. Para la demo en el móvil hace falta HTTPS.`
+`2026-11-17 [~] — No confundir api/sesion.php (sesión de ESTUDIO activa, US02) con src/Usuarios/sesion.php (sesión PHP del login).`
+`2026-11-17 [~] — Para probar el check-in sin estar en la biblioteca: cambiar latitud/longitud de la biblioteca en la BD, o simular la ubicación con DevTools (Sensors → Location). Chrome headless + CDP (Emulation.setGeolocationOverride) funciona con Node 24 sin dependencias.`
+`2026-11-17 [~] — En el Bash tool de Windows los heredocs largos con comillas fallan ("unexpected EOF"): crear archivos con Write/Edit.`
 `2026-11-13 [~] — unizar.es filtra el correo entrante con Proofpoint (MX *.pphosted.com): los correos de studyspotapp26@gmail.com tardaron ~15-30 min en llegar al correo de unizar de Lucía la primera vez (Gmail respondió 250 OK, sin devolución). No es un fallo de la app. Para la demo en directo usar mail_transporte='archivo' o enviar con antelación; no hacer muchos envíos seguidos.`
 `2026-11-13 [~] — Gmail SMTP exige verificación en 2 pasos y una "contraseña de aplicación" (16 letras); la contraseña normal de la cuenta NO funciona. Con mail_transporte='archivo' los correos quedan en storage/correos/*.eml (se abren con Outlook/Thunderbird).`
 `2026-11-13 [~] — Si un correo de recuperación no llega, mirar el log de PHP/Apache: recuperar.php oculta los fallos de envío al cliente a propósito. Ojo también con la espera de 60 s entre correos a la misma cuenta.`
