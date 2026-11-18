@@ -33,6 +33,14 @@ export function hacerCheckout() {
   return postJson('checkout.php', {});
 }
 
+export function getPerfil() {
+  return getJson('perfil.php');
+}
+
+export function cerrarSesion() {
+  return postJson('logout.php', {});
+}
+
 async function getJson(endpoint) {
   const respuesta = await fetch(`${API_BASE_URL}/${endpoint}`, {
     headers: { Accept: 'application/json' },

@@ -32,6 +32,35 @@ function abrirSesionUsuario(array $usuario): void
     $_SESSION['rol'] = $usuario['rol'];
 }
 
+/**
+ * Cierra la sesión del usuario: vacía sus datos, borra la sesión del servidor
+ * y caduca la cookie en el navegador. Si no había sesión no pasa nada.
+ */
+function cerrarSesionUsuario(): void
+{
+    iniciarSesionPhp();
+    $_SESSION = [];
+    borrarCookieSesion();
+    session_destroy();
+}
+
+/** Manda la cookie de sesión con fecha pasada para que el navegador la borre. */
+function borrarCookieSesion(): void
+{
+    if (headers_sent()) {
+        return;
+    }
+    $parametros = session_get_cookie_params();
+    setcookie(session_name(), '', [
+        'expires'  => 1,
+        'path'     => $parametros['path'],
+        'domain'   => $parametros['domain'],
+        'secure'   => $parametros['secure'],
+        'httponly' => $parametros['httponly'],
+        'samesite' => $parametros['samesite'],
+    ]);
+}
+
 /** Id del usuario con sesión iniciada, o null si no ha iniciado sesión. */
 function getUsuarioIdSesion(): ?int
 {
