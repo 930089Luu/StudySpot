@@ -57,7 +57,7 @@ function findSolicitudesRecibidas(PDO $pdo, int $usuarioId): array
          ORDER BY a.fecha_solicitud'
     );
     $consulta->execute(['usuario' => $usuarioId, 'estado' => AMISTAD_PENDIENTE]);
-    return $consulta->fetchAll();
+    return $consulta->fetchAll(PDO::FETCH_ASSOC);
 }
 
 /** Solicitud pendiente dirigida a este usuario, o null si no existe o no es suya. */
