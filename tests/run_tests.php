@@ -14,6 +14,7 @@ const ARCHIVOS_DE_TESTS = [
     'us09_recuperar_password.php',
     'us02_checkin.php',
     'us04_puntos_perfil.php',
+    'us06_amigos.php',
 ];
 
 function ejecutarArchivo(PDO $pdo, string $archivo): array
