@@ -11,6 +11,7 @@ require_once __DIR__ . '/../Database/conexion.php';
 
 const AMISTAD_PENDIENTE = 'pending';
 const AMISTAD_ACEPTADA = 'accepted';
+const AMISTAD_RECHAZADA = 'rejected';
 
 /** Indica si ya hay una solicitud o una amistad entre dos usuarios, en cualquier sentido. */
 function existeAmistadEntre(PDO $pdo, int $usuarioA, int $usuarioB): bool
