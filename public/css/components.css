@@ -541,3 +541,125 @@
     margin-block-end: auto;
   }
 }
+
+/* ---------- section: bloque de la pantalla de amigos (US06) ---------- */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.section__title {
+  font-size: var(--font-size-title);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-title);
+}
+
+/* ---------- friend-list: amigos y solicitudes (US06) ---------- */
+.friend-list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.friend-list__item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-block: var(--space-3);
+  border-block-end: var(--border-width) solid var(--color-border);
+}
+
+.friend-list__info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.friend-list__name {
+  font-weight: var(--font-weight-semibold);
+  overflow-wrap: anywhere;
+}
+
+.friend-list__detail {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  overflow-wrap: anywhere;
+}
+
+.friend-list__actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+/* Botón pequeño para acciones dentro de una fila (aceptar, rechazar) */
+.button--compact {
+  width: auto;
+  min-width: var(--tap-target);
+  padding-inline: var(--space-4);
+}
+
+/* ---------- switch: interruptor de compartir ubicación (US06) ---------- */
+.switch {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  min-height: var(--tap-target);
+  cursor: pointer;
+}
+
+.switch__text {
+  font-weight: var(--font-weight-semibold);
+}
+
+.switch__input {
+  -webkit-appearance: none;
+  appearance: none;
+  position: relative;
+  flex-shrink: 0;
+  width: calc(var(--control-height) * 1.6);
+  height: var(--space-6);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-full);
+  background-color: var(--color-field);
+  transition: background-color var(--duration-fast) var(--easing-standard);
+}
+
+/* La bolita del interruptor */
+.switch__input::before {
+  content: "";
+  position: absolute;
+  top: var(--space-1);
+  left: var(--space-1);
+  width: calc(var(--space-6) - 2 * var(--space-1));
+  height: calc(var(--space-6) - 2 * var(--space-1));
+  border-radius: var(--radius-full);
+  background-color: var(--color-bg);
+  transition: transform var(--duration-fast) var(--easing-standard);
+}
+
+.switch__input:checked {
+  border-color: var(--color-accent);
+  background-color: var(--color-accent);
+}
+
+.switch__input:checked::before {
+  transform: translateX(calc(var(--control-height) * 1.6 - var(--space-6) - 2 * var(--border-width)));
+}
+
+.switch__input:focus-visible {
+  outline: var(--border-width) solid var(--color-accent);
+  outline-offset: var(--space-1);
+}
+
+.switch__input:disabled {
+  opacity: 0.6;
+}
+

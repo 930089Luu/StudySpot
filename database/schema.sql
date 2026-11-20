@@ -86,3 +86,22 @@ CREATE TABLE IF NOT EXISTS sesion_estudio (
     CONSTRAINT fk_sesion_zona FOREIGN KEY (zona_id)
         REFERENCES zona (id) ON DELETE CASCADE
 ) ENGINE = InnoDB;
+
+-- US06: amistades entre estudiantes (relación N:N entre usuarios).
+-- estado: pending (esperando respuesta), accepted (amigos), rejected (rechazada).
+-- La BD impide duplicados en el mismo sentido; la aplicación comprueba también el sentido contrario.
+CREATE TABLE IF NOT EXISTS amistad (
+    id              INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    solicitante_id  INT UNSIGNED NOT NULL,
+    destinatario_id INT UNSIGNED NOT NULL,
+    estado          ENUM('pending', 'accepted', 'rejected') NOT NULL DEFAULT 'pending',
+    fecha_solicitud DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    UNIQUE KEY uq_amistad_par (solicitante_id, destinatario_id),
+    KEY idx_amistad_destinatario (destinatario_id, estado),
+    CONSTRAINT fk_amistad_solicitante FOREIGN KEY (solicitante_id)
+        REFERENCES usuario (id) ON DELETE CASCADE,
+    CONSTRAINT fk_amistad_destinatario FOREIGN KEY (destinatario_id)
+        REFERENCES usuario (id) ON DELETE CASCADE,
+    CONSTRAINT chk_amistad_no_uno_mismo CHECK (solicitante_id <> destinatario_id)
+) ENGINE = InnoDB;

@@ -41,6 +41,36 @@ export function cerrarSesion() {
   return postJson('logout.php', {});
 }
 
+/** Amigos aceptados y, si comparten ubicación, la biblioteca donde estudian. */
+export function getAmigos() {
+  return getJson('amigos.php');
+}
+
+/** Envía una solicitud de amistad al correo indicado. */
+export function enviarSolicitudAmistad(correo) {
+  return postJson('amigos.php', { friend_email: correo });
+}
+
+/** Solicitudes pendientes que ha recibido el usuario. */
+export function getSolicitudes() {
+  return getJson('solicitudes.php');
+}
+
+/** Acepta o rechaza una solicitud recibida. accion: 'accept' o 'reject'. */
+export function responderSolicitud(solicitudId, accion) {
+  return postJson('solicitudes.php', { request_id: solicitudId, action: accion });
+}
+
+/** Si el usuario comparte ahora su ubicación: { share: 'yes' | 'no' }. */
+export function getVisibilidad() {
+  return getJson('visibilidad.php');
+}
+
+/** Cambia el interruptor de compartir ubicación. valor: 'yes' o 'no'. */
+export function guardarVisibilidad(valor) {
+  return postJson('visibilidad.php', { share: valor });
+}
+
 async function getJson(endpoint) {
   const respuesta = await fetch(`${API_BASE_URL}/${endpoint}`, {
     headers: { Accept: 'application/json' },
