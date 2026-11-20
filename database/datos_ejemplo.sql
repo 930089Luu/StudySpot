@@ -5,6 +5,8 @@
 -- Coordenadas tomadas de OpenStreetMap (entrada del edificio). Capacidad y factor de
 -- adopción son valores de ejemplo. Para probar el check-in desde otro sitio, cambiar
 -- latitud/longitud de la biblioteca.
+-- Capacidad de ISLA Gaia (60 plazas): contada por Lucía en la sala el 20-11-2026. La de Kadora
+-- y el factor de adopción (0,3) siguen siendo valores de ejemplo hasta medirlos.
 -- Los QR de cada zona codifican la URL:
 --   <app_url>/public/checkin.html?zona=<id>&token=<token_qr>
 
@@ -15,7 +17,7 @@ USE studyspot;
 INSERT INTO biblioteca (id, nombre, direccion, latitud, longitud, capacidad_maxima, factor_adopcion)
 VALUES
     (1, 'Biblioteca ISLA Gaia', 'Rua Diogo Macedo 192, 4400-107 Vila Nova de Gaia',
-        41.124563, -8.613560, 80, 0.300),
+        41.124563, -8.613560, 60, 0.300),
     (2, 'Biblioteca Kadora Campus Street', 'Rua Alberto Malafaya Baptista 171, Paranhos, Porto',
         41.182063, -8.610648, 40, 0.300)
 ON DUPLICATE KEY UPDATE

@@ -4,7 +4,7 @@
 -- Ejecutarlo poco antes de la demo: las sesiones activas caducan solas a las 4 h.
 --
 -- NO son datos reales. Abre sesiones activas a usuarios de ejemplo:
---   ISLA Gaia (capacidad 80, factor 0,3): 16 sesiones → 16 ÷ 0,3 ≈ 53 personas → 67 %, fiabilidad alta
+--   ISLA Gaia (capacidad 60, factor 0,3): 16 sesiones → 16 ÷ 0,3 ≈ 53 personas → 89 %, fiabilidad alta
 --   Kadora    (capacidad 40, factor 0,3):  4 sesiones →  4 ÷ 0,3 ≈ 13 personas → 33 %, fiabilidad baja
 SET NAMES utf8mb4;
 USE studyspot;
