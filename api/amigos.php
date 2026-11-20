@@ -12,6 +12,10 @@ require_once __DIR__ . '/../src/Usuarios/usuarios.php';
 require_once __DIR__ . '/../src/Usuarios/validacion.php';
 require_once __DIR__ . '/../src/Amigos/amistad.php';
 
+// Va antes de ejecutarEndpoint: una const de PHP no existe hasta que se ejecuta su línea.
+// El mismo texto sirve para un correo sin cuenta y para alguien que te ha bloqueado.
+const MENSAJE_USUARIO_NO_DISPONIBLE = 'Usuario no disponible. Comprueba que el correo es correcto.';
+
 ejecutarEndpoint(function (): void {
     $metodo = $_SERVER['REQUEST_METHOD'] ?? '';
     if ($metodo !== 'GET' && $metodo !== 'POST') {
@@ -40,7 +44,7 @@ function enviarSolicitud(PDO $pdo, int $usuarioId): never
 
     $destinatario = findUsuarioPorEmail($pdo, $correo);
     if ($destinatario === null) {
-        responderJson(HTTP_NOT_FOUND, ['error' => 'No existe ninguna cuenta con ese correo.']);
+        responderJson(HTTP_NOT_FOUND, ['error' => MENSAJE_USUARIO_NO_DISPONIBLE]);
     }
     $destinatarioId = (int) $destinatario['id'];
     if ($destinatarioId === $usuarioId) {
@@ -48,7 +52,15 @@ function enviarSolicitud(PDO $pdo, int $usuarioId): never
     }
 
     // Tras un rechazo se puede volver a pedir; si hay una pendiente o ya sois amigos, es un conflicto.
-    if (solicitarAmistad($pdo, $usuarioId, $destinatarioId) === SOLICITUD_DUPLICADA) {
+    $resultado = solicitarAmistad($pdo, $usuarioId, $destinatarioId);
+    if ($resultado === SOLICITUD_OCULTA) {
+        // Te han bloqueado: la misma respuesta que si la cuenta no existiera, para no revelarlo.
+        responderJson(HTTP_NOT_FOUND, ['error' => MENSAJE_USUARIO_NO_DISPONIBLE]);
+    }
+    if ($resultado === SOLICITUD_A_BLOQUEADO) {
+        responderJson(HTTP_CONFLICT, ['error' => 'Has bloqueado a esta persona. Desbloquéala para enviarle una solicitud.']);
+    }
+    if ($resultado === SOLICITUD_DUPLICADA) {
         responderJson(HTTP_CONFLICT, ['error' => 'Ya hay una solicitud o una amistad con esa persona.']);
     }
     responderJson(HTTP_CREATED, ['mensaje' => 'Solicitud enviada.']);
