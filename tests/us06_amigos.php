@@ -126,8 +126,64 @@ return function (PDO $pdo): array {
                 guardarComparteUbicacion($pdo, $ana, false);
                 return $activado && getComparteUbicacion($pdo, $ana) === false;
             }],
+        // T59–T62 son las pruebas manuales de la pantalla de amigos.
+        ['T63', 'Solicitud rechazada → quien la envió puede volver a pedirla y queda pendiente (una sola fila)',
+            function () use ($pdo): bool {
+                $ana = crearUsuarioPruebaConId($pdo);
+                $luis = crearUsuarioPruebaConId($pdo);
+                crearAmistadEnBD($pdo, $ana, $luis, AMISTAD_RECHAZADA);
+                return solicitarAmistad($pdo, $ana, $luis) === SOLICITUD_ENVIADA
+                    && count(findSolicitudesRecibidas($pdo, $luis)) === 1
+                    && contarFilasAmistad($pdo, $ana, $luis) === 1;
+            }],
+        ['T64', 'Solicitud rechazada → quien la rechazó también puede pedirla después (sentido contrario)',
+            function () use ($pdo): bool {
+                $ana = crearUsuarioPruebaConId($pdo);
+                $luis = crearUsuarioPruebaConId($pdo);
+                crearAmistadEnBD($pdo, $ana, $luis, AMISTAD_RECHAZADA);
+                return solicitarAmistad($pdo, $luis, $ana) === SOLICITUD_ENVIADA
+                    && count(findSolicitudesRecibidas($pdo, $ana)) === 1
+                    && count(findSolicitudesRecibidas($pdo, $luis)) === 0;
+            }],
+        ['T65', 'Solicitud pendiente o amistad aceptada → una solicitud nueva es un duplicado (409)',
+            function () use ($pdo): bool {
+                $ana = crearUsuarioPruebaConId($pdo);
+                $luis = crearUsuarioPruebaConId($pdo);
+                $marta = crearUsuarioPruebaConId($pdo);
+                crearAmistadEnBD($pdo, $ana, $luis, AMISTAD_PENDIENTE);
+                crearAmistadEnBD($pdo, $ana, $marta, AMISTAD_ACEPTADA);
+                return solicitarAmistad($pdo, $luis, $ana) === SOLICITUD_DUPLICADA
+                    && solicitarAmistad($pdo, $ana, $marta) === SOLICITUD_DUPLICADA;
+            }],
+        ['T66', 'La BD no deja guardar B→A si ya existe A→B (envíos cruzados a la vez)',
+            function () use ($pdo): bool {
+                $ana = crearUsuarioPruebaConId($pdo);
+                $luis = crearUsuarioPruebaConId($pdo);
+                // insertSolicitudAmistad no consulta antes: solo la UNIQUE de la BD puede pararlo.
+                return insertSolicitudAmistad($pdo, $ana, $luis)
+                    && insertSolicitudAmistad($pdo, $luis, $ana) === false
+                    && contarFilasAmistad($pdo, $ana, $luis) === 1;
+            }],
+        ['T67', 'Correo del amigo escrito con mayúsculas y espacios → se encuentra su cuenta',
+            function () use ($pdo): bool {
+                $correo = crearUsuarioPrueba($pdo);
+                $escrito = '  ' . strtoupper($correo) . ' ';
+                return findUsuarioPorEmail($pdo, normalizarEmail($escrito)) !== null;
+            }],
     ];
 };
+
+/** Filas de la tabla amistad entre dos usuarios, en cualquier sentido. */
+function contarFilasAmistad(PDO $pdo, int $usuarioA, int $usuarioB): int
+{
+    $consulta = $pdo->prepare(
+        'SELECT COUNT(*) FROM amistad
+         WHERE (solicitante_id = :a1 AND destinatario_id = :b1)
+            OR (solicitante_id = :b2 AND destinatario_id = :a2)'
+    );
+    $consulta->execute(['a1' => $usuarioA, 'b1' => $usuarioB, 'b2' => $usuarioB, 'a2' => $usuarioA]);
+    return (int) $consulta->fetchColumn();
+}
 
 /** Inserta una fila de amistad con un estado concreto, para preparar el escenario de un test. */
 function crearAmistadEnBD(PDO $pdo, int $solicitanteId, int $destinatarioId, string $estado): void
