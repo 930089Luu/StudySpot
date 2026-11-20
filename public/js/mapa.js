@@ -18,21 +18,32 @@ import { RUTA_LOGIN, crearRutaBiblioteca } from './rutas.js';
 const HTTP_OK = 200;
 const HTTP_UNAUTHORIZED = 401;
 const INTERVALO_REFRESCO_MS = 60 * 1000;
+// Mapbox GL JS no es un módulo ES: se añade como <script> y define window.mapboxgl.
+const MAPBOX_JS_URL = 'https://api.mapbox.com/mapbox-gl-js/v3.12.0/mapbox-gl.js';
 // Estilo Standard de Mapbox con el tema "Faded" y luz de atardecer (elección de Lucía).
+// Sin edificios 3D: pesan mucho al cargar en el móvil y no ayudan a encontrar la biblioteca.
 const ESTILO_MAPA = 'mapbox://styles/mapbox/standard';
-const CONFIG_ESTILO = { basemap: { theme: 'faded', lightPreset: 'dusk' } };
+const CONFIG_ESTILO = { basemap: { theme: 'faded', lightPreset: 'dusk', show3dObjects: false } };
 const MARGEN_ENCUADRE_PX = 64;
 const ZOOM_MAXIMO_ENCUADRE = 15;
 const MENSAJE_SIN_CONEXION = 'No se ha podido conectar. Revisa tu conexión e inténtalo de nuevo.';
 const MENSAJE_SIN_MAPA = 'No se ha podido cargar el mapa. Aquí tienes la lista de bibliotecas.';
 
+/**
+ * Orden pensado para el móvil: la ocupación y el token se piden a la vez, la lista se pinta
+ * en cuanto llega la ocupación, y Mapbox (1,5 MB) se descarga mientras tanto, sin bloquearla.
+ */
 async function init() {
+  const mapboxCargado = cargarMapbox();
+  // El fallo de Mapbox se trata en crearMapa; esto solo evita el aviso si la página sale antes (401).
+  mapboxCargado.catch(() => {});
+  const tokenPedido = getConfigMapa().catch((error) => ({ estado: 0, error }));
   const bibliotecas = await cargarOcupacion();
   document.getElementById('bibliotecas-cargando').hidden = true;
   if (bibliotecas === null) return;
 
   renderLista(bibliotecas);
-  const mapa = await crearMapa(bibliotecas);
+  const mapa = await crearMapa(bibliotecas, mapboxCargado, tokenPedido);
   const marcadores = new Map();
   if (mapa) pintarMarcadores(mapa, marcadores, bibliotecas);
 
@@ -94,10 +105,21 @@ function crearTexto(clase, texto) {
   return elemento;
 }
 
+/** Añade el <script> de Mapbox. La promesa se cumple al cargar y se rechaza si falla. */
+function cargarMapbox() {
+  return new Promise((resolver, rechazar) => {
+    const script = document.createElement('script');
+    script.src = MAPBOX_JS_URL;
+    script.addEventListener('load', resolver);
+    script.addEventListener('error', () => rechazar(new Error('No se ha podido cargar Mapbox GL JS')));
+    document.head.append(script);
+  });
+}
+
 /** Crea el mapa encuadrando todas las bibliotecas. Devuelve null si no se puede (y lo avisa). */
-async function crearMapa(bibliotecas) {
+async function crearMapa(bibliotecas, mapboxCargado, tokenPedido) {
   try {
-    const respuesta = await getConfigMapa();
+    const [respuesta] = await Promise.all([tokenPedido, mapboxCargado]);
     if (respuesta.estado !== HTTP_OK || !window.mapboxgl || bibliotecas.length === 0) {
       mostrarSinMapa();
       return null;
