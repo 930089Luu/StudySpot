@@ -15,6 +15,13 @@ export function crearRutaLoginConAviso(aviso) {
   return `${RUTA_LOGIN}?${PARAM_AVISO}=${encodeURIComponent(aviso)}`;
 }
 
+// Puntos de la sesión de estudio que se cerró al cerrar sesión (K06), para el aviso del login.
+export const PARAM_PUNTOS = 'puntos';
+
+export function crearRutaLoginConPuntos(aviso, puntos) {
+  return `${crearRutaLoginConAviso(aviso)}&${PARAM_PUNTOS}=${encodeURIComponent(puntos)}`;
+}
+
 // El QR de cada zona lleva el enlace checkin.html?zona=<id>&token=<token_qr> (US02).
 export const PARAM_ZONA = 'zona';
 export const PARAM_TOKEN = 'token';

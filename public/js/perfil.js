@@ -4,7 +4,12 @@
  */
 import { cerrarSesion, getPerfil } from './api.js';
 import { MENSAJE_ERROR_GENERICO, mostrarAlerta } from './formulario.js';
-import { AVISO_SESION_CERRADA, RUTA_LOGIN, crearRutaLoginConAviso } from './rutas.js';
+import {
+  AVISO_SESION_CERRADA,
+  RUTA_LOGIN,
+  crearRutaLoginConAviso,
+  crearRutaLoginConPuntos,
+} from './rutas.js';
 
 const HTTP_OK = 200;
 const HTTP_UNAUTHORIZED = 401;
@@ -45,7 +50,10 @@ function mostrarError(mensaje) {
   mostrarAlerta(document.getElementById('perfil-alerta'), mensaje);
 }
 
-/** Cierra la sesión en el servidor y vuelve al login con el aviso "Has cerrado sesión". */
+/**
+ * Cierra la sesión en el servidor y vuelve al login con el aviso "Has cerrado sesión".
+ * Si el servidor ha cerrado también una sesión de estudio activa, el aviso lleva sus puntos.
+ */
 async function handleCerrarSesion(evento) {
   const boton = evento.currentTarget;
   const alerta = document.getElementById('cerrar-sesion-alerta');
@@ -54,7 +62,7 @@ async function handleCerrarSesion(evento) {
   try {
     const respuesta = await cerrarSesion();
     if (respuesta.estado === HTTP_OK) {
-      window.location.assign(crearRutaLoginConAviso(AVISO_SESION_CERRADA));
+      window.location.assign(crearRutaTrasCerrarSesion(respuesta.cuerpo.sesion_estudio));
       return;
     }
     mostrarAlerta(alerta, respuesta.cuerpo.error ?? MENSAJE_ERROR_GENERICO);
@@ -63,6 +71,11 @@ async function handleCerrarSesion(evento) {
     mostrarAlerta(alerta, MENSAJE_SIN_CONEXION);
   }
   boton.disabled = false;
+}
+
+function crearRutaTrasCerrarSesion(sesionEstudio) {
+  if (!sesionEstudio) return crearRutaLoginConAviso(AVISO_SESION_CERRADA);
+  return crearRutaLoginConPuntos(AVISO_SESION_CERRADA, sesionEstudio.puntos);
 }
 
 /** "Lucía Claver Bolea" → "LC". */
