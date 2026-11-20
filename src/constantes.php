@@ -37,3 +37,20 @@ const RADIO_TIERRA_METROS = 6371000;
 // Puntos (US04): 1 punto por cada 15 minutos completos, como máximo 16 (= 4 h).
 const MINUTOS_POR_PUNTO = 15;
 const MAX_PUNTOS_SESION = 16;
+
+// Ocupación (US03): % = (sesiones activas ÷ factor_adopcion) ÷ capacidad_maxima. Recuento directo, sin Little.
+// Fiabilidad según los usuarios activos en la biblioteca: baja < 5 · media 5–14 · alta ≥ 15.
+const UMBRAL_FIABILIDAD_MEDIA = 5;
+const UMBRAL_FIABILIDAD_ALTA = 15;
+const FIABILIDAD_BAJA = 'low';
+const FIABILIDAD_MEDIA = 'medium';
+const FIABILIDAD_ALTA = 'high';
+// La estimación puede pasar de la capacidad (pocos datos, factor bajo): se muestra como mucho 100 %.
+const OCUPACION_MAX_PORCENTAJE = 100;
+
+// Franjas típicas (US05, ley de Little L = λW): horas del gráfico (de la primera a la última incluidas).
+const FRANJA_PRIMERA_HORA = 8;
+const FRANJA_ULTIMA_HORA = 22;
+// Días como en ISO-8601: 1 = lunes … 7 = domingo.
+const DIA_SEMANA_MIN = 1;
+const DIA_SEMANA_MAX = 7;
