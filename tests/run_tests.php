@@ -15,6 +15,7 @@ const ARCHIVOS_DE_TESTS = [
     'us02_checkin.php',
     'us04_puntos_perfil.php',
     'us06_amigos.php',
+    'us03_us05_ocupacion.php',
 ];
 
 function ejecutarArchivo(PDO $pdo, string $archivo): array

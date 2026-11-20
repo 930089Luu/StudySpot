@@ -37,3 +37,11 @@ export function leerZonaDeTexto(texto) {
     return null;
   }
 }
+
+// Detalle de una biblioteca desde el mapa (US03): biblioteca.html?id=<id>
+export const RUTA_BIBLIOTECA = 'biblioteca.html';
+export const PARAM_BIBLIOTECA = 'id';
+
+export function crearRutaBiblioteca(bibliotecaId) {
+  return `${RUTA_BIBLIOTECA}?${PARAM_BIBLIOTECA}=${encodeURIComponent(bibliotecaId)}`;
+}
