@@ -15,6 +15,15 @@ export function crearRutaLoginConAviso(aviso) {
   return `${RUTA_LOGIN}?${PARAM_AVISO}=${encodeURIComponent(aviso)}`;
 }
 
+// Amigos y perfil de otra persona (US06): usuario.html?id=<id>
+export const RUTA_AMIGOS = 'amigos.html';
+export const RUTA_PERFIL_CONTACTO = 'usuario.html';
+export const PARAM_USUARIO = 'id';
+
+export function crearRutaPerfilContacto(usuarioId) {
+  return `${RUTA_PERFIL_CONTACTO}?${PARAM_USUARIO}=${encodeURIComponent(usuarioId)}`;
+}
+
 // El QR de cada zona lleva el enlace checkin.html?zona=<id>&token=<token_qr> (US02).
 export const PARAM_ZONA = 'zona';
 export const PARAM_TOKEN = 'token';
