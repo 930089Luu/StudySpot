@@ -663,3 +663,334 @@
   opacity: 0.6;
 }
 
+
+/* ---------- map-screen: pantalla principal con el mapa (wireframe 2A, US03) ---------- */
+/* Ocupa toda la pantalla: no usa los márgenes laterales de .page */
+.map-screen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-page);
+}
+
+.map-screen__map {
+  flex: 1;
+  min-height: 0;
+}
+
+/* ---------- sheet: panel inferior con la lista de bibliotecas ---------- */
+.sheet {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-height: var(--sheet-max-height);
+  padding: var(--space-3) var(--page-gutter) var(--space-4);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  background-color: var(--color-bg);
+  box-shadow: var(--shadow-card);
+  overflow-y: auto;
+}
+
+/* Si el mapa no se puede cargar, la lista ocupa toda la pantalla */
+.sheet--full {
+  flex: 1;
+  max-height: none;
+}
+
+.sheet__handle {
+  align-self: center;
+  width: var(--sheet-handle-width);
+  height: var(--sheet-handle-height);
+  border-radius: var(--radius-full);
+  background-color: var(--color-border);
+}
+
+.sheet__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.sheet__title {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
+}
+
+.sheet__meta {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+/* ---------- library-list: bibliotecas con su ocupación ---------- */
+.library-list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.library-list__link {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: var(--space-1) var(--space-3);
+  min-height: var(--tap-target);
+  padding-block: var(--space-3);
+  border-block-end: var(--border-width) solid var(--color-border);
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.library-list__link:active {
+  background-color: var(--color-field);
+}
+
+.library-list__name {
+  font-weight: var(--font-weight-semibold);
+  overflow-wrap: anywhere;
+}
+
+.library-list__value {
+  font-weight: var(--font-weight-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+.library-list__detail {
+  grid-column: 1 / -1;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+/* ---------- meter: barra de ocupación (el % llega en la variable --valor desde JS) ---------- */
+.meter {
+  grid-column: 1 / -1;
+  height: var(--meter-height);
+  border-radius: var(--radius-full);
+  background-color: var(--color-field);
+  overflow: hidden;
+}
+
+.meter__fill {
+  width: var(--valor, 0%);
+  height: 100%;
+  border-radius: inherit;
+  background-color: var(--color-nivel, var(--color-accent));
+  transition: width var(--duration-base) var(--easing-standard);
+}
+
+/* Nivel de ocupación: tranquila (verde), media (acento), muy llena (rojo) */
+.nivel--bajo {
+  --color-nivel: var(--color-success);
+}
+
+.nivel--medio {
+  --color-nivel: var(--color-accent);
+}
+
+.nivel--alto {
+  --color-nivel: var(--color-danger);
+}
+
+/* ---------- map-pin: globo con el % de cada biblioteca en el mapa ---------- */
+.map-pin {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--pin-min-width);
+  min-height: var(--tap-target);
+  padding-inline: var(--space-3);
+  border: 2px solid var(--color-nivel, var(--color-accent));
+  border-radius: var(--radius-full);
+  background-color: var(--color-bg);
+  box-shadow: var(--shadow-card);
+  color: var(--color-text);
+  font-weight: var(--font-weight-bold);
+  font-variant-numeric: tabular-nums;
+  text-decoration: none;
+}
+
+.map-pin:active {
+  transform: scale(var(--press-scale));
+}
+
+/* ---------- tab-bar: navegación inferior Mapa · Check-in · Perfil ---------- */
+.tab-bar {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  min-height: var(--tab-bar-height);
+  padding-block-end: env(safe-area-inset-bottom);
+  border-block-start: var(--border-width) solid var(--color-border);
+  background-color: var(--color-bg);
+}
+
+.tab-bar__link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  min-height: var(--tap-target);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  text-decoration: none;
+}
+
+.tab-bar__link[aria-current="page"] {
+  color: var(--color-accent-text);
+  font-weight: var(--font-weight-semibold);
+}
+
+.tab-bar__icon {
+  width: var(--icon-size);
+  height: var(--icon-size);
+}
+
+/* ---------- library: detalle de una biblioteca (wireframe 3) ---------- */
+.library__photo {
+  width: 100%;
+  height: var(--library-photo-height);
+  border-radius: var(--radius-lg);
+  object-fit: cover;
+}
+
+.library__name {
+  font-size: var(--font-size-title);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-title);
+}
+
+.library__detail {
+  color: var(--color-text-muted);
+}
+
+/* ---------- occupancy-card: ocupación actual grande ---------- */
+.occupancy-card {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: baseline;
+  gap: var(--space-2) var(--space-3);
+  padding: var(--space-5);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-bg);
+  box-shadow: var(--shadow-card);
+}
+
+.occupancy-card__label,
+.occupancy-card__meta {
+  grid-column: 1 / -1;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.occupancy-card__value {
+  font-size: var(--font-size-display);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+  font-variant-numeric: tabular-nums;
+}
+
+.occupancy-card__level {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-nivel, var(--color-text));
+}
+
+/* ---------- reliability: indicador de fiabilidad (3 barras) ---------- */
+.reliability {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  font-size: var(--font-size-sm);
+}
+
+.reliability__bars {
+  display: inline-flex;
+  gap: var(--space-1);
+}
+
+.reliability__bar {
+  width: var(--reliability-bar-width);
+  height: var(--meter-height);
+  border-radius: var(--radius-full);
+  background-color: var(--color-border);
+}
+
+.reliability--low .reliability__bar:nth-child(-n + 1),
+.reliability--medium .reliability__bar:nth-child(-n + 2),
+.reliability--high .reliability__bar {
+  background-color: var(--color-text);
+}
+
+.reliability__text {
+  font-weight: var(--font-weight-semibold);
+}
+
+/* ---------- day-picker: botones de día para las franjas (US05) ---------- */
+.day-picker {
+  display: flex;
+  gap: var(--space-1);
+  overflow-x: auto;
+}
+
+.day-picker__button {
+  flex: 1;
+  min-width: var(--tap-target);
+  min-height: var(--tap-target);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-full);
+  background-color: transparent;
+  color: var(--color-text);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+}
+
+.day-picker__button[aria-pressed="true"] {
+  border-color: var(--color-text);
+  background-color: var(--color-text);
+  color: var(--color-bg);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* ---------- chart: barras de ocupación típica por hora (el % llega en --valor) ---------- */
+.chart {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-1);
+  height: var(--chart-height);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chart__bar {
+  flex: 1;
+  height: max(var(--space-1), var(--valor, 0%));
+  border-radius: var(--space-1) var(--space-1) 0 0;
+  background-color: var(--color-border);
+}
+
+.chart__bar--max {
+  background-color: var(--color-danger);
+}
+
+.chart__bar--min {
+  background-color: var(--color-success);
+}
+
+.chart__axis {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.chart__legend {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}

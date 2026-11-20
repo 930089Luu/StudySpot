@@ -33,6 +33,27 @@ export function hacerCheckout() {
   return postJson('checkout.php', {});
 }
 
+/** Token público de Mapbox (vive en config.php, fuera de git). */
+export function getConfigMapa() {
+  return getJson('mapa.php');
+}
+
+/** Ocupación actual y fiabilidad de todas las bibliotecas (US03). */
+export function getOcupacion() {
+  return getJson('ocupacion.php');
+}
+
+/** Detalle de una biblioteca con su ocupación (US03). */
+export function getBiblioteca(bibliotecaId) {
+  return getJson(`biblioteca.php?id=${encodeURIComponent(bibliotecaId)}`);
+}
+
+/** Ocupación típica por hora de un día de la semana, 1 = lunes … 7 = domingo (US05). */
+export function getFranjas(bibliotecaId, dia) {
+  const parametros = new URLSearchParams({ biblioteca: bibliotecaId, dia });
+  return getJson(`franjas.php?${parametros}`);
+}
+
 export function getPerfil() {
   return getJson('perfil.php');
 }
