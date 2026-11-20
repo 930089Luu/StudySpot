@@ -89,19 +89,41 @@ CREATE TABLE IF NOT EXISTS sesion_estudio (
 
 -- US06: amistades entre estudiantes (relación N:N entre usuarios).
 -- estado: pending (esperando respuesta), accepted (amigos), rejected (rechazada).
--- La BD impide duplicados en el mismo sentido; la aplicación comprueba también el sentido contrario.
+-- Cada pareja tiene como mucho una fila, en cualquier sentido: usuario_menor y usuario_mayor
+-- ordenan la pareja (A-B y B-A dan lo mismo) y la UNIQUE impide la segunda fila.
+-- Una solicitud rechazada se reutiliza si alguno de los dos vuelve a pedir amistad.
 CREATE TABLE IF NOT EXISTS amistad (
     id              INT UNSIGNED NOT NULL AUTO_INCREMENT,
     solicitante_id  INT UNSIGNED NOT NULL,
     destinatario_id INT UNSIGNED NOT NULL,
     estado          ENUM('pending', 'accepted', 'rejected') NOT NULL DEFAULT 'pending',
     fecha_solicitud DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    usuario_menor   INT UNSIGNED AS (LEAST(solicitante_id, destinatario_id)) STORED,
+    usuario_mayor   INT UNSIGNED AS (GREATEST(solicitante_id, destinatario_id)) STORED,
     PRIMARY KEY (id),
-    UNIQUE KEY uq_amistad_par (solicitante_id, destinatario_id),
+    UNIQUE KEY uq_amistad_pareja (usuario_menor, usuario_mayor),
+    KEY idx_amistad_solicitante (solicitante_id),
     KEY idx_amistad_destinatario (destinatario_id, estado),
     CONSTRAINT fk_amistad_solicitante FOREIGN KEY (solicitante_id)
         REFERENCES usuario (id) ON DELETE CASCADE,
     CONSTRAINT fk_amistad_destinatario FOREIGN KEY (destinatario_id)
         REFERENCES usuario (id) ON DELETE CASCADE,
     CONSTRAINT chk_amistad_no_uno_mismo CHECK (solicitante_id <> destinatario_id)
+) ENGINE = InnoDB;
+
+-- Bloqueos entre estudiantes (mejora de privacidad de US06, añadida en el Sprint 2).
+-- Si A bloquea a B: se borra lo que hubiera entre ellos en amistad, B no puede enviar
+-- solicitudes a A (la API le contesta como si la cuenta no existiera) y A no puede enviárselas
+-- a B hasta desbloquearlo. Desbloquear no recupera la amistad.
+CREATE TABLE IF NOT EXISTS bloqueo (
+    bloqueador_id INT UNSIGNED NOT NULL,
+    bloqueado_id  INT UNSIGNED NOT NULL,
+    fecha_bloqueo DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (bloqueador_id, bloqueado_id),
+    KEY idx_bloqueo_bloqueado (bloqueado_id),
+    CONSTRAINT fk_bloqueo_bloqueador FOREIGN KEY (bloqueador_id)
+        REFERENCES usuario (id) ON DELETE CASCADE,
+    CONSTRAINT fk_bloqueo_bloqueado FOREIGN KEY (bloqueado_id)
+        REFERENCES usuario (id) ON DELETE CASCADE,
+    CONSTRAINT chk_bloqueo_no_uno_mismo CHECK (bloqueador_id <> bloqueado_id)
 ) ENGINE = InnoDB;
