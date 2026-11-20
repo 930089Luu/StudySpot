@@ -9,6 +9,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/_http.php';
 require_once __DIR__ . '/../src/Database/conexion.php';
 require_once __DIR__ . '/../src/Usuarios/usuarios.php';
+require_once __DIR__ . '/../src/Usuarios/validacion.php';
 require_once __DIR__ . '/../src/Amigos/amistad.php';
 
 ejecutarEndpoint(function (): void {
@@ -31,7 +32,8 @@ ejecutarEndpoint(function (): void {
 function enviarSolicitud(PDO $pdo, int $usuarioId): never
 {
     $datos = leerCuerpoJson();
-    $correo = trim(leerCampoTexto($datos, 'friend_email'));
+    // Igual que en el registro y el login: los correos se guardan en minúsculas y sin espacios.
+    $correo = normalizarEmail(leerCampoTexto($datos, 'friend_email'));
     if ($correo === '') {
         responderJson(HTTP_BAD_REQUEST, ['error' => 'Escribe el correo de tu amigo.']);
     }
@@ -45,9 +47,8 @@ function enviarSolicitud(PDO $pdo, int $usuarioId): never
         responderJson(HTTP_BAD_REQUEST, ['error' => 'No puedes enviarte una solicitud a ti mismo.']);
     }
 
-    // Hay conflicto si ya existe una relación en cualquier sentido o si otro envío se adelantó.
-    $yaExiste = existeAmistadEntre($pdo, $usuarioId, $destinatarioId);
-    if ($yaExiste || !insertSolicitudAmistad($pdo, $usuarioId, $destinatarioId)) {
+    // Tras un rechazo se puede volver a pedir; si hay una pendiente o ya sois amigos, es un conflicto.
+    if (solicitarAmistad($pdo, $usuarioId, $destinatarioId) === SOLICITUD_DUPLICADA) {
         responderJson(HTTP_CONFLICT, ['error' => 'Ya hay una solicitud o una amistad con esa persona.']);
     }
     responderJson(HTTP_CREATED, ['mensaje' => 'Solicitud enviada.']);
