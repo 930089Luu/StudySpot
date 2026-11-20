@@ -28,7 +28,8 @@ const VISIBILIDAD_NO = 'no';
 const ACCION_ACEPTAR = 'accept';
 const ACCION_RECHAZAR = 'reject';
 const MENSAJE_SOLICITUD_ENVIADA = 'Solicitud enviada.';
-const TEXTO_SIN_UBICACION = 'Sin ubicación visible';
+// Neutro a propósito: no revela si el amigo no comparte su ubicación o si no está estudiando.
+const TEXTO_SIN_UBICACION = 'Ubicación no disponible';
 const MENSAJE_SIN_CONEXION = 'No se ha podido conectar. Revisa tu conexión e inténtalo de nuevo.';
 
 async function init() {
