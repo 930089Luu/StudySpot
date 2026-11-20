@@ -1,11 +1,13 @@
 /*
  * Pantalla de amigos (wireframes 7A, 7B y 8) (US06).
- * Solicitudes recibidas, enviar una solicitud por correo, lista de amigos e interruptor
- * de compartir ubicación. Quién ve qué lo decide el servidor: aquí solo se pinta.
+ * Solicitudes recibidas, enviar una solicitud por correo, lista de amigos, bloqueados e
+ * interruptor de compartir ubicación. Quién ve qué lo decide el servidor: aquí solo se pinta.
  */
 import {
+  cambiarBloqueo,
   enviarSolicitudAmistad,
   getAmigos,
+  getBloqueados,
   getSolicitudes,
   getVisibilidad,
   guardarVisibilidad,
@@ -18,7 +20,7 @@ import {
   mostrarAlerta,
   mostrarErrorRespuesta,
 } from './formulario.js';
-import { RUTA_LOGIN } from './rutas.js';
+import { RUTA_LOGIN, crearRutaPerfilContacto } from './rutas.js';
 
 const HTTP_OK = 200;
 const HTTP_CREATED = 201;
@@ -27,6 +29,7 @@ const VISIBILIDAD_SI = 'yes';
 const VISIBILIDAD_NO = 'no';
 const ACCION_ACEPTAR = 'accept';
 const ACCION_RECHAZAR = 'reject';
+const ACCION_DESBLOQUEAR = 'unblock';
 const MENSAJE_SOLICITUD_ENVIADA = 'Solicitud enviada.';
 // Neutro a propósito: no revela si el amigo no comparte su ubicación o si no está estudiando.
 const TEXTO_SIN_UBICACION = 'Ubicación no disponible';
@@ -46,10 +49,10 @@ async function init() {
   }
 }
 
-/** Pide solicitudes, amigos y visibilidad a la vez y pinta la pantalla. */
+/** Pide solicitudes, amigos, bloqueados y visibilidad a la vez y pinta la pantalla. */
 async function cargarPantalla() {
-  const respuestas = await Promise.all([getSolicitudes(), getAmigos(), getVisibilidad()]);
-  const [solicitudes, amigos, visibilidad] = respuestas;
+  const respuestas = await Promise.all([getSolicitudes(), getAmigos(), getBloqueados(), getVisibilidad()]);
+  const [solicitudes, amigos, bloqueados, visibilidad] = respuestas;
   if (respuestas.some(isSinSesion)) {
     redirigirAlLogin();
     return;
@@ -62,6 +65,7 @@ async function cargarPantalla() {
   }
   renderSolicitudes(solicitudes.cuerpo.solicitudes);
   renderAmigos(amigos.cuerpo.amigos);
+  renderBloqueados(bloqueados.cuerpo.bloqueados);
   document.getElementById('switch-compartir').checked = visibilidad.cuerpo.share === VISIBILIDAD_SI;
   document.getElementById('amigos-cargando').hidden = true;
   document.getElementById('amigos-contenido').hidden = false;
@@ -77,25 +81,52 @@ function renderAmigos(amigos) {
   document.getElementById('amigos-vacios').hidden = amigos.length > 0;
 }
 
-function crearItemSolicitud({ id, nombre, email }) {
-  const acciones = crearElemento('div', 'friend-list__actions');
-  acciones.append(
-    crearBotonAccion('Aceptar', 'button--primary', id, ACCION_ACEPTAR),
-    crearBotonAccion('Rechazar', 'button--secondary', id, ACCION_RECHAZAR),
+function renderBloqueados(bloqueados) {
+  document.getElementById('bloqueados-lista').replaceChildren(...bloqueados.map(crearItemBloqueado));
+  document.getElementById('bloqueados-vacios').hidden = bloqueados.length > 0;
+}
+
+// En solicitudes y amigos el nombre abre el perfil de esa persona (allí está "Bloquear").
+function crearItemSolicitud({ id, usuario_id: usuarioId, nombre, email }) {
+  return crearFila(
+    crearInfo(crearEnlacePerfil(usuarioId, nombre), email),
+    crearAcciones(
+      crearBotonAccion('Aceptar', 'button--primary', (boton) => handleResponderSolicitud(boton, id, ACCION_ACEPTAR)),
+      crearBotonAccion('Rechazar', 'button--secondary', (boton) => handleResponderSolicitud(boton, id, ACCION_RECHAZAR)),
+    ),
   );
-  return crearFila(crearInfo(nombre, email), acciones);
 }
 
-function crearItemAmigo({ nombre, biblioteca }) {
+function crearItemAmigo({ usuario_id: usuarioId, nombre, biblioteca }) {
   const detalle = biblioteca ? `Estudiando en ${biblioteca}` : TEXTO_SIN_UBICACION;
-  return crearFila(crearInfo(nombre, detalle));
+  return crearFila(crearInfo(crearEnlacePerfil(usuarioId, nombre), detalle));
 }
 
-function crearBotonAccion(texto, variante, solicitudId, accion) {
+// A un bloqueado no se le abre el perfil: solo se puede desbloquear.
+function crearItemBloqueado({ usuario_id: usuarioId, nombre, email }) {
+  const desbloquear = crearBotonAccion('Desbloquear', 'button--secondary', (boton) =>
+    ejecutarAccionFila(boton, () => cambiarBloqueo(usuarioId, ACCION_DESBLOQUEAR)));
+  return crearFila(crearInfo(crearTexto('p', 'friend-list__name', nombre), email), crearAcciones(desbloquear));
+}
+
+function crearEnlacePerfil(usuarioId, nombre) {
+  const enlace = crearTexto('a', 'friend-list__name friend-list__name--link', nombre);
+  enlace.href = crearRutaPerfilContacto(usuarioId);
+  return enlace;
+}
+
+function crearAcciones(...botones) {
+  const acciones = crearElemento('div', 'friend-list__actions');
+  acciones.append(...botones);
+  return acciones;
+}
+
+/** Botón de una fila. alPulsar recibe el propio botón para poder desactivarlo mientras se espera. */
+function crearBotonAccion(texto, variante, alPulsar) {
   const boton = crearElemento('button', `button button--compact ${variante}`);
   boton.type = 'button';
   boton.textContent = texto;
-  boton.addEventListener('click', (evento) => handleResponderSolicitud(evento.currentTarget, solicitudId, accion));
+  boton.addEventListener('click', (evento) => alPulsar(evento.currentTarget));
   return boton;
 }
 
@@ -105,12 +136,9 @@ function crearFila(...contenido) {
   return item;
 }
 
-function crearInfo(nombre, detalle) {
+function crearInfo(elementoNombre, detalle) {
   const info = crearElemento('div', 'friend-list__info');
-  info.append(
-    crearTexto('p', 'friend-list__name', nombre),
-    crearTexto('p', 'friend-list__detail', detalle),
-  );
+  info.append(elementoNombre, crearTexto('p', 'friend-list__detail', detalle));
   return info;
 }
 
@@ -146,12 +174,17 @@ async function handleEnviarSolicitud(evento) {
   mostrarErrorRespuesta(formulario, respuesta.cuerpo);
 }
 
-/** Acepta o rechaza una solicitud recibida y vuelve a pintar las listas. */
-async function handleResponderSolicitud(boton, solicitudId, accion) {
+/** Acepta o rechaza una solicitud recibida. */
+function handleResponderSolicitud(boton, solicitudId, accion) {
+  ejecutarAccionFila(boton, () => responderSolicitud(solicitudId, accion));
+}
+
+/** Ejecuta la acción de un botón de fila y, si va bien, vuelve a pintar todas las listas. */
+async function ejecutarAccionFila(boton, llamada) {
   boton.disabled = true;
   mostrarAlertaPagina('');
   try {
-    const respuesta = await responderSolicitud(solicitudId, accion);
+    const respuesta = await llamada();
     if (isSinSesion(respuesta)) {
       redirigirAlLogin();
       return;
