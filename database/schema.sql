@@ -110,3 +110,20 @@ CREATE TABLE IF NOT EXISTS amistad (
         REFERENCES usuario (id) ON DELETE CASCADE,
     CONSTRAINT chk_amistad_no_uno_mismo CHECK (solicitante_id <> destinatario_id)
 ) ENGINE = InnoDB;
+
+-- Bloqueos entre estudiantes (mejora de privacidad de US06, añadida en el Sprint 2).
+-- Si A bloquea a B: se borra lo que hubiera entre ellos en amistad, B no puede enviar
+-- solicitudes a A (la API le contesta como si la cuenta no existiera) y A no puede enviárselas
+-- a B hasta desbloquearlo. Desbloquear no recupera la amistad.
+CREATE TABLE IF NOT EXISTS bloqueo (
+    bloqueador_id INT UNSIGNED NOT NULL,
+    bloqueado_id  INT UNSIGNED NOT NULL,
+    fecha_bloqueo DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (bloqueador_id, bloqueado_id),
+    KEY idx_bloqueo_bloqueado (bloqueado_id),
+    CONSTRAINT fk_bloqueo_bloqueador FOREIGN KEY (bloqueador_id)
+        REFERENCES usuario (id) ON DELETE CASCADE,
+    CONSTRAINT fk_bloqueo_bloqueado FOREIGN KEY (bloqueado_id)
+        REFERENCES usuario (id) ON DELETE CASCADE,
+    CONSTRAINT chk_bloqueo_no_uno_mismo CHECK (bloqueador_id <> bloqueado_id)
+) ENGINE = InnoDB;
