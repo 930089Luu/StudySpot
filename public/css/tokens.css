@@ -53,7 +53,11 @@
   --sheet-card-height: 17rem;
   --sheet-handle-width: 2.5rem;
   --sheet-handle-height: 4px;
-  --pin-min-width: 3rem;
+  /* Globo de ocupación del mapa: anillo que se rellena según el % (estilo anillos de actividad) */
+  --pin-size: 46px;
+  --pin-size-selected: 54px;
+  --pin-ring-width: 3.5;
+  --pin-font-size: 0.8125rem;
   /* Animación de carga del mapa: tamaño del dibujo, vuelta completa y retraso entre libros */
   --loader-size: 8rem;
   --loader-cycle: 3.2s;
@@ -102,6 +106,15 @@
 
   /* Sombras muy suaves */
   --shadow-card: 0 1px 2px rgb(0 0 0 / 0.04), 0 8px 32px rgb(0 0 0 / 0.06);
+  /* Colores del globo del mapa. El mapa es siempre oscuro (luz de atardecer), así que no cambian
+     con el modo claro/oscuro: colores vivos que se leen sobre él y cristal oscuro de fondo. */
+  --color-pin-bajo: #30d158;
+  --color-pin-medio: #8b8aff;
+  --color-pin-alto: #ff453a;
+  --color-pin-fondo: rgb(20 20 32 / 0.6);
+  --color-pin-pista: rgb(255 255 255 / 0.15);
+  --color-pin-texto: #ffffff;
+  --shadow-pin: 0 4px 14px rgb(0 0 0 / 0.35);
 }
 
 @media (prefers-color-scheme: dark) {

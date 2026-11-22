@@ -1105,32 +1105,70 @@
 }
 
 /* ---------- map-pin: globo con el % de cada biblioteca en el mapa ---------- */
+/* Cristal oscuro con un anillo que se rellena según la ocupación y el número dentro (Lucía, 22-11) */
 .map-pin {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: var(--pin-min-width);
-  min-height: var(--tap-target);
-  padding-inline: var(--space-3);
-  border: 2px solid var(--color-nivel, var(--color-accent));
+  width: var(--pin-size);
+  height: var(--pin-size);
   border-radius: var(--radius-full);
-  background-color: var(--color-bg);
-  box-shadow: var(--shadow-card);
-  color: var(--color-text);
+  background-color: var(--color-pin-fondo);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-pin);
+  color: var(--color-pin-texto);
+  font-size: var(--pin-font-size);
   font-weight: var(--font-weight-bold);
   font-variant-numeric: tabular-nums;
   text-decoration: none;
+  transition:
+    width var(--duration-fast) var(--easing-standard),
+    height var(--duration-fast) var(--easing-standard),
+    box-shadow var(--duration-fast) var(--easing-standard);
 }
 
-.map-pin:active {
-  transform: scale(var(--press-scale));
+.map-pin.nivel--bajo { --color-pin: var(--color-pin-bajo); }
+.map-pin.nivel--medio { --color-pin: var(--color-pin-medio); }
+.map-pin.nivel--alto { --color-pin: var(--color-pin-alto); }
+
+/* El anillo empieza arriba (las 12) y avanza en el sentido de las agujas del reloj */
+.map-pin__anillo {
+  position: absolute;
+  inset: 0;
+  transform: rotate(-90deg);
 }
 
-/* Globo de la biblioteca elegida: relleno con el color de su nivel y por encima de los demás */
+.map-pin__pista,
+.map-pin__progreso {
+  fill: none;
+  stroke-width: var(--pin-ring-width);
+}
+
+.map-pin__pista {
+  stroke: var(--color-pin-pista);
+}
+
+/* pathLength="100" en el SVG: el trazo mide 100 y --ocupacion (0–100) es lo que se pinta */
+.map-pin__progreso {
+  stroke: var(--color-pin);
+  stroke-linecap: round;
+  stroke-dasharray: var(--ocupacion) 100;
+}
+
+.map-pin__numero {
+  position: relative;
+}
+
+/* Globo de la biblioteca elegida: más grande, con un brillo de su color y por encima de los demás */
 .map-pin--seleccionado {
   z-index: 1;
-  background-color: var(--color-nivel, var(--color-accent));
-  color: var(--color-on-accent);
+  width: var(--pin-size-selected);
+  height: var(--pin-size-selected);
+  box-shadow:
+    0 0 0 4px color-mix(in srgb, var(--color-pin) 35%, transparent),
+    var(--shadow-pin);
 }
 
 /* ---------- tab-bar: navegación inferior Mapa · Check-in · Perfil ---------- */
