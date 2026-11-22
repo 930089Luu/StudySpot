@@ -257,6 +257,18 @@
   transform: scale(var(--press-scale));
 }
 
+/* ---------- button--danger: acción que no se deshace sola (p. ej. "Bloquear") ---------- */
+.button--danger {
+  border: var(--border-width) solid var(--color-danger);
+  background-color: transparent;
+  color: var(--color-danger);
+}
+
+.button--danger:active {
+  background-color: var(--color-danger-surface);
+  transform: scale(var(--press-scale));
+}
+
 /* ---------- state: pantalla con icono, título, texto y acciones (4B, 4C, check-in) ---------- */
 .state {
   display: flex;
@@ -585,6 +597,22 @@
 .friend-list__name {
   font-weight: var(--font-weight-semibold);
   overflow-wrap: anywhere;
+}
+
+/* El nombre de un amigo o de una solicitud abre su perfil */
+.friend-list__name--link {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  min-height: var(--tap-target);
+  color: var(--color-text);
+  text-decoration: underline;
+  text-decoration-color: var(--color-border);
+  text-underline-offset: var(--space-1);
+}
+
+.friend-list__name--link:active {
+  color: var(--color-accent-text);
 }
 
 .friend-list__detail {

@@ -8,27 +8,91 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../constantes.php';
 require_once __DIR__ . '/../Database/conexion.php';
+require_once __DIR__ . '/bloqueo.php';
 
 const AMISTAD_PENDIENTE = 'pending';
 const AMISTAD_ACEPTADA = 'accepted';
 const AMISTAD_RECHAZADA = 'rejected';
 
+// Resultado de solicitarAmistad
+const SOLICITUD_ENVIADA = 'enviada';
+const SOLICITUD_DUPLICADA = 'duplicada';
+const SOLICITUD_A_BLOQUEADO = 'a_bloqueado';   // el solicitante tiene bloqueado al destinatario
+const SOLICITUD_OCULTA = 'oculta';             // el destinatario tiene bloqueado al solicitante
+
+/**
+ * Envía una solicitud de amistad. Cada pareja tiene como mucho una fila en la tabla:
+ * si la anterior se rechazó, se reutiliza como solicitud nueva (pendiente) en el sentido
+ * de quien la envía ahora. Si está pendiente o aceptada, es un duplicado.
+ * Si el destinatario ha bloqueado al solicitante no se guarda nada (SOLICITUD_OCULTA):
+ * el endpoint responde como si esa cuenta no existiera (404) para no revelar el bloqueo.
+ */
+function solicitarAmistad(PDO $pdo, int $solicitanteId, int $destinatarioId): string
+{
+    if (isBloqueado($pdo, $solicitanteId, $destinatarioId)) {
+        return SOLICITUD_A_BLOQUEADO;
+    }
+    if (isBloqueado($pdo, $destinatarioId, $solicitanteId)) {
+        return SOLICITUD_OCULTA;
+    }
+    $estadoPrevio = findEstadoAmistadEntre($pdo, $solicitanteId, $destinatarioId);
+    if ($estadoPrevio === AMISTAD_RECHAZADA) {
+        reabrirSolicitudRechazada($pdo, $solicitanteId, $destinatarioId);
+        return SOLICITUD_ENVIADA;
+    }
+    // Un envío simultáneo de la misma pareja lo para la UNIQUE de la BD (insert devuelve false).
+    if ($estadoPrevio !== null || !insertSolicitudAmistad($pdo, $solicitanteId, $destinatarioId)) {
+        return SOLICITUD_DUPLICADA;
+    }
+    return SOLICITUD_ENVIADA;
+}
+
 /** Indica si ya hay una solicitud o una amistad entre dos usuarios, en cualquier sentido. */
 function existeAmistadEntre(PDO $pdo, int $usuarioA, int $usuarioB): bool
 {
+    return findEstadoAmistadEntre($pdo, $usuarioA, $usuarioB) !== null;
+}
+
+/** Estado de la relación entre dos usuarios (en cualquier sentido), o null si no hay ninguna. */
+function findEstadoAmistadEntre(PDO $pdo, int $usuarioA, int $usuarioB): ?string
+{
     $consulta = $pdo->prepare(
-        'SELECT 1 FROM amistad
+        'SELECT estado FROM amistad
          WHERE (solicitante_id = :a1 AND destinatario_id = :b1)
             OR (solicitante_id = :b2 AND destinatario_id = :a2)
          LIMIT 1'
     );
     $consulta->execute(['a1' => $usuarioA, 'b1' => $usuarioB, 'b2' => $usuarioB, 'a2' => $usuarioA]);
-    return $consulta->fetchColumn() !== false;
+    $estado = $consulta->fetchColumn();
+    return $estado === false ? null : $estado;
+}
+
+/** Convierte la solicitud rechazada de la pareja en una pendiente de solicitante a destinatario. */
+function reabrirSolicitudRechazada(PDO $pdo, int $solicitanteId, int $destinatarioId): void
+{
+    $consulta = $pdo->prepare(
+        'UPDATE amistad
+         SET solicitante_id = :solicitante, destinatario_id = :destinatario,
+             estado = :pendiente, fecha_solicitud = NOW()
+         WHERE estado = :rechazada
+           AND ((solicitante_id = :a1 AND destinatario_id = :b1)
+             OR (solicitante_id = :b2 AND destinatario_id = :a2))'
+    );
+    $consulta->execute([
+        'solicitante' => $solicitanteId,
+        'destinatario' => $destinatarioId,
+        'pendiente' => AMISTAD_PENDIENTE,
+        'rechazada' => AMISTAD_RECHAZADA,
+        'a1' => $solicitanteId,
+        'b1' => $destinatarioId,
+        'b2' => $destinatarioId,
+        'a2' => $solicitanteId,
+    ]);
 }
 
 /**
- * Crea una solicitud pendiente. Devuelve false si ya existe en el mismo sentido
- * (la UNIQUE de la BD evita dos envíos a la vez).
+ * Crea una solicitud pendiente. Devuelve false si la pareja ya tiene una fila, en cualquier
+ * sentido (la UNIQUE uq_amistad_pareja de la BD también para dos envíos a la vez).
  */
 function insertSolicitudAmistad(PDO $pdo, int $solicitanteId, int $destinatarioId): bool
 {
@@ -50,7 +114,7 @@ function insertSolicitudAmistad(PDO $pdo, int $solicitanteId, int $destinatarioI
 function findSolicitudesRecibidas(PDO $pdo, int $usuarioId): array
 {
     $consulta = $pdo->prepare(
-        'SELECT a.id, u.nombre, u.email
+        'SELECT a.id, u.id AS usuario_id, u.nombre, u.email
          FROM amistad a
          JOIN usuario u ON u.id = a.solicitante_id
          WHERE a.destinatario_id = :usuario AND a.estado = :estado
@@ -87,7 +151,7 @@ function actualizarEstadoAmistad(PDO $pdo, int $solicitudId, string $estado): vo
 function findAmigos(PDO $pdo, int $usuarioId): array
 {
     $consulta = $pdo->prepare(
-        'SELECT u.nombre, u.comparte_ubicacion, b.nombre AS biblioteca
+        'SELECT u.id, u.nombre, u.comparte_ubicacion, b.nombre AS biblioteca
          FROM amistad a
          JOIN usuario u
            ON u.id = CASE WHEN a.solicitante_id = :yo1 THEN a.destinatario_id ELSE a.solicitante_id END
@@ -113,6 +177,7 @@ function findAmigos(PDO $pdo, int $usuarioId): array
     $amigos = [];
     foreach ($consulta->fetchAll() as $fila) {
         $amigos[] = [
+            'usuario_id' => (int) $fila['id'],
             'nombre' => $fila['nombre'],
             'biblioteca' => (int) $fila['comparte_ubicacion'] === 1 ? $fila['biblioteca'] : null,
         ];
