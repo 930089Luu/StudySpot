@@ -705,25 +705,74 @@
 .map-screen__map {
   flex: 1;
   min-height: 0;
+  /* Los controles de Mapbox llevan z-index propio: así se quedan debajo del panel de la lista */
+  isolation: isolate;
 }
 
 /* ---------- sheet: panel inferior con la lista de bibliotecas ---------- */
+/*
+ * Se arrastra por el asa a cualquier altura: JS pone la altura deseada en --sheet-altura y
+ * clamp() la deja entre recogido y desplegado. En el flujo solo ocupa la altura recogida; lo que
+ * sube de más (margen negativo) tapa el mapa sin encogerlo, así Mapbox no se redibuja al arrastrar.
+ */
 .sheet {
+  --sheet-altura-real: clamp(var(--sheet-collapsed-height), var(--sheet-altura, 0px), var(--sheet-max-height));
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
-  max-height: var(--sheet-max-height);
-  padding: var(--space-3) var(--page-gutter) var(--space-4);
+  height: var(--sheet-altura-real);
+  margin-block-start: calc(var(--sheet-collapsed-height) - var(--sheet-altura-real));
+  padding: 0 var(--page-gutter) var(--space-4);
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   background-color: var(--color-bg);
   box-shadow: var(--shadow-card);
-  overflow-y: auto;
+  overflow: hidden;
+  transition: height var(--duration-base) var(--easing-standard),
+    margin-block-start var(--duration-base) var(--easing-standard);
+}
+
+/* Mientras se arrastra, el panel sigue al dedo sin animación */
+.sheet--dragging {
+  transition: none;
 }
 
 /* Si el mapa no se puede cargar, la lista ocupa toda la pantalla */
 .sheet--full {
   flex: 1;
-  max-height: none;
+  height: auto;
+  margin-block-start: 0;
+}
+
+/* Solo la lista hace scroll: el asa y la cabecera se quedan siempre a la vista */
+.sheet .library-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+/* Botón del asa: toda la franja superior del panel, para que sea fácil de tocar */
+.sheet__toggle {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--tap-target);
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: grab;
+  /* El gesto vertical lo maneja el arrastre, no el scroll del navegador */
+  touch-action: none;
+}
+
+.sheet--dragging .sheet__toggle {
+  cursor: grabbing;
+}
+
+.sheet--full .sheet__toggle {
+  display: none;
 }
 
 .sheet__handle {

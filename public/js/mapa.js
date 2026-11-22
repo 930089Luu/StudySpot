@@ -20,12 +20,34 @@ const HTTP_UNAUTHORIZED = 401;
 const INTERVALO_REFRESCO_MS = 60 * 1000;
 // Mapbox GL JS no es un módulo ES: se añade como <script> y define window.mapboxgl.
 const MAPBOX_JS_URL = 'https://api.mapbox.com/mapbox-gl-js/v3.12.0/mapbox-gl.js';
+// Su CSS se añade también desde aquí: en el <head> bloquearía la primera pantalla (K07).
+const MAPBOX_CSS_URL = 'https://api.mapbox.com/mapbox-gl-js/v3.12.0/mapbox-gl.css';
 // Estilo Standard de Mapbox con el tema "Faded" y luz de atardecer (elección de Lucía).
-// Sin edificios 3D: pesan mucho al cargar en el móvil y no ayudan a encontrar la biblioteca.
+// Con edificios 3D, para ver el edificio de la biblioteca al entrar (Lucía, 22-11). Sin iconos
+// de comercios y transporte: pesan al cargar en el móvil (K07) y no ayudan a encontrarla.
 const ESTILO_MAPA = 'mapbox://styles/mapbox/standard';
-const CONFIG_ESTILO = { basemap: { theme: 'faded', lightPreset: 'dusk', show3dObjects: false } };
+const CONFIG_ESTILO = {
+  basemap: {
+    theme: 'faded',
+    lightPreset: 'dusk',
+    show3dObjects: true,
+    showPointOfInterestLabels: false,
+    showTransitLabels: false,
+  },
+};
+// El mapa se abre sobre ISLA Gaia (id 1 en datos_ejemplo.sql), inclinado para ver el edificio
+// en 3D. Si no está en la lista, se encuadran todas las bibliotecas (vista desde arriba).
+const ID_BIBLIOTECA_INICIAL = 1;
+const VISTA_3D = { zoom: 17, pitch: 60, bearing: -20 };
 const MARGEN_ENCUADRE_PX = 64;
 const ZOOM_MAXIMO_ENCUADRE = 15;
+const TEXTO_PANEL_RECOGIDO = 'Mostrar todas las bibliotecas';
+const TEXTO_PANEL_DESPLEGADO = 'Ocultar la lista de bibliotecas';
+// Por debajo de esta distancia el gesto en el asa cuenta como toque, no como arrastre.
+const UMBRAL_ARRASTRE_PX = 6;
+// Valores para --sheet-altura: el CSS los recorta a la altura recogida y a la desplegada.
+const ALTURA_PANEL_RECOGIDO = '0px';
+const ALTURA_PANEL_DESPLEGADO = '100vh';
 const MENSAJE_SIN_CONEXION = 'No se ha podido conectar. Revisa tu conexión e inténtalo de nuevo.';
 const MENSAJE_SIN_MAPA = 'No se ha podido cargar el mapa. Aquí tienes la lista de bibliotecas.';
 
@@ -44,6 +66,7 @@ async function init() {
 
   renderLista(bibliotecas);
   const mapa = await crearMapa(bibliotecas, mapboxCargado, tokenPedido);
+  iniciarPanel();
   const marcadores = new Map();
   if (mapa) pintarMarcadores(mapa, marcadores, bibliotecas);
 
@@ -105,18 +128,82 @@ function crearTexto(clase, texto) {
   return elemento;
 }
 
-/** Añade el <script> de Mapbox. La promesa se cumple al cargar y se rechaza si falla. */
+/** Añade el CSS y el <script> de Mapbox. Se cumple cuando cargan los dos y se rechaza si falla uno. */
 function cargarMapbox() {
+  const estilos = document.createElement('link');
+  estilos.rel = 'stylesheet';
+  estilos.href = MAPBOX_CSS_URL;
+  const script = document.createElement('script');
+  script.src = MAPBOX_JS_URL;
+  return Promise.all([cargarEnHead(estilos), cargarEnHead(script)]);
+}
+
+function cargarEnHead(elemento) {
   return new Promise((resolver, rechazar) => {
-    const script = document.createElement('script');
-    script.src = MAPBOX_JS_URL;
-    script.addEventListener('load', resolver);
-    script.addEventListener('error', () => rechazar(new Error('No se ha podido cargar Mapbox GL JS')));
-    document.head.append(script);
+    elemento.addEventListener('load', resolver);
+    elemento.addEventListener('error', () => rechazar(new Error(`No se ha podido cargar ${elemento.src ?? elemento.href}`)));
+    document.head.append(elemento);
   });
 }
 
-/** Crea el mapa encuadrando todas las bibliotecas. Devuelve null si no se puede (y lo avisa). */
+/**
+ * Asa del panel de bibliotecas: arrastrándola se deja a cualquier altura; un toque (o Intro con
+ * el teclado) lo recoge o lo despliega del todo.
+ */
+function iniciarPanel() {
+  const panel = document.getElementById('panel-bibliotecas');
+  const boton = document.getElementById('panel-boton');
+  const arrastre = { inicioY: 0, alturaInicial: 0, isActivo: false, hasMovido: false };
+  escucharArrastre(panel, boton, arrastre);
+  escucharToque(panel, boton, arrastre);
+}
+
+/** Mientras se arrastra el asa, el panel sigue al dedo (o al ratón). */
+function escucharArrastre(panel, boton, arrastre) {
+  const alturaRecogido = panel.getBoundingClientRect().height;
+  boton.addEventListener('pointerdown', (evento) => {
+    const alturaInicial = panel.getBoundingClientRect().height;
+    Object.assign(arrastre, { inicioY: evento.clientY, alturaInicial, isActivo: true, hasMovido: false });
+    boton.setPointerCapture(evento.pointerId);
+    panel.classList.add('sheet--dragging');
+  });
+  boton.addEventListener('pointermove', (evento) => {
+    if (!arrastre.isActivo) return;
+    const desplazamiento = arrastre.inicioY - evento.clientY;
+    if (Math.abs(desplazamiento) >= UMBRAL_ARRASTRE_PX) arrastre.hasMovido = true;
+    if (arrastre.hasMovido) panel.style.setProperty('--sheet-altura', `${arrastre.alturaInicial + desplazamiento}px`);
+  });
+  const terminarArrastre = () => {
+    arrastre.isActivo = false;
+    panel.classList.remove('sheet--dragging');
+    actualizarEstadoPanel(boton, panel.getBoundingClientRect().height > alturaRecogido + 1);
+  };
+  boton.addEventListener('pointerup', terminarArrastre);
+  boton.addEventListener('pointercancel', terminarArrastre);
+}
+
+/** Un toque o Intro recoge el panel si está abierto (aunque sea a medias) o lo despliega. */
+function escucharToque(panel, boton, arrastre) {
+  // Tras un arrastre el navegador también lanza click: ese no cuenta como toque.
+  boton.addEventListener('click', () => {
+    if (arrastre.hasMovido) {
+      arrastre.hasMovido = false;
+      return;
+    }
+    const isDesplegar = boton.getAttribute('aria-expanded') !== 'true';
+    panel.style.setProperty('--sheet-altura', isDesplegar ? ALTURA_PANEL_DESPLEGADO : ALTURA_PANEL_RECOGIDO);
+    actualizarEstadoPanel(boton, isDesplegar);
+  });
+}
+
+function actualizarEstadoPanel(boton, isDesplegado) {
+  boton.setAttribute('aria-expanded', String(isDesplegado));
+  document.getElementById('panel-boton-texto').textContent = isDesplegado
+    ? TEXTO_PANEL_DESPLEGADO
+    : TEXTO_PANEL_RECOGIDO;
+}
+
+/** Crea el mapa en la vista inicial. Devuelve null si no se puede (y lo avisa). */
 async function crearMapa(bibliotecas, mapboxCargado, tokenPedido) {
   try {
     const [respuesta] = await Promise.all([tokenPedido, mapboxCargado]);
@@ -129,14 +216,25 @@ async function crearMapa(bibliotecas, mapboxCargado, tokenPedido) {
       container: 'mapa',
       style: ESTILO_MAPA,
       config: CONFIG_ESTILO,
-      bounds: crearEncuadre(bibliotecas),
-      fitBoundsOptions: { padding: MARGEN_ENCUADRE_PX, maxZoom: ZOOM_MAXIMO_ENCUADRE },
+      ...crearVistaInicial(bibliotecas),
     });
   } catch (error) {
     console.error(error);
     mostrarSinMapa();
     return null;
   }
+}
+
+/** Centrado en la biblioteca inicial; si no está, encuadre de todas. */
+function crearVistaInicial(bibliotecas) {
+  const inicial = bibliotecas.find((biblioteca) => biblioteca.id === ID_BIBLIOTECA_INICIAL);
+  if (inicial) {
+    return { center: [inicial.longitud, inicial.latitud], ...VISTA_3D };
+  }
+  return {
+    bounds: crearEncuadre(bibliotecas),
+    fitBoundsOptions: { padding: MARGEN_ENCUADRE_PX, maxZoom: ZOOM_MAXIMO_ENCUADRE },
+  };
 }
 
 /** [[oeste, sur], [este, norte]] que contiene todas las bibliotecas. */

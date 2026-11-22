@@ -46,7 +46,9 @@
   --content-max-width: 24rem;
   /* Mapa y detalle de biblioteca (US03/US05) */
   --tab-bar-height: 4rem;
-  --sheet-max-height: 42vh;
+  /* Panel de bibliotecas: recogido deja el mapa casi a pantalla completa (cabecera + 1 fila) */
+  --sheet-collapsed-height: 9.5rem;
+  --sheet-max-height: 60vh;
   --sheet-handle-width: 2.5rem;
   --sheet-handle-height: 4px;
   --pin-min-width: 3rem;

@@ -7,12 +7,16 @@
   <meta name="theme-color" content="#121316" media="(prefers-color-scheme: dark)">
   <title>Mapa · StudySpot</title>
   <link rel="icon" href="img/studyspot-simbolo-color.png" type="image/png">
-  <!-- Se abre ya la conexión con Mapbox; su JS (1,5 MB) lo carga mapa.js después de pintar la lista -->
+  <!-- Se abre ya la conexión con Mapbox; su CSS y su JS (1,5 MB) los carga mapa.js sin bloquear la lista -->
   <link rel="preconnect" href="https://api.mapbox.com" crossorigin>
-  <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/v3.12.0/mapbox-gl.css">
   <link rel="stylesheet" href="css/tokens.css">
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/components.css">
+  <!-- Los módulos que importa mapa.js se piden a la vez, no uno detrás de otro (K07) -->
+  <link rel="modulepreload" href="js/api.js">
+  <link rel="modulepreload" href="js/formulario.js">
+  <link rel="modulepreload" href="js/ocupacion.js">
+  <link rel="modulepreload" href="js/rutas.js">
   <script type="module" src="js/mapa.js"></script>
 </head>
 <body>
@@ -25,7 +29,11 @@
     <div class="map-screen__map" id="mapa" role="region" aria-label="Mapa de bibliotecas"></div>
 
     <section class="sheet" id="panel-bibliotecas" aria-labelledby="titulo-bibliotecas">
-      <span class="sheet__handle" aria-hidden="true"></span>
+      <button class="sheet__toggle" id="panel-boton" type="button"
+              aria-expanded="false" aria-controls="panel-bibliotecas">
+        <span class="sheet__handle" aria-hidden="true"></span>
+        <span class="visually-hidden" id="panel-boton-texto">Mostrar todas las bibliotecas</span>
+      </button>
       <header class="sheet__header">
         <h2 class="sheet__title" id="titulo-bibliotecas">Bibliotecas</h2>
         <p class="sheet__meta" id="bibliotecas-actualizado" role="status"></p>
