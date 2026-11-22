@@ -1,15 +1,22 @@
 /*
  * Panel de la pantalla del mapa: lista de bibliotecas (tu favorita primero y luego de más vacía a
- * más llena), buscador por
- * nombre o dirección y tarjeta de la biblioteca elegida en la lista o en el mapa.
+ * más llena), buscador por nombre o dirección y tarjeta de la biblioteca elegida en la lista o en
+ * el mapa. Filas al estilo de Apple Maps: anillo de ocupación, nombre y una línea gris.
  * El filtro se hace aquí, en el navegador: la lista ya trae todas las bibliotecas.
  */
-import { crearBarraOcupacion, getNivelOcupacion, getTextoActualizado, getTextoFiabilidad } from './ocupacion.js';
+import {
+  crearAnilloOcupacion,
+  crearBarraOcupacion,
+  crearElementoSvg,
+  getNivelOcupacion,
+  getTextoActualizado,
+  getTextoFiabilidad,
+} from './ocupacion.js';
 import { ALTURA_PANEL, ajustarPanel } from './panel.js';
 import { crearRutaBiblioteca } from './rutas.js';
 
-const TEXTO_FAVORITA = 'Favorita';
-const SVG_NS = 'http://www.w3.org/2000/svg';
+// En la lista sobra repetir "Biblioteca" en cada fila (en la tarjeta y el detalle sí va entero).
+const PREFIJO_NOMBRE = /^Biblioteca\s+/i;
 // La misma estrella que el botón del detalle (biblioteca.html).
 const RUTA_ESTRELLA = 'M12 3.5l2.6 5.3 5.9.9-4.25 4.15 1 5.85L12 16.9l-5.25 2.8 1-5.85L3.5 9.7l5.9-.9z';
 
@@ -83,32 +90,40 @@ function crearItemBiblioteca(biblioteca, { isFavorita, onSeleccionar }) {
   const { id, nombre, ocupacion, fiabilidad } = biblioteca;
   const boton = document.createElement('button');
   boton.type = 'button';
-  boton.className = 'library-list__link';
+  boton.className = 'library-row';
+  boton.setAttribute('aria-label', getEtiquetaFila(biblioteca, isFavorita));
   boton.addEventListener('click', () => onSeleccionar(id));
-  if (isFavorita) boton.append(crearEtiquetaFavorita());
-  boton.append(
-    crearTexto('library-list__name', nombre),
-    crearTexto('library-list__value', `${ocupacion} %`),
-    crearBarraOcupacion(ocupacion),
-    crearTexto('library-list__detail', getTextoEstado(ocupacion, fiabilidad)),
-  );
+  const nombreCorto = crearTexto('library-row__name', nombre.replace(PREFIJO_NOMBRE, ''));
+  if (isFavorita) nombreCorto.append(crearEstrella());
+  const cuerpo = document.createElement('span');
+  cuerpo.className = 'library-row__body';
+  cuerpo.append(nombreCorto, crearTexto('library-row__meta', getTextoEstado(ocupacion, fiabilidad)));
+  boton.append(crearAnilloFila(ocupacion), cuerpo);
   const item = document.createElement('li');
   item.append(boton);
   return item;
 }
 
-/** "★ Favorita", encima del nombre de la favorita. */
-function crearEtiquetaFavorita() {
-  const estrella = document.createElementNS(SVG_NS, 'svg');
-  estrella.setAttribute('class', 'library-list__favorite-icon');
-  estrella.setAttribute('viewBox', '0 0 24 24');
-  estrella.setAttribute('aria-hidden', 'true');
-  const forma = document.createElementNS(SVG_NS, 'path');
-  forma.setAttribute('d', RUTA_ESTRELLA);
-  estrella.append(forma);
-  const etiqueta = crearTexto('library-list__favorite', TEXTO_FAVORITA);
-  etiqueta.prepend(estrella);
-  return etiqueta;
+/** Anillo con el número dentro, como el globo del mapa pero en claro. */
+function crearAnilloFila(ocupacion) {
+  const anillo = document.createElement('span');
+  anillo.className = `library-row__ring ${getNivelOcupacion(ocupacion).clase}`;
+  anillo.style.setProperty('--ocupacion', ocupacion);
+  anillo.append(crearAnilloOcupacion(), crearTexto('library-row__value', `${ocupacion}`));
+  return anillo;
+}
+
+/** Lo que lee el lector de pantalla: el número solo del anillo no se entendería. */
+function getEtiquetaFila({ nombre, ocupacion, fiabilidad }, isFavorita) {
+  const favorita = isFavorita ? ', tu favorita' : '';
+  return `${nombre}${favorita}: ${ocupacion} % de ocupación, ${getTextoEstado(ocupacion, fiabilidad)}`;
+}
+
+/** Estrella pequeña junto al nombre de la favorita. */
+function crearEstrella() {
+  const estrella = crearElementoSvg('svg', { class: 'library-row__star', viewBox: '0 0 24 24', 'aria-hidden': 'true' });
+  estrella.append(crearElementoSvg('path', { d: RUTA_ESTRELLA }));
+  return estrella;
 }
 
 function rellenarTarjeta({ id, nombre, direccion, ocupacion, fiabilidad }) {

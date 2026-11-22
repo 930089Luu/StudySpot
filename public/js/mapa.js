@@ -8,7 +8,7 @@
 import { getConfigMapa, getOcupacion } from './api.js';
 import { MENSAJE_ERROR_GENERICO, mostrarAlerta } from './formulario.js';
 import { actualizarLista, iniciarLista, mostrarTarjeta, ocultarTarjeta } from './lista-bibliotecas.js';
-import { CLASES_NIVEL, getNivelOcupacion, getTextoFiabilidad } from './ocupacion.js';
+import { CLASES_NIVEL, crearAnilloOcupacion, getNivelOcupacion, getTextoFiabilidad } from './ocupacion.js';
 import { ALTURA_PANEL, ajustarPanel, getAlturaTapada, iniciarPanel } from './panel.js';
 import { RUTA_LOGIN, crearRutaBiblioteca } from './rutas.js';
 
@@ -43,9 +43,6 @@ const DURACION_ENTRADA_MS = 2500;
 const ESPERA_MAXIMA_MAPA_MS = 15000;
 const MARGEN_ENCUADRE_PX = 64;
 const ZOOM_MAXIMO_ENCUADRE = 15;
-// Globo: anillo dibujado en un SVG de 40×40 (radio 16 deja sitio al grosor del trazo).
-const SVG_NS = 'http://www.w3.org/2000/svg';
-const RADIO_ANILLO = 16;
 // Vuelo hasta la biblioteca elegida (Mapbox lo hace sin animación si el móvil pide menos movimiento).
 const DURACION_VUELO_MS = 2000;
 const MENSAJE_SIN_CONEXION = 'No se ha podido conectar. Revisa tu conexión e inténtalo de nuevo.';
@@ -266,25 +263,14 @@ function marcarGloboSeleccionado({ marcadores, seleccionadaId }) {
   });
 }
 
-/** Globo vacío: anillo (pista + progreso) y número. actualizarGlobo le pone los datos. */
+/** Globo vacío: anillo y número. actualizarGlobo le pone los datos. */
 function crearGlobo() {
-  const anillo = crearElementoSvg('svg', { class: 'map-pin__anillo', viewBox: '0 0 40 40', 'aria-hidden': 'true' });
-  anillo.append(
-    crearElementoSvg('circle', { class: 'map-pin__pista', cx: 20, cy: 20, r: RADIO_ANILLO }),
-    crearElementoSvg('circle', { class: 'map-pin__progreso', cx: 20, cy: 20, r: RADIO_ANILLO, pathLength: 100 }),
-  );
   const numero = document.createElement('span');
   numero.className = 'map-pin__numero';
   numero.setAttribute('aria-hidden', 'true');
   const globo = document.createElement('a');
-  globo.append(anillo, numero);
+  globo.append(crearAnilloOcupacion(), numero);
   return globo;
-}
-
-function crearElementoSvg(etiqueta, atributos) {
-  const elemento = document.createElementNS(SVG_NS, etiqueta);
-  Object.entries(atributos).forEach(([nombre, valor]) => elemento.setAttribute(nombre, valor));
-  return elemento;
 }
 
 // classList y no className: Mapbox añade sus propias clases al elemento del marcador.

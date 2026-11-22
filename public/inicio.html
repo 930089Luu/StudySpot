@@ -62,23 +62,29 @@
         <span class="sheet__handle" aria-hidden="true"></span>
         <span class="visually-hidden" id="panel-boton-texto">Mostrar todas las bibliotecas</span>
       </button>
-      <header class="sheet__header">
-        <h2 class="sheet__title" id="titulo-bibliotecas">Bibliotecas</h2>
-        <p class="sheet__meta" id="bibliotecas-actualizado" role="status"></p>
-      </header>
-      <p class="sheet__hint" id="aviso-favorita" hidden>
-        Marca una biblioteca como favorita y el mapa se abrirá en ella.
-      </p>
-      <form class="sheet__search" role="search" action="#">
+      <!-- Título y hora de actualización solo para lectores de pantalla: a la vista, solo el buscador -->
+      <h2 class="visually-hidden" id="titulo-bibliotecas">Bibliotecas</h2>
+      <p class="visually-hidden" id="bibliotecas-actualizado"></p>
+      <form class="search-field" role="search" action="#">
+        <svg class="search-field__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/>
+          <path d="M16 16l4.5 4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
         <label class="visually-hidden" for="buscar-biblioteca">Buscar biblioteca por nombre o zona</label>
-        <input class="field__input sheet__search-input" id="buscar-biblioteca" type="search"
-               placeholder="Buscar biblioteca o zona" autocomplete="off" enterkeyhint="search"
+        <input class="search-field__input" id="buscar-biblioteca" type="search"
+               placeholder="Buscar bibliotecas" autocomplete="off" enterkeyhint="search"
                aria-controls="lista-bibliotecas">
       </form>
       <p class="state__text" id="bibliotecas-cargando">Cargando…</p>
       <p class="alert alert--error" id="mapa-alerta" role="alert" hidden></p>
       <p class="state__text" id="busqueda-vacia" role="status" hidden></p>
-      <ul class="library-list" id="lista-bibliotecas"></ul>
+      <!-- Lo que hace scroll: la lista y, sin favorita, un aviso al final que no quita sitio -->
+      <div class="sheet__scroll">
+        <ul class="library-list" id="lista-bibliotecas"></ul>
+        <p class="sheet__hint" id="aviso-favorita" hidden>
+          Marca una biblioteca como favorita y el mapa se abrirá en ella.
+        </p>
+      </div>
 
       <!-- Tarjeta de la biblioteca tocada en el mapa o en la lista (sustituye a la lista) -->
       <article class="library-card" id="tarjeta-biblioteca" aria-labelledby="tarjeta-nombre" hidden>

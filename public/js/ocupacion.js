@@ -7,6 +7,9 @@
 const UMBRAL_NIVEL_MEDIO = 40;
 const UMBRAL_NIVEL_ALTO = 70;
 const SEGUNDOS_POR_MINUTO = 60;
+const SVG_NS = 'http://www.w3.org/2000/svg';
+// Anillo dibujado en un SVG de 40×40: radio 16 deja sitio al grosor del trazo.
+const RADIO_ANILLO = 16;
 
 const TEXTOS_FIABILIDAD = {
   low: 'Baja',
@@ -39,6 +42,25 @@ export function crearBarraOcupacion(porcentaje) {
   relleno.style.setProperty('--valor', `${porcentaje}%`);
   barra.append(relleno);
   return barra;
+}
+
+/**
+ * Anillo de ocupación (globo del mapa y filas de la lista): pista + progreso. El % se pasa al CSS
+ * con la variable --ocupacion en el elemento que lo contiene.
+ */
+export function crearAnilloOcupacion() {
+  const anillo = crearElementoSvg('svg', { class: 'ring', viewBox: '0 0 40 40', 'aria-hidden': 'true' });
+  anillo.append(
+    crearElementoSvg('circle', { class: 'ring__track', cx: 20, cy: 20, r: RADIO_ANILLO }),
+    crearElementoSvg('circle', { class: 'ring__progress', cx: 20, cy: 20, r: RADIO_ANILLO, pathLength: 100 }),
+  );
+  return anillo;
+}
+
+export function crearElementoSvg(etiqueta, atributos) {
+  const elemento = document.createElementNS(SVG_NS, etiqueta);
+  Object.entries(atributos).forEach(([nombre, valor]) => elemento.setAttribute(nombre, valor));
+  return elemento;
 }
 
 /** "Actualizado ahora" / "Actualizado hace 3 min" a partir de la hora de la última carga. */
