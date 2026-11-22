@@ -32,9 +32,8 @@ const CONFIG_ESTILO = {
     showTransitLabels: false,
   },
 };
-// Entrada al mapa (Lucía, 22-11): la cámara baja desde una vista plana hasta ISLA Gaia (id 1 en
-// datos_ejemplo.sql) inclinada en 3D. Si ISLA no está en la lista, se encuadran todas desde arriba.
-const ID_BIBLIOTECA_INICIAL = 1;
+// Entrada al mapa (Lucía, 22-11): la cámara baja desde una vista plana hasta la biblioteca favorita
+// del usuario, inclinada en 3D. Sin favorita, se encuadran todas desde arriba y se explica cómo elegirla.
 const VISTA_PLANA = { zoom: 15, pitch: 0, bearing: 0 };
 const VISTA_3D = { zoom: 17, pitch: 60, bearing: -20 };
 const DURACION_ENTRADA_MS = 2500;
@@ -61,25 +60,32 @@ async function init() {
   // El fallo de Mapbox se trata en crearMapa; esto solo evita el aviso si la página sale antes (401).
   mapboxCargado.catch(() => {});
   const tokenPedido = getConfigMapa().catch((error) => ({ estado: 0, error }));
-  const bibliotecas = await cargarOcupacion();
+  const datos = await cargarOcupacion();
   document.getElementById('bibliotecas-cargando').hidden = true;
-  if (bibliotecas === null) return;
+  if (datos === null) return;
 
-  const estado = { bibliotecas, seleccionadaId: null, mapa: null, marcadores: new Map() };
+  const estado = { seleccionadaId: null, mapa: null, marcadores: new Map() };
+  guardarDatos(estado, datos);
   const onSeleccionar = (id) => seleccionarBiblioteca(estado, id);
   iniciarPanel();
   iniciarLista(estado, { onSeleccionar, onVolver: () => volverALista(estado) });
   actualizarLista(estado, onSeleccionar);
-  estado.mapa = await crearMapa(bibliotecas, mapboxCargado, tokenPedido);
+  estado.mapa = await crearMapa(estado, mapboxCargado, tokenPedido);
   if (estado.mapa) pintarMarcadores(estado, onSeleccionar);
 
   window.setInterval(async () => {
-    const nuevas = await cargarOcupacion();
-    if (nuevas === null) return;
-    estado.bibliotecas = nuevas;
+    const nuevos = await cargarOcupacion();
+    if (nuevos === null) return;
+    guardarDatos(estado, nuevos);
     actualizarLista(estado, onSeleccionar);
     if (estado.mapa) pintarMarcadores(estado, onSeleccionar);
   }, INTERVALO_REFRESCO_MS);
+}
+
+/** Guarda lo que devuelve ocupacion.php; sin favorita, se explica cómo elegirla. */
+function guardarDatos(estado, { bibliotecas, favorita_id: favoritaId }) {
+  Object.assign(estado, { bibliotecas, favoritaId });
+  document.getElementById('aviso-favorita').hidden = favoritaId !== null;
 }
 
 /** Biblioteca tocada en el mapa o en la lista: su tarjeta abajo y el mapa vuela hasta ella. */
@@ -107,7 +113,7 @@ function volverALista(estado) {
   ajustarPanel(ALTURA_PANEL.recogido);
 }
 
-/** Pide la ocupación. Devuelve la lista de bibliotecas, o null si hubo un error (ya avisado). */
+/** Pide la ocupación. Devuelve {bibliotecas, favorita_id}, o null si hubo un error (ya avisado). */
 async function cargarOcupacion() {
   const alerta = document.getElementById('mapa-alerta');
   try {
@@ -121,7 +127,7 @@ async function cargarOcupacion() {
       return null;
     }
     mostrarAlerta(alerta, '');
-    return respuesta.cuerpo.bibliotecas;
+    return respuesta.cuerpo;
   } catch (error) {
     console.error(error);
     mostrarAlerta(alerta, MENSAJE_SIN_CONEXION);
@@ -148,7 +154,7 @@ function cargarEnHead(elemento) {
 }
 
 /** Crea el mapa en la vista inicial. Devuelve null si no se puede (y lo avisa). */
-async function crearMapa(bibliotecas, mapboxCargado, tokenPedido) {
+async function crearMapa({ bibliotecas, favoritaId }, mapboxCargado, tokenPedido) {
   try {
     const [respuesta] = await Promise.all([tokenPedido, mapboxCargado]);
     if (respuesta.estado !== HTTP_OK || !window.mapboxgl || bibliotecas.length === 0) {
@@ -156,7 +162,7 @@ async function crearMapa(bibliotecas, mapboxCargado, tokenPedido) {
       return null;
     }
     window.mapboxgl.accessToken = respuesta.cuerpo.token;
-    const inicial = bibliotecas.find((biblioteca) => biblioteca.id === ID_BIBLIOTECA_INICIAL);
+    const inicial = bibliotecas.find((biblioteca) => biblioteca.id === favoritaId);
     const mapa = new window.mapboxgl.Map({
       container: 'mapa',
       style: ESTILO_MAPA,
@@ -177,7 +183,7 @@ async function crearMapa(bibliotecas, mapboxCargado, tokenPedido) {
   }
 }
 
-/** Inclinado sobre la biblioteca inicial; si no está, encuadre de todas. */
+/** Inclinado sobre la favorita; sin favorita, encuadre de todas. */
 function crearVistaInicial(bibliotecas, inicial) {
   if (inicial) {
     return { center: [inicial.longitud, inicial.latitud], ...VISTA_3D };

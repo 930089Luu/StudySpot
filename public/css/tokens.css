@@ -36,6 +36,7 @@
   --control-height: 52px;
   --logo-size: 88px;
   --icon-size: 20px;
+  --icon-size-sm: 14px;
   --badge-size: 64px;
   --badge-icon-size: 28px;
   --timer-size: 15rem;
@@ -98,6 +99,8 @@
   --color-danger-surface: #fdecea;
   --color-success: #17663a;
   --color-success-surface: #e8f5ee;
+  --color-accent-surface: #ececfe;
+  --color-backdrop: rgb(10 10 30 / 0.35);
 
   /* Visor de la cámara (igual en claro y oscuro: encima siempre hay vídeo) */
   --color-scanner-bg: #000000;
@@ -135,6 +138,8 @@
     --color-danger-surface: #3a1714;
     --color-success: #6fd69a;
     --color-success-surface: #12301f;
+    --color-accent-surface: #23224a;
+    --color-backdrop: rgb(0 0 0 / 0.55);
 
     --shadow-card: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 32px rgb(0 0 0 / 0.35);
   }

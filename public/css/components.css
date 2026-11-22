@@ -859,6 +859,13 @@
   margin-block-start: 0;
 }
 
+/* Sin biblioteca favorita: cómo elegirla */
+.sheet__hint {
+  flex-shrink: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
 /* Buscador de bibliotecas, bajo el título de la lista */
 .sheet__search {
   flex-shrink: 0;
@@ -870,6 +877,7 @@
 
 /* Con la tarjeta de una biblioteca abierta, la lista y el buscador se esconden */
 .sheet--tarjeta .sheet__header,
+.sheet--tarjeta .sheet__hint,
 .sheet--tarjeta .sheet__search,
 .sheet--tarjeta .state__text,
 .sheet--tarjeta .library-list {
@@ -970,6 +978,23 @@
 .library-list__value {
   font-weight: var(--font-weight-bold);
   font-variant-numeric: tabular-nums;
+}
+
+/* La favorita: la primera, con su etiqueta */
+.library-list__favorite {
+  grid-column: 1 / -1;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-accent-text);
+}
+
+.library-list__favorite-icon {
+  width: var(--icon-size-sm);
+  height: var(--icon-size-sm);
+  fill: currentColor;
 }
 
 .library-list__detail {
@@ -1220,6 +1245,96 @@
 
 .library__detail {
   color: var(--color-text-muted);
+}
+
+/* ---------- favorite-button: "Marcar como favorita" / "Favorita" ---------- */
+.favorite-button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--tap-target);
+  margin-block-start: var(--space-3);
+  padding-inline: var(--space-4);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-full);
+  background-color: transparent;
+  color: var(--color-text);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--easing-standard),
+    transform var(--duration-fast) var(--easing-standard);
+}
+
+.favorite-button:active {
+  transform: scale(var(--press-scale));
+}
+
+.favorite-button:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+/* Marcada: fondo del acento y estrella rellena */
+.favorite-button[aria-pressed="true"] {
+  border-color: transparent;
+  background-color: var(--color-accent-surface);
+  color: var(--color-accent-text);
+}
+
+.favorite-button__icon {
+  width: var(--icon-size);
+  height: var(--icon-size);
+  fill: none;
+  stroke: var(--color-accent);
+  stroke-width: 2;
+}
+
+.favorite-button[aria-pressed="true"] .favorite-button__icon {
+  fill: var(--color-accent);
+}
+
+/* ---------- dialog: confirmación propia (en vez de window.confirm) ---------- */
+.dialog {
+  width: min(100% - 2 * var(--page-gutter), 22rem);
+  margin: auto;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-lg);
+  background-color: var(--color-bg);
+  box-shadow: var(--shadow-card);
+  color: var(--color-text);
+}
+
+.dialog::backdrop {
+  background-color: var(--color-backdrop);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+
+.dialog__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5);
+}
+
+.dialog__title {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
+}
+
+.dialog__text {
+  color: var(--color-text-muted);
+}
+
+.dialog__actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+  margin-block-start: var(--space-2);
 }
 
 /* ---------- occupancy-card: ocupación actual grande ---------- */

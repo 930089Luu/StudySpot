@@ -36,6 +36,14 @@
         <h1 class="library__name" id="biblioteca-nombre"></h1>
         <p class="library__detail" id="biblioteca-direccion"></p>
         <p class="library__detail" id="biblioteca-horario"></p>
+        <!-- Favorita: el mapa se abre en ella y sale la primera de la lista -->
+        <button class="favorite-button" id="boton-favorita" type="button" aria-pressed="false">
+          <svg class="favorite-button__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M12 3.5l2.6 5.3 5.9.9-4.25 4.15 1 5.85L12 16.9l-5.25 2.8 1-5.85L3.5 9.7l5.9-.9z"
+                  stroke-linejoin="round"/>
+          </svg>
+          <span id="boton-favorita-texto">Marcar como favorita</span>
+        </button>
       </header>
 
       <section class="occupancy-card" id="ocupacion-tarjeta" aria-label="Ocupación actual">
@@ -80,6 +88,19 @@
         <p class="state__text">Media de las semanas anteriores, calculada con la ley de Little (llegadas por hora × duración media de las sesiones).</p>
       </section>
     </article>
+
+    <!-- Aviso al cambiar de favorita (solo se puede tener una) -->
+    <dialog class="dialog" id="dialogo-favorita" aria-labelledby="dialogo-favorita-titulo"
+            aria-describedby="dialogo-favorita-texto">
+      <form class="dialog__content" method="dialog">
+        <h2 class="dialog__title" id="dialogo-favorita-titulo">¿Cambiar de favorita?</h2>
+        <p class="dialog__text" id="dialogo-favorita-texto"></p>
+        <div class="dialog__actions">
+          <button class="button button--secondary" type="submit" value="cancelar">Cancelar</button>
+          <button class="button button--primary" type="submit" value="aceptar">Cambiar</button>
+        </div>
+      </form>
+    </dialog>
   </main>
 </body>
 </html>
