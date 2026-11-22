@@ -15,6 +15,13 @@ export function crearRutaLoginConAviso(aviso) {
   return `${RUTA_LOGIN}?${PARAM_AVISO}=${encodeURIComponent(aviso)}`;
 }
 
+// Puntos de la sesión de estudio que se cerró al cerrar sesión (K06), para el aviso del login.
+export const PARAM_PUNTOS = 'puntos';
+
+export function crearRutaLoginConPuntos(aviso, puntos) {
+  return `${crearRutaLoginConAviso(aviso)}&${PARAM_PUNTOS}=${encodeURIComponent(puntos)}`;
+}
+
 // Amigos y perfil de otra persona (US06): usuario.html?id=<id>
 export const RUTA_AMIGOS = 'amigos.html';
 export const RUTA_PERFIL_CONTACTO = 'usuario.html';

@@ -14,6 +14,7 @@ import {
   AVISO_PASSWORD_CAMBIADA,
   AVISO_SESION_CERRADA,
   PARAM_AVISO,
+  PARAM_PUNTOS,
   RUTA_INICIO,
 } from './rutas.js';
 
@@ -34,12 +35,25 @@ function init() {
 /** Muestra el aviso pedido por otra pantalla y limpia la URL para que no reaparezca al recargar. */
 function mostrarAvisoDeUrl() {
   const url = new URL(window.location.href);
-  const mensaje = MENSAJES_AVISO[url.searchParams.get(PARAM_AVISO)];
+  const aviso = url.searchParams.get(PARAM_AVISO);
+  const mensaje = MENSAJES_AVISO[aviso];
   if (!mensaje) return;
 
-  mostrarAlerta(document.getElementById('aviso-login'), mensaje);
+  const textoPuntos = aviso === AVISO_SESION_CERRADA ? crearTextoPuntos(url.searchParams.get(PARAM_PUNTOS)) : '';
+  mostrarAlerta(document.getElementById('aviso-login'), `${mensaje}${textoPuntos}`);
   url.searchParams.delete(PARAM_AVISO);
+  url.searchParams.delete(PARAM_PUNTOS);
   window.history.replaceState(null, '', url);
+}
+
+/**
+ * " Tu sesión de estudio se ha cerrado: +2 puntos." si al cerrar sesión se cerró también
+ * una sesión de estudio (K06). Solo se aceptan números: el texto no sale tal cual de la URL.
+ */
+function crearTextoPuntos(valor) {
+  if (valor === null || !/^\d+$/.test(valor)) return '';
+  const puntos = Number(valor);
+  return ` Tu sesión de estudio se ha cerrado: +${puntos} ${puntos === 1 ? 'punto' : 'puntos'}.`;
 }
 
 async function handleSubmit(evento) {
