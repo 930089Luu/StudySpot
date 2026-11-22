@@ -717,6 +717,16 @@
   isolation: isolate;
 }
 
+/*
+ * Logo y créditos de Mapbox (obligatorio que se vean, no se pueden ocultar): suben lo que la lista
+ * se monta sobre el mapa por la curva de sus esquinas. Con el contenedor delante para ganar al CSS
+ * de Mapbox, que se carga después.
+ */
+.map-screen__map .mapboxgl-ctrl-bottom-left,
+.map-screen__map .mapboxgl-ctrl-bottom-right {
+  bottom: var(--radius-lg);
+}
+
 /* ---------- map-loader: libros que se apilan mientras carga el mapa ---------- */
 .map-loader {
   position: absolute;
@@ -816,6 +826,8 @@
  * Se arrastra por el asa a cualquier altura: JS pone la altura deseada en --sheet-altura y
  * clamp() la deja entre recogido y desplegado. En el flujo solo ocupa la altura recogida; lo que
  * sube de más (margen negativo) tapa el mapa sin encogerlo, así Mapbox no se redibuja al arrastrar.
+ * Siempre sube además lo que mide la curva de las esquinas: detrás de ellas se ve el mapa y no el
+ * fondo gris de la página.
  */
 .sheet {
   --sheet-altura-real: clamp(var(--sheet-collapsed-height), var(--sheet-altura, 0px), var(--sheet-max-height));
@@ -825,7 +837,7 @@
   flex-direction: column;
   gap: var(--space-3);
   height: var(--sheet-altura-real);
-  margin-block-start: calc(var(--sheet-collapsed-height) - var(--sheet-altura-real));
+  margin-block-start: calc(var(--sheet-collapsed-height) - var(--sheet-altura-real) - var(--radius-lg));
   padding: 0 var(--page-gutter) var(--space-4);
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   background-color: var(--color-bg);
