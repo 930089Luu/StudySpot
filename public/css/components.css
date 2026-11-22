@@ -802,6 +802,8 @@
 }
 
 .meter__fill {
+  /* Es un <span>: sin display: block no toma ancho ni alto y la barra sale vacía */
+  display: block;
   width: var(--valor, 0%);
   height: 100%;
   border-radius: inherit;
