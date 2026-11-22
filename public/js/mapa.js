@@ -5,8 +5,9 @@
  * sale su tarjeta. Los datos se piden de nuevo cada 60 s (criterio: datos de < 60 s).
  * Si el mapa no carga (sin token, sin conexión con Mapbox), la lista sigue funcionando sola.
  */
-import { getConfigMapa, getOcupacion } from './api.js';
+import { getConfigMapa, getOcupacion, getPerfil } from './api.js';
 import { MENSAJE_ERROR_GENERICO, mostrarAlerta } from './formulario.js';
+import { getIniciales } from './iniciales.js';
 import { actualizarLista, iniciarLista, mostrarTarjeta, ocultarTarjeta } from './lista-bibliotecas.js';
 import { CLASES_NIVEL, crearAnilloOcupacion, getNivelOcupacion, getTextoFiabilidad } from './ocupacion.js';
 import { ALTURA_PANEL, ajustarPanel, getAlturaTapada, iniciarPanel } from './panel.js';
@@ -57,6 +58,7 @@ async function init() {
   // El fallo de Mapbox se trata en crearMapa; esto solo evita el aviso si la página sale antes (401).
   mapboxCargado.catch(() => {});
   const tokenPedido = getConfigMapa().catch((error) => ({ estado: 0, error }));
+  mostrarIniciales();
   const datos = await cargarOcupacion();
   document.getElementById('bibliotecas-cargando').hidden = true;
   if (datos === null) return;
@@ -77,6 +79,21 @@ async function init() {
     actualizarLista(estado, onSeleccionar);
     if (estado.mapa) pintarMarcadores(estado, onSeleccionar);
   }, INTERVALO_REFRESCO_MS);
+}
+
+/** Iniciales en el avatar junto al buscador. Si no llegan, se queda el icono de persona. */
+async function mostrarIniciales() {
+  try {
+    const respuesta = await getPerfil();
+    if (respuesta.estado !== HTTP_OK) return;
+    const iniciales = document.getElementById('avatar-iniciales');
+    iniciales.textContent = getIniciales(respuesta.cuerpo.nombre);
+    iniciales.hidden = false;
+    // Es un <svg>: no tiene la propiedad hidden de los elementos HTML, hay que poner el atributo.
+    document.getElementById('avatar-icono').setAttribute('hidden', '');
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 /** Guarda lo que devuelve ocupacion.php; sin favorita, se explica cómo elegirla. */

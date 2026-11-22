@@ -47,11 +47,13 @@
   --scanner-frame-width: 3px;
   --content-max-width: 24rem;
   /* Mapa y detalle de biblioteca (US03/US05) */
-  --tab-bar-height: 4rem;
+  --map-button-size: 48px;
   /* Panel de bibliotecas: recogido deja el mapa casi a pantalla completa (buscador + 1 fila,
      la favorita o la más vacía) */
   --sheet-collapsed-height: 11.5rem;
   --sheet-max-height: 60vh;
+  /* Minimizada: asa + buscador flotando (cápsula) + separación + margen + zona segura del iPhone */
+  --sheet-mini-height: calc(var(--tap-target) * 2 + var(--space-1) * 2 + var(--space-3) + var(--space-4) + env(safe-area-inset-bottom));
   /* Con la tarjeta de una biblioteca: asa, nombre, dirección y ocupación */
   --sheet-card-height: 17rem;
   --sheet-handle-width: 2.5rem;
@@ -122,6 +124,8 @@
   --color-pin-pista: rgb(255 255 255 / 0.15);
   --color-pin-texto: #ffffff;
   --shadow-pin: 0 4px 14px rgb(0 0 0 / 0.35);
+  --shadow-floating: 0 6px 24px rgb(0 0 0 / 0.28);
+  --color-handle-floating: rgb(255 255 255 / 0.85);
 }
 
 @media (prefers-color-scheme: dark) {

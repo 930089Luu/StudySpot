@@ -19,17 +19,28 @@
   <link rel="modulepreload" href="js/rutas.js">
   <link rel="modulepreload" href="js/panel.js">
   <link rel="modulepreload" href="js/lista-bibliotecas.js">
+  <link rel="modulepreload" href="js/iniciales.js">
   <script type="module" src="js/mapa.js"></script>
 </head>
 <body>
   <!--
     Wireframe 2A (US03): pantalla principal tras el login. Mapa con el % de ocupación de cada
-    biblioteca, lista de bibliotecas abajo y barra de navegación Mapa · Check-in · Perfil.
+    biblioteca y lista de bibliotecas abajo. Sin barra de pestañas (como Apple Maps, 23-11): el
+    check-in es un botón sobre el mapa y el perfil, el avatar junto al buscador.
   -->
   <main class="map-screen">
     <h1 class="visually-hidden">Mapa de bibliotecas</h1>
     <div class="map-screen__stage" id="mapa-escenario">
       <div class="map-screen__map" id="mapa" role="region" aria-label="Mapa de bibliotecas"></div>
+      <!-- Check-in: botón flotante sobre el mapa. Con texto: solo el icono del QR no explicaba
+           que es lo que se hace al llegar a la biblioteca (Lucía, 23-11) -->
+      <a class="map-button" href="checkin.html" aria-label="He llegado: hacer check-in con el QR de tu zona">
+        <svg class="map-button__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M4 4h6v6H4zm10 0h6v6h-6zM4 14h6v6H4zm10 0h2v2h-2zm4 0h2v2h-2zm-4 4h2v2h-2zm4 0h2v2h-2z"
+                fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+        </svg>
+        <span>He llegado</span>
+      </a>
       <!-- Mientras Mapbox prepara el mapa 3D: libros que se apilan y, encima, el globo de ocupación -->
       <div class="map-loader" id="mapa-cargando" role="status">
         <svg class="map-loader__dibujo" viewBox="0 0 120 100" aria-hidden="true" focusable="false">
@@ -65,16 +76,26 @@
       <!-- Título y hora de actualización solo para lectores de pantalla: a la vista, solo el buscador -->
       <h2 class="visually-hidden" id="titulo-bibliotecas">Bibliotecas</h2>
       <p class="visually-hidden" id="bibliotecas-actualizado"></p>
-      <form class="search-field" role="search" action="#">
-        <svg class="search-field__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-          <circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/>
-          <path d="M16 16l4.5 4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-        <label class="visually-hidden" for="buscar-biblioteca">Buscar biblioteca por nombre o zona</label>
-        <input class="search-field__input" id="buscar-biblioteca" type="search"
-               placeholder="Buscar bibliotecas" autocomplete="off" enterkeyhint="search"
-               aria-controls="lista-bibliotecas">
-      </form>
+      <!-- Como Apple Maps: buscador y, a su derecha, tu avatar, que lleva al perfil -->
+      <div class="sheet__top">
+        <form class="search-field" role="search" action="#">
+          <svg class="search-field__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/>
+            <path d="M16 16l4.5 4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <label class="visually-hidden" for="buscar-biblioteca">Buscar biblioteca por nombre o zona</label>
+          <input class="search-field__input" id="buscar-biblioteca" type="search"
+                 placeholder="Buscar bibliotecas" autocomplete="off" enterkeyhint="search"
+                 aria-controls="lista-bibliotecas">
+        </form>
+        <a class="avatar-button" href="perfil.html" aria-label="Tu perfil">
+          <svg class="avatar-button__icon" id="avatar-icono" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm-7 8a7 7 0 0 1 14 0" fill="none" stroke="currentColor"
+                  stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <span id="avatar-iniciales" aria-hidden="true" hidden></span>
+        </a>
+      </div>
       <p class="state__text" id="bibliotecas-cargando">Cargando…</p>
       <p class="alert alert--error" id="mapa-alerta" role="alert" hidden></p>
       <p class="state__text" id="busqueda-vacia" role="status" hidden></p>
@@ -115,29 +136,6 @@
       </article>
     </section>
 
-    <nav class="tab-bar" aria-label="Navegación principal">
-      <a class="tab-bar__link" href="inicio.html" aria-current="page">
-        <svg class="tab-bar__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-          <path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2zm0 0v14m6-12v14" fill="none" stroke="currentColor"
-                stroke-width="2" stroke-linejoin="round"/>
-        </svg>
-        Mapa
-      </a>
-      <a class="tab-bar__link" href="checkin.html">
-        <svg class="tab-bar__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-          <path d="M4 4h6v6H4zm10 0h6v6h-6zM4 14h6v6H4zm10 0h2v2h-2zm4 0h2v2h-2zm-4 4h2v2h-2zm4 0h2v2h-2z"
-                fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-        </svg>
-        Check-in
-      </a>
-      <a class="tab-bar__link" href="perfil.html">
-        <svg class="tab-bar__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-          <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm-7 8a7 7 0 0 1 14 0" fill="none" stroke="currentColor"
-                stroke-width="2" stroke-linecap="round"/>
-        </svg>
-        Perfil
-      </a>
-    </nav>
   </main>
 </body>
 </html>

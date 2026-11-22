@@ -702,11 +702,11 @@
   background-color: var(--color-page);
 }
 
+/* El mapa ocupa toda la pantalla; la lista va encima (así, minimizada, se ve el mapa detrás) */
 .map-screen__stage {
-  position: relative;
+  position: absolute;
+  inset: 0;
   display: flex;
-  flex: 1;
-  min-height: 0;
 }
 
 /* Sin position propia: el CSS de Mapbox, que se carga después, le pone position: relative */
@@ -718,13 +718,19 @@
 }
 
 /*
- * Logo y créditos de Mapbox (obligatorio que se vean, no se pueden ocultar): suben lo que la lista
- * se monta sobre el mapa por la curva de sus esquinas. Con el contenedor delante para ganar al CSS
+ * Logo y créditos de Mapbox (obligatorio que se vean, no se pueden ocultar): justo por encima de la
+ * lista recogida, o del buscador si está minimizada. Con el contenedor delante para ganar al CSS
  * de Mapbox, que se carga después.
  */
 .map-screen__map .mapboxgl-ctrl-bottom-left,
 .map-screen__map .mapboxgl-ctrl-bottom-right {
-  bottom: var(--radius-lg);
+  bottom: var(--sheet-collapsed-height);
+  transition: bottom var(--duration-base) var(--easing-standard);
+}
+
+.map-screen:has(.sheet--minimizado) .mapboxgl-ctrl-bottom-left,
+.map-screen:has(.sheet--minimizado) .mapboxgl-ctrl-bottom-right {
+  bottom: var(--sheet-mini-height);
 }
 
 /* ---------- map-loader: libros que se apilan mientras carga el mapa ---------- */
@@ -823,22 +829,21 @@
 
 /* ---------- sheet: panel inferior con la lista de bibliotecas ---------- */
 /*
- * Se arrastra por el asa a cualquier altura: JS pone la altura deseada en --sheet-altura y
- * clamp() la deja entre recogido y desplegado. En el flujo solo ocupa la altura recogida; lo que
- * sube de más (margen negativo) tapa el mapa sin encogerlo, así Mapbox no se redibuja al arrastrar.
- * Siempre sube además lo que mide la curva de las esquinas: detrás de ellas se ve el mapa y no el
- * fondo gris de la página.
+ * Va encima del mapa, pegada abajo: arrastrarla no cambia el tamaño del mapa (Mapbox no se
+ * redibuja). Se arrastra por el asa a cualquier altura: JS pone la altura deseada en --sheet-altura
+ * y clamp() la deja entre recogida y desplegada. Bajándola del todo se minimiza (ver sheet--minimizado).
  */
 .sheet {
   --sheet-altura-real: clamp(var(--sheet-collapsed-height), var(--sheet-altura, 0px), var(--sheet-max-height));
-  position: relative;
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
   z-index: 1;
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
   height: var(--sheet-altura-real);
-  margin-block-start: calc(var(--sheet-collapsed-height) - var(--sheet-altura-real) - var(--radius-lg));
-  padding: 0 var(--page-gutter) var(--space-4);
+  padding: 0 var(--page-gutter) calc(var(--space-4) + env(safe-area-inset-bottom));
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   /* Material translúcido de iOS: al subir la lista se intuye el mapa detrás */
   background-color: var(--color-sheet);
@@ -846,8 +851,48 @@
   backdrop-filter: blur(24px) saturate(1.8);
   box-shadow: var(--shadow-card);
   overflow: hidden;
-  transition: height var(--duration-base) var(--easing-standard),
-    margin-block-start var(--duration-base) var(--easing-standard);
+  transition:
+    height var(--duration-base) var(--easing-standard),
+    background-color var(--duration-base) var(--easing-standard),
+    box-shadow var(--duration-base) var(--easing-standard);
+}
+
+/*
+ * Minimizada (bajándola del todo), como en Mapas de iOS: desaparece el fondo y solo quedan el asa
+ * y el buscador flotando sobre el mapa, en una cápsula de cristal. Tocando o subiendo el asa (o al
+ * tocar el buscador) vuelve la lista.
+ */
+.sheet.sheet--minimizado {
+  height: var(--sheet-mini-height);
+  background-color: transparent;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  box-shadow: none;
+}
+
+.sheet--minimizado .sheet__scroll,
+.sheet--minimizado .state__text {
+  display: none;
+}
+
+.sheet--minimizado .sheet__top {
+  padding: var(--space-1);
+  border-radius: var(--radius-full);
+  background-color: var(--color-sheet);
+  -webkit-backdrop-filter: blur(24px) saturate(1.8);
+  backdrop-filter: blur(24px) saturate(1.8);
+  box-shadow: var(--shadow-floating);
+}
+
+/* El asa sobre el mapa: clara y con sombra para que se vea sobre cualquier fondo */
+.sheet--minimizado .sheet__handle {
+  background-color: var(--color-handle-floating);
+  box-shadow: var(--shadow-floating);
+}
+
+.sheet--minimizado .search-field__input {
+  border-radius: var(--radius-full);
+  background-color: transparent;
 }
 
 /* Mientras se arrastra, el panel sigue al dedo sin animación */
@@ -857,9 +902,8 @@
 
 /* Si el mapa no se puede cargar, la lista ocupa toda la pantalla */
 .sheet--full {
-  flex: 1;
+  top: 0;
   height: auto;
-  margin-block-start: 0;
 }
 
 /* Sin biblioteca favorita: cómo elegirla (una línea discreta al final de la lista) */
@@ -871,10 +915,47 @@
 
 /* Con la tarjeta de una biblioteca abierta, la lista y el buscador se esconden */
 .sheet--tarjeta .sheet__hint,
-.sheet--tarjeta .search-field,
+.sheet--tarjeta .sheet__top,
 .sheet--tarjeta .state__text,
 .sheet--tarjeta .sheet__scroll {
   display: none;
+}
+
+/* Buscador y avatar en la misma fila, como en Apple Maps */
+.sheet__top {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.sheet__top .search-field {
+  flex: 1;
+}
+
+/* Tu avatar (iniciales) a la derecha del buscador: lleva al perfil */
+.avatar-button {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--tap-target);
+  height: var(--tap-target);
+  border-radius: var(--radius-full);
+  background-color: var(--color-accent-surface);
+  color: var(--color-accent-text);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  text-decoration: none;
+}
+
+.avatar-button:active {
+  transform: scale(var(--press-scale));
+}
+
+.avatar-button__icon {
+  width: var(--icon-size);
+  height: var(--icon-size);
 }
 
 /* ---------- search-field: buscador estilo iOS (cápsula gris con lupa, sin borde) ---------- */
@@ -1230,34 +1311,36 @@
     var(--shadow-pin);
 }
 
-/* ---------- tab-bar: navegación inferior Mapa · Check-in · Perfil ---------- */
-.tab-bar {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  min-height: var(--tab-bar-height);
-  padding-block-end: env(safe-area-inset-bottom);
-  border-block-start: var(--border-width) solid var(--color-border);
-  background-color: var(--color-bg);
-}
-
-.tab-bar__link {
-  display: flex;
-  flex-direction: column;
+/* ---------- map-button: cápsula flotante sobre el mapa (check-in: "He llegado") ---------- */
+/* Mismo cristal oscuro que los globos: el mapa es siempre oscuro */
+.map-button {
+  position: absolute;
+  top: calc(env(safe-area-inset-top) + var(--space-3));
+  inset-inline-end: var(--space-3);
+  z-index: 2;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--space-1);
-  min-height: var(--tap-target);
+  gap: var(--space-2);
+  height: var(--map-button-size);
+  padding-inline: var(--space-4);
+  border-radius: var(--radius-full);
+  background-color: var(--color-pin-fondo);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-pin);
+  color: var(--color-pin-texto);
   font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
-  text-decoration: none;
-}
-
-.tab-bar__link[aria-current="page"] {
-  color: var(--color-accent-text);
   font-weight: var(--font-weight-semibold);
+  text-decoration: none;
+  transition: transform var(--duration-fast) var(--easing-standard);
 }
 
-.tab-bar__icon {
+.map-button:active {
+  transform: scale(var(--press-scale));
+}
+
+.map-button__icon {
   width: var(--icon-size);
   height: var(--icon-size);
 }
