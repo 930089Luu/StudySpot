@@ -16,12 +16,15 @@ require_once __DIR__ . '/../constantes.php';
 require_once __DIR__ . '/../Database/conexion.php';
 require_once __DIR__ . '/../Sesiones/estudio.php';
 
-/** Ocupación de todas las bibliotecas, para el mapa y la lista. */
+/** Ocupación de todas las bibliotecas, para el mapa y la lista (con la dirección para el buscador). */
 function getOcupacionBibliotecas(PDO $pdo): array
 {
     // Las sesiones de más de 4 h no cuentan: se cierran antes de contar.
     cerrarSesionesCaducadas($pdo);
-    return array_map('formatearOcupacion', findBibliotecasConSesionesActivas($pdo, null));
+    return array_map(
+        fn (array $fila): array => formatearOcupacion($fila) + ['direccion' => $fila['direccion']],
+        findBibliotecasConSesionesActivas($pdo, null)
+    );
 }
 
 /** Detalle de una biblioteca con su ocupación, o null si no existe. */

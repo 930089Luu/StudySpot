@@ -17,6 +17,8 @@
   <link rel="modulepreload" href="js/formulario.js">
   <link rel="modulepreload" href="js/ocupacion.js">
   <link rel="modulepreload" href="js/rutas.js">
+  <link rel="modulepreload" href="js/panel.js">
+  <link rel="modulepreload" href="js/lista-bibliotecas.js">
   <script type="module" src="js/mapa.js"></script>
 </head>
 <body>
@@ -64,9 +66,44 @@
         <h2 class="sheet__title" id="titulo-bibliotecas">Bibliotecas</h2>
         <p class="sheet__meta" id="bibliotecas-actualizado" role="status"></p>
       </header>
+      <form class="sheet__search" role="search" action="#">
+        <label class="visually-hidden" for="buscar-biblioteca">Buscar biblioteca por nombre o zona</label>
+        <input class="field__input sheet__search-input" id="buscar-biblioteca" type="search"
+               placeholder="Buscar biblioteca o zona" autocomplete="off" enterkeyhint="search"
+               aria-controls="lista-bibliotecas">
+      </form>
       <p class="state__text" id="bibliotecas-cargando">Cargando…</p>
       <p class="alert alert--error" id="mapa-alerta" role="alert" hidden></p>
+      <p class="state__text" id="busqueda-vacia" role="status" hidden></p>
       <ul class="library-list" id="lista-bibliotecas"></ul>
+
+      <!-- Tarjeta de la biblioteca tocada en el mapa o en la lista (sustituye a la lista) -->
+      <article class="library-card" id="tarjeta-biblioteca" aria-labelledby="tarjeta-nombre" hidden>
+        <header class="library-card__header">
+          <h3 class="library-card__name">
+            <!-- Tocar el nombre lleva al detalle de la biblioteca -->
+            <a class="library-card__link" id="tarjeta-detalle" href="biblioteca.html">
+              <span id="tarjeta-nombre"></span>
+              <svg class="library-card__chevron" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2"
+                      stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+          </h3>
+          <button class="library-card__close" id="tarjeta-cerrar" type="button" aria-label="Volver a la lista">
+            <svg class="library-card__close-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round"/>
+            </svg>
+          </button>
+        </header>
+        <p class="library-card__address" id="tarjeta-direccion"></p>
+        <div class="library-card__occupancy">
+          <span class="library-card__value" id="tarjeta-valor"></span>
+          <span class="library-card__status" id="tarjeta-estado"></span>
+          <div class="library-card__meter" id="tarjeta-barra"></div>
+        </div>
+      </article>
     </section>
 
     <nav class="tab-bar" aria-label="Navegación principal">

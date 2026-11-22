@@ -1,18 +1,15 @@
 /*
  * Pantalla principal con el mapa de bibliotecas (wireframe 2A, US03).
  * Cada biblioteca aparece en el mapa con su % de ocupación y en la lista de abajo con su
- * barra y su fiabilidad. Los datos se piden de nuevo cada 60 s (criterio: datos de < 60 s).
+ * barra y su fiabilidad. Al tocarla (en el mapa o en la lista) el mapa vuela hasta ella y abajo
+ * sale su tarjeta. Los datos se piden de nuevo cada 60 s (criterio: datos de < 60 s).
  * Si el mapa no carga (sin token, sin conexión con Mapbox), la lista sigue funcionando sola.
  */
 import { getConfigMapa, getOcupacion } from './api.js';
 import { MENSAJE_ERROR_GENERICO, mostrarAlerta } from './formulario.js';
-import {
-  CLASES_NIVEL,
-  crearBarraOcupacion,
-  getNivelOcupacion,
-  getTextoActualizado,
-  getTextoFiabilidad,
-} from './ocupacion.js';
+import { actualizarLista, iniciarLista, mostrarTarjeta, ocultarTarjeta } from './lista-bibliotecas.js';
+import { CLASES_NIVEL, getNivelOcupacion, getTextoFiabilidad } from './ocupacion.js';
+import { ALTURA_PANEL, ajustarPanel, getAlturaTapada, iniciarPanel } from './panel.js';
 import { RUTA_LOGIN, crearRutaBiblioteca } from './rutas.js';
 
 const HTTP_OK = 200;
@@ -47,13 +44,8 @@ const DURACION_ENTRADA_MS = 2500;
 const ESPERA_MAXIMA_MAPA_MS = 15000;
 const MARGEN_ENCUADRE_PX = 64;
 const ZOOM_MAXIMO_ENCUADRE = 15;
-const TEXTO_PANEL_RECOGIDO = 'Mostrar todas las bibliotecas';
-const TEXTO_PANEL_DESPLEGADO = 'Ocultar la lista de bibliotecas';
-// Por debajo de esta distancia el gesto en el asa cuenta como toque, no como arrastre.
-const UMBRAL_ARRASTRE_PX = 6;
-// Valores para --sheet-altura: el CSS los recorta a la altura recogida y a la desplegada.
-const ALTURA_PANEL_RECOGIDO = '0px';
-const ALTURA_PANEL_DESPLEGADO = '100vh';
+// Vuelo hasta la biblioteca elegida (Mapbox lo hace sin animación si el móvil pide menos movimiento).
+const DURACION_VUELO_MS = 2000;
 const MENSAJE_SIN_CONEXION = 'No se ha podido conectar. Revisa tu conexión e inténtalo de nuevo.';
 const MENSAJE_SIN_MAPA = 'No se ha podido cargar el mapa. Aquí tienes la lista de bibliotecas.';
 
@@ -70,18 +62,46 @@ async function init() {
   document.getElementById('bibliotecas-cargando').hidden = true;
   if (bibliotecas === null) return;
 
-  renderLista(bibliotecas);
-  const mapa = await crearMapa(bibliotecas, mapboxCargado, tokenPedido);
+  const estado = { bibliotecas, seleccionadaId: null, mapa: null, marcadores: new Map() };
+  const onSeleccionar = (id) => seleccionarBiblioteca(estado, id);
   iniciarPanel();
-  const marcadores = new Map();
-  if (mapa) pintarMarcadores(mapa, marcadores, bibliotecas);
+  iniciarLista(estado, { onSeleccionar, onVolver: () => volverALista(estado) });
+  actualizarLista(estado, onSeleccionar);
+  estado.mapa = await crearMapa(bibliotecas, mapboxCargado, tokenPedido);
+  if (estado.mapa) pintarMarcadores(estado, onSeleccionar);
 
   window.setInterval(async () => {
     const nuevas = await cargarOcupacion();
     if (nuevas === null) return;
-    renderLista(nuevas);
-    if (mapa) pintarMarcadores(mapa, marcadores, nuevas);
+    estado.bibliotecas = nuevas;
+    actualizarLista(estado, onSeleccionar);
+    if (estado.mapa) pintarMarcadores(estado, onSeleccionar);
   }, INTERVALO_REFRESCO_MS);
+}
+
+/** Biblioteca tocada en el mapa o en la lista: su tarjeta abajo y el mapa vuela hasta ella. */
+async function seleccionarBiblioteca(estado, id) {
+  const biblioteca = estado.bibliotecas.find((candidata) => candidata.id === id);
+  if (!biblioteca) return;
+  estado.seleccionadaId = id;
+  document.activeElement?.blur?.();
+  mostrarTarjeta(biblioteca);
+  marcarGloboSeleccionado(estado);
+  await ajustarPanel(ALTURA_PANEL.tarjeta);
+  estado.mapa?.flyTo({
+    center: [biblioteca.longitud, biblioteca.latitud],
+    ...VISTA_3D,
+    // Centrada en la parte del mapa que no tapa la tarjeta.
+    padding: { top: 0, right: 0, left: 0, bottom: getAlturaTapada() },
+    duration: DURACION_VUELO_MS,
+  });
+}
+
+function volverALista(estado) {
+  estado.seleccionadaId = null;
+  ocultarTarjeta();
+  marcarGloboSeleccionado(estado);
+  ajustarPanel(ALTURA_PANEL.recogido);
 }
 
 /** Pide la ocupación. Devuelve la lista de bibliotecas, o null si hubo un error (ya avisado). */
@@ -106,34 +126,6 @@ async function cargarOcupacion() {
   }
 }
 
-function renderLista(bibliotecas) {
-  document.getElementById('lista-bibliotecas').replaceChildren(...bibliotecas.map(crearItemBiblioteca));
-  const cargadoEn = Date.now();
-  document.getElementById('bibliotecas-actualizado').textContent = getTextoActualizado(cargadoEn);
-}
-
-function crearItemBiblioteca({ id, nombre, ocupacion, fiabilidad }) {
-  const enlace = document.createElement('a');
-  enlace.className = 'library-list__link';
-  enlace.href = crearRutaBiblioteca(id);
-  enlace.append(
-    crearTexto('library-list__name', nombre),
-    crearTexto('library-list__value', `${ocupacion} %`),
-    crearBarraOcupacion(ocupacion),
-    crearTexto('library-list__detail', `${getNivelOcupacion(ocupacion).texto} · Fiabilidad ${getTextoFiabilidad(fiabilidad).toLowerCase()}`),
-  );
-  const item = document.createElement('li');
-  item.append(enlace);
-  return item;
-}
-
-function crearTexto(clase, texto) {
-  const elemento = document.createElement('span');
-  elemento.className = clase;
-  elemento.textContent = texto;
-  return elemento;
-}
-
 /** Añade el CSS y el <script> de Mapbox. Se cumple cuando cargan los dos y se rechaza si falla uno. */
 function cargarMapbox() {
   const estilos = document.createElement('link');
@@ -150,63 +142,6 @@ function cargarEnHead(elemento) {
     elemento.addEventListener('error', () => rechazar(new Error(`No se ha podido cargar ${elemento.src ?? elemento.href}`)));
     document.head.append(elemento);
   });
-}
-
-/**
- * Asa del panel de bibliotecas: arrastrándola se deja a cualquier altura; un toque (o Intro con
- * el teclado) lo recoge o lo despliega del todo.
- */
-function iniciarPanel() {
-  const panel = document.getElementById('panel-bibliotecas');
-  const boton = document.getElementById('panel-boton');
-  const arrastre = { inicioY: 0, alturaInicial: 0, isActivo: false, hasMovido: false };
-  escucharArrastre(panel, boton, arrastre);
-  escucharToque(panel, boton, arrastre);
-}
-
-/** Mientras se arrastra el asa, el panel sigue al dedo (o al ratón). */
-function escucharArrastre(panel, boton, arrastre) {
-  const alturaRecogido = panel.getBoundingClientRect().height;
-  boton.addEventListener('pointerdown', (evento) => {
-    const alturaInicial = panel.getBoundingClientRect().height;
-    Object.assign(arrastre, { inicioY: evento.clientY, alturaInicial, isActivo: true, hasMovido: false });
-    boton.setPointerCapture(evento.pointerId);
-    panel.classList.add('sheet--dragging');
-  });
-  boton.addEventListener('pointermove', (evento) => {
-    if (!arrastre.isActivo) return;
-    const desplazamiento = arrastre.inicioY - evento.clientY;
-    if (Math.abs(desplazamiento) >= UMBRAL_ARRASTRE_PX) arrastre.hasMovido = true;
-    if (arrastre.hasMovido) panel.style.setProperty('--sheet-altura', `${arrastre.alturaInicial + desplazamiento}px`);
-  });
-  const terminarArrastre = () => {
-    arrastre.isActivo = false;
-    panel.classList.remove('sheet--dragging');
-    actualizarEstadoPanel(boton, panel.getBoundingClientRect().height > alturaRecogido + 1);
-  };
-  boton.addEventListener('pointerup', terminarArrastre);
-  boton.addEventListener('pointercancel', terminarArrastre);
-}
-
-/** Un toque o Intro recoge el panel si está abierto (aunque sea a medias) o lo despliega. */
-function escucharToque(panel, boton, arrastre) {
-  // Tras un arrastre el navegador también lanza click: ese no cuenta como toque.
-  boton.addEventListener('click', () => {
-    if (arrastre.hasMovido) {
-      arrastre.hasMovido = false;
-      return;
-    }
-    const isDesplegar = boton.getAttribute('aria-expanded') !== 'true';
-    panel.style.setProperty('--sheet-altura', isDesplegar ? ALTURA_PANEL_DESPLEGADO : ALTURA_PANEL_RECOGIDO);
-    actualizarEstadoPanel(boton, isDesplegar);
-  });
-}
-
-function actualizarEstadoPanel(boton, isDesplegado) {
-  boton.setAttribute('aria-expanded', String(isDesplegado));
-  document.getElementById('panel-boton-texto').textContent = isDesplegado
-    ? TEXTO_PANEL_DESPLEGADO
-    : TEXTO_PANEL_RECOGIDO;
 }
 
 /** Crea el mapa en la vista inicial. Devuelve null si no se puede (y lo avisa). */
@@ -294,19 +229,31 @@ function mostrarSinMapa() {
 }
 
 /** Crea un globo por biblioteca, o actualiza el que ya hay (al refrescar). */
-function pintarMarcadores(mapa, marcadores, bibliotecas) {
-  bibliotecas.forEach((biblioteca) => {
-    const existente = marcadores.get(biblioteca.id);
+function pintarMarcadores(estado, onSeleccionar) {
+  estado.bibliotecas.forEach((biblioteca) => {
+    const existente = estado.marcadores.get(biblioteca.id);
     if (existente) {
       actualizarGlobo(existente.getElement(), biblioteca);
       return;
     }
     const globo = document.createElement('a');
     actualizarGlobo(globo, biblioteca);
+    // Sigue siendo un enlace al detalle (abrir en otra pestaña), pero el toque abre la tarjeta.
+    globo.addEventListener('click', (evento) => {
+      evento.preventDefault();
+      onSeleccionar(biblioteca.id);
+    });
     const marcador = new window.mapboxgl.Marker({ element: globo })
       .setLngLat([biblioteca.longitud, biblioteca.latitud])
-      .addTo(mapa);
-    marcadores.set(biblioteca.id, marcador);
+      .addTo(estado.mapa);
+    estado.marcadores.set(biblioteca.id, marcador);
+  });
+  marcarGloboSeleccionado(estado);
+}
+
+function marcarGloboSeleccionado({ marcadores, seleccionadaId }) {
+  marcadores.forEach((marcador, id) => {
+    marcador.getElement().classList.toggle('map-pin--seleccionado', id === seleccionadaId);
   });
 }
 

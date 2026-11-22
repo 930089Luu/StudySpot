@@ -49,6 +49,8 @@
   /* Panel de bibliotecas: recogido deja el mapa casi a pantalla completa (cabecera + 1 fila) */
   --sheet-collapsed-height: 9.5rem;
   --sheet-max-height: 60vh;
+  /* Con la tarjeta de una biblioteca: asa, nombre, dirección y ocupación */
+  --sheet-card-height: 17rem;
   --sheet-handle-width: 2.5rem;
   --sheet-handle-height: 4px;
   --pin-min-width: 3rem;
