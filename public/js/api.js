@@ -71,6 +71,21 @@ export function guardarVisibilidad(valor) {
   return postJson('visibilidad.php', { share: valor });
 }
 
+/** Perfil de un amigo o de quien te ha enviado una solicitud: { nombre, puntos_totales, relacion }. */
+export function getPerfilContacto(usuarioId) {
+  return getJson(`usuario.php?id=${encodeURIComponent(usuarioId)}`);
+}
+
+/** Personas que ha bloqueado el usuario. */
+export function getBloqueados() {
+  return getJson('bloqueos.php');
+}
+
+/** Bloquea o desbloquea a una persona. accion: 'block' o 'unblock'. */
+export function cambiarBloqueo(usuarioId, accion) {
+  return postJson('bloqueos.php', { user_id: usuarioId, action: accion });
+}
+
 async function getJson(endpoint) {
   const respuesta = await fetch(`${API_BASE_URL}/${endpoint}`, {
     headers: { Accept: 'application/json' },

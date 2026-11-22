@@ -4,6 +4,7 @@
  */
 import { cerrarSesion, getPerfil } from './api.js';
 import { MENSAJE_ERROR_GENERICO, mostrarAlerta } from './formulario.js';
+import { getIniciales } from './iniciales.js';
 import {
   AVISO_SESION_CERRADA,
   RUTA_LOGIN,
@@ -13,7 +14,6 @@ import {
 
 const HTTP_OK = 200;
 const HTTP_UNAUTHORIZED = 401;
-const MAX_INICIALES = 2;
 const MENSAJE_SIN_CONEXION = 'No se ha podido conectar. Revisa tu conexión e inténtalo de nuevo.';
 const formatoPuntos = new Intl.NumberFormat('es-ES');
 
@@ -76,16 +76,6 @@ async function handleCerrarSesion(evento) {
 function crearRutaTrasCerrarSesion(sesionEstudio) {
   if (!sesionEstudio) return crearRutaLoginConAviso(AVISO_SESION_CERRADA);
   return crearRutaLoginConPuntos(AVISO_SESION_CERRADA, sesionEstudio.puntos);
-}
-
-/** "Lucía Claver Bolea" → "LC". */
-function getIniciales(nombre) {
-  return nombre
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, MAX_INICIALES)
-    .map((palabra) => palabra[0].toUpperCase())
-    .join('');
 }
 
 init();

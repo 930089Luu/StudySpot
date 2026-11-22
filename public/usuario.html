@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#121316" media="(prefers-color-scheme: dark)">
+  <title>Perfil · StudySpot</title>
+  <link rel="icon" href="img/studyspot-simbolo-color.png" type="image/png">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <script type="module" src="js/usuario.js"></script>
+</head>
+<body class="page">
+  <!--
+    Perfil de otra persona (mejora de US06): se abre al tocar un amigo o una solicitud recibida.
+    Solo nombre y puntos; el correo y dónde estudia no se muestran aquí. Desde aquí se bloquea.
+  -->
+  <main class="auth auth--start">
+    <nav aria-label="Navegación">
+      <a class="back-link" href="amigos.html" aria-label="Volver a amigos">
+        <svg class="back-link__icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+          <path d="M12.5 4 6.5 10l6 6" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+    </nav>
+
+    <p class="state__text" id="usuario-cargando" role="status">Cargando…</p>
+    <p class="alert alert--error" id="usuario-alerta" role="alert" hidden></p>
+
+    <section class="profile" id="usuario" aria-labelledby="usuario-nombre" hidden>
+      <header class="profile__header">
+        <span class="avatar" id="usuario-iniciales" aria-hidden="true"></span>
+        <div>
+          <h1 class="profile__name" id="usuario-nombre"></h1>
+          <p class="profile__email" id="usuario-relacion"></p>
+        </div>
+      </header>
+
+      <div class="points-card">
+        <p class="points-card__value" id="usuario-puntos"></p>
+        <p class="points-card__label">Puntos totales</p>
+      </div>
+
+      <p class="alert alert--error" id="bloquear-alerta" role="alert" hidden></p>
+      <button class="button button--danger" id="boton-bloquear" type="button">Bloquear</button>
+      <p class="state__text">Si bloqueas a esta persona, dejaréis de ser amigos y no podrá enviarte solicitudes ni ver tu perfil. No se le avisará.</p>
+    </section>
+  </main>
+</body>
+</html>
