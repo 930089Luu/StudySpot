@@ -23,8 +23,8 @@ const MAPBOX_JS_URL = 'https://api.mapbox.com/mapbox-gl-js/v3.12.0/mapbox-gl.js'
 // Su CSS se añade también desde aquí: en el <head> bloquearía la primera pantalla (K07).
 const MAPBOX_CSS_URL = 'https://api.mapbox.com/mapbox-gl-js/v3.12.0/mapbox-gl.css';
 // Estilo Standard de Mapbox con el tema "Faded" y luz de atardecer (elección de Lucía).
-// Con edificios 3D, para ver el edificio de la biblioteca al entrar (Lucía, 22-11). Sin iconos
-// de comercios y transporte: pesan al cargar en el móvil (K07) y no ayudan a encontrarla.
+// Con edificios 3D, para ver el edificio de la biblioteca al entrar (Lucía, 22-11). Sin iconos de
+// comercios y transporte: pesan al cargar en el móvil (K07) y no ayudan a encontrar la biblioteca.
 const ESTILO_MAPA = 'mapbox://styles/mapbox/standard';
 const CONFIG_ESTILO = {
   basemap: {
@@ -35,10 +35,16 @@ const CONFIG_ESTILO = {
     showTransitLabels: false,
   },
 };
-// El mapa se abre sobre ISLA Gaia (id 1 en datos_ejemplo.sql), inclinado para ver el edificio
-// en 3D. Si no está en la lista, se encuadran todas las bibliotecas (vista desde arriba).
+// Entrada al mapa (Lucía, 22-11): la cámara baja desde una vista plana hasta ISLA Gaia (id 1 en
+// datos_ejemplo.sql) inclinada en 3D. Si ISLA no está en la lista, se encuadran todas desde arriba.
 const ID_BIBLIOTECA_INICIAL = 1;
+const VISTA_PLANA = { zoom: 15, pitch: 0, bearing: 0 };
 const VISTA_3D = { zoom: 17, pitch: 60, bearing: -20 };
+const DURACION_ENTRADA_MS = 2500;
+// Ver el mapa construirse por partes, o mover la cámara mientras aún descarga, da tirones. Por eso,
+// tapado por la animación de carga, se descargan las dos vistas (primero la 3D, luego la plana) y
+// solo entonces se destapa y se mueve la cámara. Si tarda más de esto, se destapa igualmente.
+const ESPERA_MAXIMA_MAPA_MS = 15000;
 const MARGEN_ENCUADRE_PX = 64;
 const ZOOM_MAXIMO_ENCUADRE = 15;
 const TEXTO_PANEL_RECOGIDO = 'Mostrar todas las bibliotecas';
@@ -212,12 +218,20 @@ async function crearMapa(bibliotecas, mapboxCargado, tokenPedido) {
       return null;
     }
     window.mapboxgl.accessToken = respuesta.cuerpo.token;
-    return new window.mapboxgl.Map({
+    const inicial = bibliotecas.find((biblioteca) => biblioteca.id === ID_BIBLIOTECA_INICIAL);
+    const mapa = new window.mapboxgl.Map({
       container: 'mapa',
       style: ESTILO_MAPA,
       config: CONFIG_ESTILO,
-      ...crearVistaInicial(bibliotecas),
+      ...crearVistaInicial(bibliotecas, inicial),
     });
+    if (inicial) {
+      prepararEntrada(mapa);
+    } else {
+      mapa.once('idle', ocultarCargaMapa);
+    }
+    window.setTimeout(ocultarCargaMapa, ESPERA_MAXIMA_MAPA_MS);
+    return mapa;
   } catch (error) {
     console.error(error);
     mostrarSinMapa();
@@ -225,9 +239,8 @@ async function crearMapa(bibliotecas, mapboxCargado, tokenPedido) {
   }
 }
 
-/** Centrado en la biblioteca inicial; si no está, encuadre de todas. */
-function crearVistaInicial(bibliotecas) {
-  const inicial = bibliotecas.find((biblioteca) => biblioteca.id === ID_BIBLIOTECA_INICIAL);
+/** Inclinado sobre la biblioteca inicial; si no está, encuadre de todas. */
+function crearVistaInicial(bibliotecas, inicial) {
   if (inicial) {
     return { center: [inicial.longitud, inicial.latitud], ...VISTA_3D };
   }
@@ -235,6 +248,33 @@ function crearVistaInicial(bibliotecas) {
     bounds: crearEncuadre(bibliotecas),
     fitBoundsOptions: { padding: MARGEN_ENCUADRE_PX, maxZoom: ZOOM_MAXIMO_ENCUADRE },
   };
+}
+
+/**
+ * El mapa se crea ya en la vista 3D: cuando está completa ('idle') se salta a la plana y, cuando
+ * esa también lo está, se destapa y la cámara baja a la 3D, que ya tiene todo descargado.
+ */
+function prepararEntrada(mapa) {
+  const isSinMovimiento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (isSinMovimiento) {
+    mapa.once('idle', ocultarCargaMapa);
+    return;
+  }
+  mapa.once('idle', () => {
+    mapa.jumpTo(VISTA_PLANA);
+    mapa.once('idle', () => {
+      ocultarCargaMapa();
+      mapa.easeTo({ ...VISTA_3D, duration: DURACION_ENTRADA_MS });
+    });
+  });
+}
+
+/** Funde la animación de carga y la quita del todo al acabar. Se puede llamar más de una vez. */
+function ocultarCargaMapa() {
+  const carga = document.getElementById('mapa-cargando');
+  if (carga.hidden || carga.classList.contains('map-loader--oculto')) return;
+  carga.addEventListener('transitionend', () => { carga.hidden = true; }, { once: true });
+  carga.classList.add('map-loader--oculto');
 }
 
 /** [[oeste, sur], [este, norte]] que contiene todas las bibliotecas. */
@@ -248,7 +288,7 @@ function crearEncuadre(bibliotecas) {
 }
 
 function mostrarSinMapa() {
-  document.getElementById('mapa').hidden = true;
+  document.getElementById('mapa-escenario').hidden = true;
   document.getElementById('panel-bibliotecas').classList.add('sheet--full');
   mostrarAlerta(document.getElementById('mapa-alerta'), MENSAJE_SIN_MAPA);
 }

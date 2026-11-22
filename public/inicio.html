@@ -26,7 +26,33 @@
   -->
   <main class="map-screen">
     <h1 class="visually-hidden">Mapa de bibliotecas</h1>
-    <div class="map-screen__map" id="mapa" role="region" aria-label="Mapa de bibliotecas"></div>
+    <div class="map-screen__stage" id="mapa-escenario">
+      <div class="map-screen__map" id="mapa" role="region" aria-label="Mapa de bibliotecas"></div>
+      <!-- Mientras Mapbox prepara el mapa 3D: libros que se apilan y, encima, el globo de ocupación -->
+      <div class="map-loader" id="mapa-cargando" role="status">
+        <svg class="map-loader__dibujo" viewBox="0 0 120 100" aria-hidden="true" focusable="false">
+          <g class="map-loader__libro map-loader__libro--1">
+            <rect class="map-loader__tapa" x="24" y="76" width="72" height="12" rx="2"/>
+            <rect class="map-loader__hojas" x="86" y="79" width="7" height="6" rx="1"/>
+          </g>
+          <g class="map-loader__libro map-loader__libro--2">
+            <rect class="map-loader__tapa" x="30" y="64" width="62" height="12" rx="2"/>
+            <rect class="map-loader__hojas" x="82" y="67" width="7" height="6" rx="1"/>
+          </g>
+          <g class="map-loader__libro map-loader__libro--3">
+            <rect class="map-loader__tapa" x="27" y="52" width="60" height="12" rx="2"/>
+            <rect class="map-loader__hojas" x="77" y="55" width="7" height="6" rx="1"/>
+          </g>
+          <g class="map-loader__libro map-loader__libro--4">
+            <rect class="map-loader__tapa" x="35" y="40" width="50" height="12" rx="2"/>
+            <rect class="map-loader__hojas" x="75" y="43" width="7" height="6" rx="1"/>
+          </g>
+          <path class="map-loader__globo" d="M60 37c-6-7-9-10-9-15a9 9 0 0 1 18 0c0 5-3 8-9 15z"/>
+          <circle class="map-loader__globo-centro" cx="60" cy="22" r="3.5"/>
+        </svg>
+        <p class="map-loader__texto">Cargando mapa…</p>
+      </div>
+    </div>
 
     <section class="sheet" id="panel-bibliotecas" aria-labelledby="titulo-bibliotecas">
       <button class="sheet__toggle" id="panel-boton" type="button"

@@ -702,12 +702,114 @@
   background-color: var(--color-page);
 }
 
+.map-screen__stage {
+  position: relative;
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Sin position propia: el CSS de Mapbox, que se carga después, le pone position: relative */
 .map-screen__map {
   flex: 1;
   min-height: 0;
   /* Los controles de Mapbox llevan z-index propio: así se quedan debajo del panel de la lista */
   isolation: isolate;
 }
+
+/* ---------- map-loader: libros que se apilan mientras carga el mapa ---------- */
+.map-loader {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  background-color: var(--color-page);
+  color: var(--color-accent);
+  transition: opacity var(--duration-base) var(--easing-standard);
+}
+
+/* Cuando el mapa 3D ya está terminado, la animación se funde y deja verlo completo */
+.map-loader--oculto {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.map-loader__dibujo {
+  width: var(--loader-size);
+  overflow: visible;
+}
+
+/* Cada libro cae desde arriba, rebota un poco y se queda en la pila; al final, todos se funden */
+.map-loader__libro {
+  transform-box: fill-box;
+  animation: map-loader-caer var(--loader-cycle) var(--easing-standard) infinite both;
+}
+
+.map-loader__libro--2 { animation-delay: calc(var(--loader-step) * 1); }
+.map-loader__libro--3 { animation-delay: calc(var(--loader-step) * 2); }
+.map-loader__libro--4 { animation-delay: calc(var(--loader-step) * 3); }
+
+.map-loader__libro--1 .map-loader__tapa { fill: var(--color-accent); }
+.map-loader__libro--2 .map-loader__tapa { fill: var(--color-text); }
+.map-loader__libro--3 .map-loader__tapa { fill: var(--color-success); }
+.map-loader__libro--4 .map-loader__tapa { fill: var(--color-accent); opacity: 0.6; }
+
+/* El canto de las hojas, en el color del fondo */
+.map-loader__hojas {
+  fill: var(--color-bg);
+}
+
+/* El globo de ocupación aparece encima de la pila cuando ya están todos los libros */
+.map-loader__globo,
+.map-loader__globo-centro {
+  transform-box: view-box;
+  transform-origin: 60px 37px;
+  animation: map-loader-globo var(--loader-cycle) var(--easing-standard) infinite both;
+  animation-delay: calc(var(--loader-step) * 4);
+}
+
+.map-loader__globo {
+  fill: var(--color-danger);
+}
+
+.map-loader__globo-centro {
+  fill: var(--color-bg);
+}
+
+.map-loader__texto {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+@keyframes map-loader-caer {
+  0% { transform: translateY(-40px); opacity: 0; }
+  12% { transform: translateY(0); opacity: 1; }
+  16% { transform: translateY(-4px); }
+  20% { transform: translateY(0); }
+  80% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(0); opacity: 0; }
+}
+
+@keyframes map-loader-globo {
+  0%, 10% { transform: scale(0); opacity: 1; }
+  20% { transform: scale(1.2); }
+  26%, 68% { transform: scale(1); opacity: 1; }
+  80%, 100% { transform: scale(1); opacity: 0; }
+}
+
+/* Sin animaciones: la pila de libros y el globo se quedan quietos */
+@media (prefers-reduced-motion: reduce) {
+  .map-loader__libro,
+  .map-loader__globo,
+  .map-loader__globo-centro {
+    animation: none;
+  }
+}
+
 
 /* ---------- sheet: panel inferior con la lista de bibliotecas ---------- */
 /*

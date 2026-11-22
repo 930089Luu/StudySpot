@@ -52,6 +52,10 @@
   --sheet-handle-width: 2.5rem;
   --sheet-handle-height: 4px;
   --pin-min-width: 3rem;
+  /* Animación de carga del mapa: tamaño del dibujo, vuelta completa y retraso entre libros */
+  --loader-size: 8rem;
+  --loader-cycle: 3.2s;
+  --loader-step: 0.3s;
   --meter-height: 8px;
   --chart-height: 8rem;
   --reliability-bar-width: 1rem;
