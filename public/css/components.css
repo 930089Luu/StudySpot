@@ -257,6 +257,16 @@
   transform: scale(var(--press-scale));
 }
 
+/* ---------- button--plain: opción secundaria solo con texto (como Apple) ---------- */
+.button--plain {
+  background-color: transparent;
+  color: var(--color-accent-text);
+}
+
+.button--plain:active {
+  background-color: var(--color-field);
+}
+
 /* ---------- button--danger: acción que no se deshace sola (p. ej. "Bloquear") ---------- */
 .button--danger {
   border: var(--border-width) solid var(--color-danger);
@@ -1578,6 +1588,408 @@
 }
 
 .chart__legend {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+
+/* ---------- onboarding: bienvenida con Sito (mejora de la experiencia, 23-11) ---------- */
+/* Como la configuración inicial de iOS: fondo liso, ilustración, título grande, frase corta,
+   un trozo real de la interfaz para probar y, abajo, puntitos de página y el botón. */
+.onboarding {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  width: 100%;
+  max-width: var(--content-max-width);
+  min-height: 100dvh;
+  margin-inline: auto;
+  padding-block: calc(env(safe-area-inset-top) + var(--space-2)) calc(env(safe-area-inset-bottom) + var(--space-4));
+}
+
+.onboarding__top {
+  display: flex;
+  justify-content: flex-end;
+  /* Mantiene su alto aunque "Omitir" se oculte en el último paso */
+  min-height: var(--tap-target);
+}
+
+.onboarding__skip {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-target);
+  padding-inline: var(--space-2);
+  color: var(--color-accent-text);
+  font-size: var(--font-size-base);
+  text-decoration: none;
+}
+
+/* Bloque central: ocupa el espacio libre y se centra en vertical, como en iOS */
+.onboarding__content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-5);
+}
+
+.onboarding__hero {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+/* Halo azul detrás de Sito: un círculo del color de la marca, muy difuminado */
+.onboarding__hero::before {
+  content: "";
+  position: absolute;
+  width: calc(var(--mascot-size) * 0.95);
+  aspect-ratio: 1;
+  border-radius: var(--radius-full);
+  background-color: var(--color-mascot-halo);
+  filter: blur(var(--mascot-halo-blur));
+}
+
+.onboarding__hero .mascot {
+  position: relative;
+}
+
+.onboarding__copy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  text-align: center;
+}
+
+.onboarding__title {
+  text-wrap: balance;
+  font-size: var(--font-size-display);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-title);
+}
+
+/* El nombre en el color de la app, como "Te damos la bienvenida a Notas" */
+.onboarding__title-accent {
+  color: var(--color-accent-text);
+}
+
+.onboarding__text {
+  max-width: 19rem;
+  text-wrap: balance;
+  color: var(--color-text-muted);
+  line-height: var(--line-height-base);
+}
+
+.onboarding__play {
+  display: flex;
+  justify-content: center;
+}
+
+/* Al cambiar de paso, el contenido entra desde la derecha, como al pasar página en iOS */
+.onboarding__entra {
+  animation: onboarding-entra 320ms var(--easing-standard) both;
+}
+
+@keyframes onboarding-entra {
+  from { opacity: 0; transform: translateX(var(--space-5)); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.onboarding__bottom {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+/* Puntitos de página: el del paso actual, del color del texto */
+.onboarding__dots {
+  display: flex;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.onboarding__dot {
+  width: var(--onboarding-dot-size);
+  height: var(--onboarding-dot-size);
+  border-radius: var(--radius-full);
+  background-color: var(--color-border);
+  transition: background-color var(--duration-base) var(--easing-standard);
+}
+
+.onboarding__dot[aria-current="step"] {
+  background-color: var(--color-text);
+}
+
+/* Siempre el sitio de los dos botones del final: los puntitos nunca cambian de altura */
+.onboarding__actions {
+  display: grid;
+  align-content: start;
+  gap: var(--space-1);
+  width: 100%;
+  min-height: calc(var(--ios-button-height) * 2 + var(--space-1));
+}
+
+/* Botón de las pantallas de bienvenida de Apple: rectángulo redondeado, no cápsula */
+.button--ios {
+  min-height: var(--ios-button-height);
+  border-radius: var(--ios-button-radius);
+  font-size: var(--font-size-ios-button);
+}
+
+/* Botón principal neutro (oscuro en modo claro, blanco en oscuro): el color de la marca se
+   queda en los detalles, no en un botón enorme */
+.button--neutral {
+  background-color: var(--color-button-neutral);
+  color: var(--color-button-neutral-text);
+}
+
+.button--neutral:active {
+  opacity: 0.8;
+  transform: scale(var(--press-scale));
+}
+
+.button--neutral:disabled {
+  opacity: 0.25;
+}
+
+/* Botón pequeño dentro del contenido (cápsula pequeña, como los "bordered" de iOS) */
+.button--small {
+  width: auto;
+  min-height: var(--tap-target);
+  padding-inline: var(--space-4);
+  font-size: var(--font-size-sm);
+}
+
+/* Botón tintado de iOS para las acciones de prueba (Escanear, Estudiar 1 hora) */
+.button--tinted {
+  background-color: var(--color-accent-surface);
+  color: var(--color-accent-text);
+}
+
+.button--tinted:active {
+  transform: scale(var(--press-scale));
+}
+
+/* Sito: flota suavemente; saltito al cambiar de pose y brinco al celebrar */
+.mascot {
+  width: var(--mascot-size);
+  height: auto;
+  animation: mascot-flota 3.2s ease-in-out infinite;
+}
+
+.mascot--entra {
+  animation:
+    mascot-entra 450ms var(--easing-standard) both,
+    mascot-flota 3.2s ease-in-out 450ms infinite;
+}
+
+.mascot--celebra {
+  animation:
+    mascot-celebra 650ms var(--easing-standard) both,
+    mascot-flota 3.2s ease-in-out 650ms infinite;
+}
+
+@keyframes mascot-flota {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-5px) rotate(-1.5deg); }
+}
+
+@keyframes mascot-entra {
+  0% { transform: translateY(12px) scale(0.94); opacity: 0; }
+  60% { transform: translateY(-5px) scale(1.02); opacity: 1; }
+  100% { transform: translateY(0) scale(1); }
+}
+
+@keyframes mascot-celebra {
+  0% { transform: translateY(0) scale(1); }
+  35% { transform: translateY(-20px) scale(1.05) rotate(-4deg); }
+  65% { transform: translateY(0) scale(0.97) rotate(3deg); }
+  100% { transform: translateY(0) scale(1) rotate(0deg); }
+}
+
+/* Paso de la lista: las filas de verdad de la app, en una tarjeta agrupada como en Ajustes */
+.demo-list {
+  width: 100%;
+  margin: 0;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-md);
+  background-color: var(--color-field);
+  list-style: none;
+}
+
+.demo-list .library-row:active {
+  background-color: transparent;
+  opacity: 0.6;
+}
+
+.demo-list__row:last-child .library-row__body {
+  border-block-end: 0;
+}
+
+/* La buena: el nombre en verde */
+.demo-list__row--acierto .library-row__name {
+  color: var(--color-success);
+}
+
+/* Pasos del QR y de los puntos */
+.demo-play {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* Visor de cámara con cuatro esquinas, como el escáner de códigos de iOS.
+   Las esquinas se dibujan con degradados en el fondo (sin elementos de más). */
+.demo-scanner {
+  --esquina: var(--color-text);
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: var(--demo-scanner-size);
+  aspect-ratio: 1;
+  background:
+    linear-gradient(var(--esquina), var(--esquina)) top left / var(--demo-corner) var(--demo-corner-width),
+    linear-gradient(var(--esquina), var(--esquina)) top left / var(--demo-corner-width) var(--demo-corner),
+    linear-gradient(var(--esquina), var(--esquina)) top right / var(--demo-corner) var(--demo-corner-width),
+    linear-gradient(var(--esquina), var(--esquina)) top right / var(--demo-corner-width) var(--demo-corner),
+    linear-gradient(var(--esquina), var(--esquina)) bottom left / var(--demo-corner) var(--demo-corner-width),
+    linear-gradient(var(--esquina), var(--esquina)) bottom left / var(--demo-corner-width) var(--demo-corner),
+    linear-gradient(var(--esquina), var(--esquina)) bottom right / var(--demo-corner) var(--demo-corner-width),
+    linear-gradient(var(--esquina), var(--esquina)) bottom right / var(--demo-corner-width) var(--demo-corner);
+  background-repeat: no-repeat;
+}
+
+.demo-scanner__qr {
+  width: 62%;
+  fill: var(--color-text);
+  transition: opacity var(--duration-base) var(--easing-standard);
+}
+
+.demo-scanner__line {
+  position: absolute;
+  inset-inline: 8%;
+  top: 12%;
+  height: 2px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-accent);
+  box-shadow: 0 0 10px var(--color-accent);
+  opacity: 0;
+}
+
+.demo-scanner--escaneando .demo-scanner__line {
+  opacity: 1;
+  animation: demo-escanear 1400ms ease-in-out both;
+}
+
+@keyframes demo-escanear {
+  0%, 100% { top: 12%; }
+  50% { top: 86%; }
+}
+
+.demo-scanner__check {
+  position: absolute;
+  width: 42%;
+  opacity: 0;
+  transform: scale(0.6);
+  transition:
+    opacity var(--duration-base) var(--easing-standard),
+    transform var(--duration-base) var(--easing-standard);
+}
+
+.demo-scanner__check circle {
+  fill: var(--color-success);
+}
+
+.demo-scanner__check path {
+  fill: none;
+  stroke: var(--color-bg);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.demo-scanner--hecho {
+  --esquina: var(--color-success);
+}
+
+.demo-scanner--hecho .demo-scanner__qr {
+  opacity: 0.12;
+}
+
+.demo-scanner--hecho .demo-scanner__check {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Paso de los puntos: un anillo grande que se va cerrando, como la app Fitness */
+.demo-points {
+  --ring-track: var(--color-field);
+  --ring-color: var(--color-accent);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: var(--demo-ring-size);
+  aspect-ratio: 1;
+}
+
+.demo-points__value {
+  position: relative;
+  font-size: var(--font-size-display);
+  font-weight: var(--font-weight-bold);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.demo-points__label {
+  position: relative;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.demo-points__time {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Resumen final, como la pantalla de "Novedades" de las apps de Apple: icono de color, título
+   en negrita y una línea gris, alineado a la izquierda */
+.feature-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.feature-list__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.feature-list__icon {
+  flex-shrink: 0;
+  width: var(--feature-icon-size);
+  height: var(--feature-icon-size);
+  fill: var(--color-accent);
+}
+
+.feature-list__title {
+  font-weight: var(--font-weight-semibold);
+}
+
+.feature-list__text {
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
 }

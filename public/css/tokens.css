@@ -48,6 +48,19 @@
   --content-max-width: 24rem;
   /* Mapa y detalle de biblioteca (US03/US05) */
   --map-button-size: 48px;
+  /* Bienvenida con Sito */
+  --mascot-size: min(50vw, 12rem);
+  --onboarding-dot-size: 7px;
+  --demo-ring-size: 8.5rem;
+  --demo-scanner-size: 8.5rem;
+  --demo-corner: 22px;
+  --demo-corner-width: 3px;
+  --mascot-halo-blur: 32px;
+  --feature-icon-size: 30px;
+  /* Botones de las pantallas de bienvenida de Apple */
+  --ios-button-height: 50px;
+  --ios-button-radius: 14px;
+  --font-size-ios-button: 1.0625rem; /* 17 px */
   /* Panel de bibliotecas: recogido deja el mapa casi a pantalla completa (buscador + 1 fila,
      la favorita o la más vacía) */
   --sheet-collapsed-height: 11.5rem;
@@ -106,6 +119,9 @@
   --color-success-surface: #e8f5ee;
   --color-accent-surface: #ececfe;
   --color-sheet: rgb(255 255 255 / 0.82);
+  --color-mascot-halo: rgb(61 59 243 / 0.3);
+  --color-button-neutral: #16154a;
+  --color-button-neutral-text: #ffffff;
   --color-backdrop: rgb(10 10 30 / 0.35);
 
   /* Visor de la cámara (igual en claro y oscuro: encima siempre hay vídeo) */
@@ -148,6 +164,9 @@
     --color-success-surface: #12301f;
     --color-accent-surface: #23224a;
     --color-sheet: rgb(28 28 34 / 0.8);
+    --color-mascot-halo: rgb(139 138 255 / 0.35);
+    --color-button-neutral: #ffffff;
+    --color-button-neutral-text: #121316;
     --color-backdrop: rgb(0 0 0 / 0.55);
 
     --shadow-card: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 32px rgb(0 0 0 / 0.35);
