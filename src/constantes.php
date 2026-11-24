@@ -38,6 +38,11 @@ const RADIO_TIERRA_METROS = 6371000;
 const MINUTOS_POR_PUNTO = 15;
 const MAX_PUNTOS_SESION = 16;
 
+// Ranking semanal y objetivo compartido (US07): puntos que suma el grupo (tú y tus amigos) cada semana.
+const OBJETIVO_SEMANAL_PUNTOS = 40;
+// Tope del porcentaje del objetivo compartido.
+const OBJETIVO_MAX_PORCENTAJE = 100;
+
 // Ocupación (US03): % = (sesiones activas ÷ factor_adopcion) ÷ capacidad_maxima. Recuento directo, sin Little.
 // Fiabilidad según los usuarios activos en la biblioteca: baja < 5 · media 5–14 · alta ≥ 15.
 const UMBRAL_FIABILIDAD_MEDIA = 5;
