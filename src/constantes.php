@@ -9,6 +9,12 @@ declare(strict_types=1);
 const ALLOWED_EMAIL_DOMAINS = [
     'unizar.es', 'ucm.es', 'upm.es', 'uam.es', 'uc3m.es', 'ub.edu',
     'uv.es', 'upv.es', 'us.es', 'ugr.es', 'usal.es', 'uca.es',
+    'uniovi.es', 'um.es', 'uma.es', 'ua.es', 'uva.es', 'uvigo.es',
+    'usc.es', 'ulpgc.es', 'ull.edu.es', 'unican.es', 'unex.es', 'uclm.es',
+    'uco.es', 'ujaen.es', 'ual.es', 'uhu.es', 'ubu.es', 'unileon.es',
+    'uji.es', 'uib.es', 'upo.es', 'urjc.es', 'uah.es', 'umh.es',
+    'udc.es', 'uned.es', 'unirioja.es', 'unavarra.es', 'upct.es', 'ehu.eus',
+    'uab.cat', 'udg.edu', 'udl.cat', 'urv.cat', 'upc.edu', 'upf.edu',
 ];
 
 const EMAIL_MAX_LENGTH = 254;
