@@ -131,3 +131,8 @@ async function leerCuerpoJson(respuesta) {
   const tipo = respuesta.headers.get('Content-Type') ?? '';
   return tipo.includes('application/json') ? respuesta.json() : {};
 }
+
+/** Ranking semanal entre tú y tus amigos, y progreso del objetivo compartido. */
+export function getRanking() {
+  return getJson('ranking.php');
+}
