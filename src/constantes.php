@@ -8,7 +8,7 @@ declare(strict_types=1);
 // Correo institucional: se acepta el dominio exacto o cualquier subdominio.
 const ALLOWED_EMAIL_DOMAINS = [
     'unizar.es', 'ucm.es', 'upm.es', 'uam.es', 'uc3m.es', 'ub.edu',
-    'uv.es', 'upv.es', 'us.es', 'ugr.es', 'usal.es',
+    'uv.es', 'upv.es', 'us.es', 'ugr.es', 'usal.es', 'uca.es',
 ];
 
 const EMAIL_MAX_LENGTH = 254;
