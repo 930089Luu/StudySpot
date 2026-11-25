@@ -54,3 +54,4 @@ const FRANJA_ULTIMA_HORA = 22;
 // Días como en ISO-8601: 1 = lunes … 7 = domingo.
 const DIA_SEMANA_MIN = 1;
 const DIA_SEMANA_MAX = 7;
+const DESCRIPCION_ESPECIAL_MAX_LENGTH = 100;

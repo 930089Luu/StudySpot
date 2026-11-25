@@ -15,6 +15,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/../constantes.php';
 require_once __DIR__ . '/../Database/conexion.php';
 require_once __DIR__ . '/../Sesiones/estudio.php';
+require_once __DIR__ . '/../Horarios/horarios.php';
 
 /** Ocupación de todas las bibliotecas, para el mapa y la lista. */
 function getOcupacionBibliotecas(PDO $pdo): array
@@ -24,7 +25,7 @@ function getOcupacionBibliotecas(PDO $pdo): array
     return array_map('formatearOcupacion', findBibliotecasConSesionesActivas($pdo, null));
 }
 
-/** Detalle de una biblioteca con su ocupación, o null si no existe. */
+/** Detalle de una biblioteca con su ocupación y su horario de hoy, o null si no existe. */
 function getDetalleBiblioteca(PDO $pdo, int $bibliotecaId): ?array
 {
     cerrarSesionesCaducadas($pdo);
@@ -36,8 +37,8 @@ function getDetalleBiblioteca(PDO $pdo, int $bibliotecaId): ?array
     return formatearOcupacion($fila) + [
         'direccion' => $fila['direccion'],
         'foto_url' => $fila['foto_url'],
-        // Los horarios son de US08 (pendiente): hasta entonces la pantalla muestra "Horario no disponible".
-        'horario_hoy' => null,
+        // Horario de hoy: el periodo especial si lo hay; si no, el horario semanal (US08).
+        'horario_hoy' => findHorarioHoy($pdo, $bibliotecaId, new DateTimeImmutable('today')),
     ];
 }
 

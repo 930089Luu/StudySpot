@@ -127,3 +127,43 @@ CREATE TABLE IF NOT EXISTS bloqueo (
         REFERENCES usuario (id) ON DELETE CASCADE,
     CONSTRAINT chk_bloqueo_no_uno_mismo CHECK (bloqueador_id <> bloqueado_id)
 ) ENGINE = InnoDB;
+
+-- US08: horario semanal de cada biblioteca. dia_semana: 1 = lunes … 7 = domingo (ISO-8601).
+-- Dos horas a NULL = cerrado ese día. Después de guardar la semana siempre hay 7 filas.
+CREATE TABLE IF NOT EXISTS horario_biblioteca (
+    id            INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    biblioteca_id INT UNSIGNED NOT NULL,
+    dia_semana    TINYINT UNSIGNED NOT NULL,
+    hora_apertura TIME NULL,
+    hora_cierre   TIME NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY uq_horario_dia (biblioteca_id, dia_semana),
+    CONSTRAINT fk_horario_biblioteca FOREIGN KEY (biblioteca_id)
+        REFERENCES biblioteca (id) ON DELETE CASCADE,
+    CONSTRAINT chk_horario_dia CHECK (dia_semana BETWEEN 1 AND 7),
+    CONSTRAINT chk_horario_horas CHECK (
+        (hora_apertura IS NULL AND hora_cierre IS NULL)
+        OR (hora_apertura IS NOT NULL AND hora_cierre IS NOT NULL AND hora_apertura < hora_cierre))
+) ENGINE = InnoDB;
+
+-- US08: periodos especiales (exámenes, Navidad…). cerrado = TRUE: la biblioteca no abre esos días.
+-- cerrado = FALSE con horas: horario especial. Dos periodos de la misma biblioteca no se solapan.
+CREATE TABLE IF NOT EXISTS calendario_especial (
+    id            INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    biblioteca_id INT UNSIGNED NOT NULL,
+    fecha_inicio  DATE NOT NULL,
+    fecha_fin     DATE NOT NULL,
+    descripcion   VARCHAR(100) NOT NULL,
+    cerrado       BOOLEAN NOT NULL DEFAULT FALSE,
+    hora_apertura TIME NULL,
+    hora_cierre   TIME NULL,
+    PRIMARY KEY (id),
+    KEY idx_calendario_biblioteca (biblioteca_id, fecha_inicio),
+    CONSTRAINT fk_calendario_biblioteca FOREIGN KEY (biblioteca_id)
+        REFERENCES biblioteca (id) ON DELETE CASCADE,
+    CONSTRAINT chk_calendario_fechas CHECK (fecha_inicio <= fecha_fin),
+    CONSTRAINT chk_calendario_horas CHECK (
+        (cerrado = TRUE AND hora_apertura IS NULL AND hora_cierre IS NULL)
+        OR (cerrado = FALSE AND hora_apertura IS NOT NULL AND hora_cierre IS NOT NULL
+            AND hora_apertura < hora_cierre))
+) ENGINE = InnoDB;
