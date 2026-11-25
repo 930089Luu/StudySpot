@@ -14,7 +14,7 @@ const ALLOWED_EMAIL_DOMAINS = [
     'uco.es', 'ujaen.es', 'ual.es', 'uhu.es', 'ubu.es', 'unileon.es',
     'uji.es', 'uib.es', 'upo.es', 'urjc.es', 'uah.es', 'umh.es',
     'udc.es', 'uned.es', 'unirioja.es', 'unavarra.es', 'upct.es', 'ehu.eus',
-    'uab.cat', 'udg.edu', 'udl.cat', 'urv.cat', 'upc.edu', 'upf.edu',
+    'uab.cat', 'udg.edu', 'udl.cat', 'urv.cat', 'upc.edu', 'upf.edu', 'islagaia.pt',
 ];
 
 const EMAIL_MAX_LENGTH = 254;
