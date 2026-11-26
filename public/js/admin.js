@@ -17,12 +17,16 @@ import {
   mostrarErrorRespuesta,
 } from './formulario.js';
 import { RUTA_LOGIN } from './rutas.js';
+import { confirmar } from './confirmar.js';
 
 const HTTP_OK = 200;
 const HTTP_CREATED = 201;
 const HTTP_UNAUTHORIZED = 401;
 const HTTP_FORBIDDEN = 403;
 const DIAS_POR_SEMANA = 7;
+const RUTA_AJUSTES = 'ajustes.html';
+const MENSAJE_DIA_SIN_HORAS = 'Pon las horas de apertura y cierre o marca "Cerrado" en los días sin horario.';
+const FORMATO_FECHA = new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
 const MENSAJE_SIN_ADMIN = 'Solo los administradores pueden gestionar horarios.';
 const MENSAJE_SIN_CONEXION = 'No se ha podido conectar. Revisa tu conexión e inténtalo de nuevo.';
 const MENSAJE_SEMANA_GUARDADA = 'Horario semanal guardado.';
@@ -53,6 +57,7 @@ async function init() {
 async function cargarHorarios() {
   const respuesta = await getHorarios(bibliotecaSeleccionada());
   if (isSinSesion(respuesta)) return redirigirAlLogin();
+  if (respuesta.estado === HTTP_FORBIDDEN && respuesta.cuerpo.confirmar) return window.location.assign(RUTA_AJUSTES);
   if (respuesta.estado === HTTP_FORBIDDEN) return mostrarErrorPagina(MENSAJE_SIN_ADMIN);
   if (respuesta.estado !== HTTP_OK) return mostrarErrorPagina(respuesta.cuerpo.error ?? MENSAJE_ERROR_GENERICO);
   rellenarSemana(respuesta.cuerpo.horario_semanal);
@@ -130,7 +135,11 @@ async function handleGuardarSemana(evento) {
   mostrarAlerta(exito, '');
   boton.disabled = true;
   try {
-    const respuesta = await guardarHorarioSemana(bibliotecaSeleccionada(), leerSemana(formulario));
+    const semana = leerSemana(formulario);
+    const diasAbiertosSinHoras = semana.filter((dia, indice) =>
+      !formulario.elements.namedItem(`cerrado-${indice + 1}`).checked && hayDiaSinHoras([dia]));
+    if (diasAbiertosSinHoras.length > 0) return mostrarAlerta(alerta, MENSAJE_DIA_SIN_HORAS);
+    const respuesta = await guardarHorarioSemana(bibliotecaSeleccionada(), semana);
     if (isSinSesion(respuesta)) return redirigirAlLogin();
     if (respuesta.estado !== HTTP_OK) return mostrarAlerta(alerta, respuesta.cuerpo.error ?? MENSAJE_ERROR_GENERICO);
     mostrarAlerta(exito, MENSAJE_SEMANA_GUARDADA);
@@ -194,13 +203,17 @@ function crearItemEspecial({ id, descripcion, fecha_inicio: inicio, fecha_fin: f
   const boton = crearElemento('button', 'button button--compact button--secondary');
   boton.type = 'button';
   boton.textContent = 'Borrar';
-  boton.addEventListener('click', (evento) => handleBorrarEspecial(evento.currentTarget, id));
+  boton.addEventListener('click', async (evento) => {
+    const elBoton = evento.currentTarget;
+    const seguro = await confirmar({ titulo: `¿Borrar «${descripcion}»?`, texto: 'El horario de esos días vuelve a ser el normal.', accion: 'Borrar', destructiva: true });
+    if (seguro) handleBorrarEspecial(elBoton, id);
+  });
   const acciones = crearElemento('div', 'friend-list__actions');
   acciones.append(boton);
   const info = crearElemento('div', 'friend-list__info');
   info.append(
     crearTexto('p', 'friend-list__name', descripcion),
-    crearTexto('p', 'friend-list__detail', `${inicio} → ${fin} · ${estado}`),
+    crearTexto('p', 'friend-list__detail', `${formatearFecha(inicio)} – ${formatearFecha(fin)} · ${estado}`),
   );
   const item = crearElemento('li', 'friend-list__item');
   item.append(info, acciones);
@@ -224,6 +237,17 @@ async function handleBorrarEspecial(boton, especialId) {
     mostrarAlertaPagina(MENSAJE_SIN_CONEXION);
     boton.disabled = false;
   }
+}
+
+/** "2026-12-24" → "24 dic 2026" (sin cambiar de día por la zona horaria). */
+function formatearFecha(fecha) {
+  const [anio, mes, dia] = fecha.split('-').map(Number);
+  return FORMATO_FECHA.format(new Date(anio, mes - 1, dia));
+}
+
+/** true si algún día sin marcar "Cerrado" tiene una hora vacía: no se guardaría como cerrado sin avisar. */
+function hayDiaSinHoras(semana) {
+  return semana.some(({ apertura, cierre }) => (apertura === null) !== (cierre === null) || (apertura === null && cierre === null));
 }
 
 function valorONull(valor) {
