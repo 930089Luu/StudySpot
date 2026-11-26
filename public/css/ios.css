@@ -1770,6 +1770,10 @@ button.ios-row {
   cursor: pointer;
 }
 
+.editor-avatar__opciones--dos {
+  grid-template-columns: repeat(2, 1fr);
+}
+
 /* Chica / Chico: el personaje con su nombre debajo */
 .editor-avatar__miniatura--nombre {
   display: flex;

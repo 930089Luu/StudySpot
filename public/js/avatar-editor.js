@@ -86,6 +86,8 @@ function pintarPanel() {
   // Piel y fondo son solo color; el resto, miniaturas con cada opción puesta en tu avatar.
   const opciones = document.getElementById('avatar-opciones');
   opciones.hidden = Boolean(pestana.colores);
+  // Chica / Chico: dos opciones, a media anchura cada una (sin hueco vacío)
+  opciones.classList.toggle('editor-avatar__opciones--dos', Boolean(pestana.nombres));
   if (!pestana.colores) {
     const total = AVATAR_OPCIONES[pestana.parte];
     opciones.replaceChildren(...Array.from({ length: total }, (_, indice) => crearMiniatura(indice)));
