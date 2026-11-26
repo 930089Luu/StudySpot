@@ -8,6 +8,7 @@
 
   /* Tipografía: pila de fuentes del sistema */
   --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-size-xs: 0.8125rem; /* 13 px: segunda línea de las listas, como en iOS */
   --font-size-sm: 0.875rem;
   --font-size-base: 1rem; /* 16 px: evita el zoom automático de iOS en los campos */
   --font-size-title: 1.75rem;
@@ -36,6 +37,7 @@
   --control-height: 52px;
   --logo-size: 88px;
   --icon-size: 20px;
+  --icon-size-sm: 14px;
   --badge-size: 64px;
   --badge-icon-size: 28px;
   --timer-size: 15rem;
@@ -45,11 +47,40 @@
   --scanner-frame-width: 3px;
   --content-max-width: 24rem;
   /* Mapa y detalle de biblioteca (US03/US05) */
-  --tab-bar-height: 4rem;
-  --sheet-max-height: 42vh;
+  --map-button-size: 48px;
+  /* Bienvenida con Sito */
+  --mascot-size: min(50vw, 12rem);
+  --onboarding-dot-size: 7px;
+  --demo-ring-size: 8.5rem;
+  --demo-scanner-size: 8.5rem;
+  --demo-corner: 22px;
+  --demo-corner-width: 3px;
+  --mascot-halo-blur: 32px;
+  --feature-icon-size: 30px;
+  /* Botones de las pantallas de bienvenida de Apple */
+  --ios-button-height: 50px;
+  --ios-button-radius: 14px;
+  --font-size-ios-button: 1.0625rem; /* 17 px */
+  /* Panel de bibliotecas: recogido deja el mapa casi a pantalla completa (buscador + 1 fila,
+     la favorita o la más vacía) */
+  --sheet-collapsed-height: 11.5rem;
+  --sheet-max-height: 60vh;
+  /* Minimizada: asa + buscador flotando (cápsula) + separación + margen + zona segura del iPhone */
+  --sheet-mini-height: calc(var(--tap-target) * 2 + var(--space-1) * 2 + var(--space-3) + var(--space-4) + env(safe-area-inset-bottom));
+  /* Con la tarjeta de una biblioteca: asa, nombre, dirección y ocupación */
+  --sheet-card-height: 17rem;
   --sheet-handle-width: 2.5rem;
   --sheet-handle-height: 4px;
-  --pin-min-width: 3rem;
+  /* Globo de ocupación del mapa: anillo que se rellena según el % (estilo anillos de actividad) */
+  --pin-size: 46px;
+  --row-ring-size: 40px;
+  --pin-size-selected: 54px;
+  --pin-ring-width: 3.5;
+  --pin-font-size: 0.8125rem;
+  /* Animación de carga del mapa: tamaño del dibujo, vuelta completa y retraso entre libros */
+  --loader-size: 8rem;
+  --loader-cycle: 3.2s;
+  --loader-step: 0.3s;
   --meter-height: 8px;
   --chart-height: 8rem;
   --reliability-bar-width: 1rem;
@@ -86,6 +117,12 @@
   --color-danger-surface: #fdecea;
   --color-success: #17663a;
   --color-success-surface: #e8f5ee;
+  --color-accent-surface: #ececfe;
+  --color-sheet: rgb(255 255 255 / 0.82);
+  --color-mascot-halo: rgb(61 59 243 / 0.3);
+  --color-button-neutral: #16154a;
+  --color-button-neutral-text: #ffffff;
+  --color-backdrop: rgb(10 10 30 / 0.35);
 
   /* Visor de la cámara (igual en claro y oscuro: encima siempre hay vídeo) */
   --color-scanner-bg: #000000;
@@ -94,6 +131,17 @@
 
   /* Sombras muy suaves */
   --shadow-card: 0 1px 2px rgb(0 0 0 / 0.04), 0 8px 32px rgb(0 0 0 / 0.06);
+  /* Colores del globo del mapa. El mapa es siempre oscuro (luz de atardecer), así que no cambian
+     con el modo claro/oscuro: colores vivos que se leen sobre él y cristal oscuro de fondo. */
+  --color-pin-bajo: #30d158;
+  --color-pin-medio: #8b8aff;
+  --color-pin-alto: #ff453a;
+  --color-pin-fondo: rgb(20 20 32 / 0.6);
+  --color-pin-pista: rgb(255 255 255 / 0.15);
+  --color-pin-texto: #ffffff;
+  --shadow-pin: 0 4px 14px rgb(0 0 0 / 0.35);
+  --shadow-floating: 0 6px 24px rgb(0 0 0 / 0.28);
+  --color-handle-floating: rgb(255 255 255 / 0.85);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -114,6 +162,12 @@
     --color-danger-surface: #3a1714;
     --color-success: #6fd69a;
     --color-success-surface: #12301f;
+    --color-accent-surface: #23224a;
+    --color-sheet: rgb(28 28 34 / 0.8);
+    --color-mascot-halo: rgb(139 138 255 / 0.35);
+    --color-button-neutral: #ffffff;
+    --color-button-neutral-text: #121316;
+    --color-backdrop: rgb(0 0 0 / 0.55);
 
     --shadow-card: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 32px rgb(0 0 0 / 0.35);
   }

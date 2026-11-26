@@ -29,7 +29,7 @@ return function (PDO $pdo): array {
                     && calcularPorcentajeOcupacion(0, 0.3, 40) === 0
                     && calcularPorcentajeOcupacion(50, 0.3, 40) === 100;
             }],
-        ['T103', 'Biblioteca con 3 sesiones activas → 3 %, fiabilidad baja y 3 usuarios activos',
+        ['T103', 'Biblioteca con 3 sesiones activas → 3 %, fiabilidad baja, 3 usuarios activos y su dirección (buscador)',
             function () use ($pdo): bool {
                 $zona = crearZonaPrueba($pdo);
                 for ($i = 0; $i < 3; $i++) {
@@ -37,7 +37,7 @@ return function (PDO $pdo): array {
                 }
                 $biblioteca = findOcupacionDeZona($pdo, $zona['id']);
                 return $biblioteca['ocupacion'] === 3 && $biblioteca['fiabilidad'] === FIABILIDAD_BAJA
-                    && $biblioteca['usuarios_activos'] === 3;
+                    && $biblioteca['usuarios_activos'] === 3 && $biblioteca['direccion'] === 'Dirección de prueba';
             }],
         ['T104', 'Sesión activa de más de 4 h → se cierra antes de contar y no suma ocupación',
             function () use ($pdo): bool {

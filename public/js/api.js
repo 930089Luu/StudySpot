@@ -48,6 +48,11 @@ export function getBiblioteca(bibliotecaId) {
   return getJson(`biblioteca.php?id=${encodeURIComponent(bibliotecaId)}`);
 }
 
+/** Marca la biblioteca favorita (el mapa se abre en ella) o la quita con null. */
+export function guardarFavorita(bibliotecaId) {
+  return postJson('favorita.php', { biblioteca_id: bibliotecaId });
+}
+
 /** Ocupación típica por hora de un día de la semana, 1 = lunes … 7 = domingo (US05). */
 export function getFranjas(bibliotecaId, dia) {
   const parametros = new URLSearchParams({ biblioteca: bibliotecaId, dia });
