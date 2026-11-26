@@ -5,12 +5,16 @@
  * El filtro se hace aquí, en el navegador: la lista ya trae todas las bibliotecas.
  */
 import {
+  CLASE_CERRADA,
   crearAnilloOcupacion,
   crearBarraOcupacion,
   crearElementoSvg,
+  getLineaApertura,
   getNivelOcupacion,
   getTextoActualizado,
   getTextoFiabilidad,
+  isCerrada,
+  pintarApertura,
 } from './ocupacion.js';
 import { ALTURA_PANEL, ajustarPanel } from './panel.js';
 import { crearRutaBiblioteca } from './rutas.js';
@@ -73,9 +77,10 @@ function filtrarBibliotecas(bibliotecas, consulta) {
   return bibliotecas.filter(({ nombre, direccion }) => normalizar(`${nombre} ${direccion}`).includes(buscado));
 }
 
-/** Tu favorita primero; después, de más vacía a más llena (lo útil para decidir a dónde ir). */
+/** Tu favorita primero; después las abiertas, de más vacía a más llena; las cerradas al final. */
 function ordenarBibliotecas(bibliotecas, favoritaId) {
   return [...bibliotecas].sort((a, b) => (b.id === favoritaId) - (a.id === favoritaId)
+    || isCerrada(a.estado_apertura) - isCerrada(b.estado_apertura)
     || a.ocupacion - b.ocupacion
     || a.nombre.localeCompare(b.nombre, 'es'));
 }
@@ -87,7 +92,7 @@ function mostrarSinResultados(consulta) {
 }
 
 function crearItemBiblioteca(biblioteca, { isFavorita, onSeleccionar }) {
-  const { id, nombre, ocupacion, fiabilidad } = biblioteca;
+  const { id, nombre } = biblioteca;
   const boton = document.createElement('button');
   boton.type = 'button';
   boton.className = 'library-row';
@@ -97,26 +102,34 @@ function crearItemBiblioteca(biblioteca, { isFavorita, onSeleccionar }) {
   if (isFavorita) nombreCorto.append(crearEstrella());
   const cuerpo = document.createElement('span');
   cuerpo.className = 'library-row__body';
-  cuerpo.append(nombreCorto, crearTexto('library-row__meta', getTextoEstado(ocupacion, fiabilidad)));
-  boton.append(crearAnilloFila(ocupacion), cuerpo);
+  cuerpo.append(nombreCorto, crearTexto('library-row__meta', getTextoFila(biblioteca)));
+  boton.append(crearAnilloFila(biblioteca), cuerpo);
   const item = document.createElement('li');
   item.append(boton);
   return item;
 }
 
-/** Anillo con el número dentro, como el globo del mapa pero en claro. */
-function crearAnilloFila(ocupacion) {
+/** Anillo con el número dentro, como el globo del mapa pero en claro. Cerrada: gris y sin %. */
+function crearAnilloFila({ ocupacion, estado_apertura: estadoApertura }) {
+  const cerrada = isCerrada(estadoApertura);
   const anillo = document.createElement('span');
-  anillo.className = `library-row__ring ${getNivelOcupacion(ocupacion).clase}`;
-  anillo.style.setProperty('--ocupacion', ocupacion);
-  anillo.append(crearAnilloOcupacion(), crearTexto('library-row__value', `${ocupacion}`));
+  anillo.className = `library-row__ring ${cerrada ? CLASE_CERRADA : getNivelOcupacion(ocupacion).clase}`;
+  anillo.style.setProperty('--ocupacion', cerrada ? 0 : ocupacion);
+  anillo.append(crearAnilloOcupacion(), crearTexto('library-row__value', cerrada ? '–' : `${ocupacion}`));
   return anillo;
 }
 
+/** Línea gris de la fila: si está cerrada, su horario; si no, cuánta gente hay. */
+function getTextoFila({ ocupacion, fiabilidad, horario_hoy: horario, estado_apertura: estadoApertura }) {
+  return isCerrada(estadoApertura) ? getLineaApertura(horario, estadoApertura) : getTextoEstado(ocupacion, fiabilidad);
+}
+
 /** Lo que lee el lector de pantalla: el número solo del anillo no se entendería. */
-function getEtiquetaFila({ nombre, ocupacion, fiabilidad }, isFavorita) {
+function getEtiquetaFila(biblioteca, isFavorita) {
+  const { nombre, ocupacion, estado_apertura: estadoApertura } = biblioteca;
   const favorita = isFavorita ? ', tu favorita' : '';
-  return `${nombre}${favorita}: ${ocupacion} % de ocupación, ${getTextoEstado(ocupacion, fiabilidad)}`;
+  const porcentaje = isCerrada(estadoApertura) ? '' : `${ocupacion} % de ocupación, `;
+  return `${nombre}${favorita}: ${porcentaje}${getTextoFila(biblioteca)}`;
 }
 
 /** Estrella pequeña junto al nombre de la favorita. */
@@ -126,9 +139,13 @@ function crearEstrella() {
   return estrella;
 }
 
-function rellenarTarjeta({ id, nombre, direccion, ocupacion, fiabilidad }) {
+function rellenarTarjeta({ id, nombre, direccion, ocupacion, fiabilidad, horario_hoy: horario, estado_apertura: estadoApertura }) {
   document.getElementById('tarjeta-nombre').textContent = nombre;
   document.getElementById('tarjeta-direccion').textContent = direccion;
+  // Horario de hoy en la tarjeta: para saber si está abierta no hace falta entrar al detalle.
+  pintarApertura(document.getElementById('tarjeta-horario'), horario, estadoApertura);
+  // Cerrada: no hay ocupación que enseñar.
+  document.getElementById('tarjeta-ocupacion').hidden = isCerrada(estadoApertura);
   document.getElementById('tarjeta-valor').textContent = `${ocupacion} %`;
   document.getElementById('tarjeta-barra').replaceChildren(crearBarraOcupacion(ocupacion));
   document.getElementById('tarjeta-estado').textContent = getTextoEstado(ocupacion, fiabilidad);

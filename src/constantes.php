@@ -32,6 +32,14 @@ const RECUPERACION_TOKEN_BYTES = 32;
 // Código SQLSTATE de violación de restricción (p. ej. email UNIQUE repetido).
 const SQLSTATE_INTEGRITY_VIOLATION = '23000';
 
+// Abierta o cerrada se decide con la hora local de cada biblioteca (columna biblioteca.zona_horaria),
+// no con la del servidor ni la del usuario. Se admite cualquier zona de Europa.
+const ZONA_HORARIA_POR_DEFECTO = 'Europe/Lisbon';
+// Zonas europeas que PHP no agrupa en "Europe/": Canarias, Madeira, Azores, Islas Feroe e Islandia.
+const ZONAS_HORARIAS_EUROPA_ATLANTICO = [
+    'Atlantic/Canary', 'Atlantic/Madeira', 'Atlantic/Azores', 'Atlantic/Faroe', 'Atlantic/Reykjavik',
+];
+
 // Check-in y sesiones de estudio (US02)
 // El check-in solo vale a esta distancia (en metros) de las coordenadas de la biblioteca.
 const RADIO_CHECKIN_METROS = 150;

@@ -1246,6 +1246,30 @@
   --color-nivel: var(--color-danger);
 }
 
+/* Cerrada ahora (US08): gris, sin % */
+.nivel--cerrada {
+  --color-nivel: var(--color-text-muted);
+}
+
+.nivel--cerrada .library-row__value {
+  color: var(--color-text-muted);
+}
+
+/* ---------- apertura: horario de hoy (tarjeta del mapa y detalle), como en Apple Maps ---------- */
+.apertura {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.apertura__estado {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-success);
+}
+
+.apertura__estado--cerrada {
+  color: var(--color-danger);
+}
+
 /* ---------- ring: anillo de ocupación (globo del mapa y filas de la lista) ---------- */
 /* Empieza arriba (las 12) y avanza en el sentido de las agujas del reloj. Quien lo contiene
    pone --ocupacion (0–100), --ring-color y --ring-track. */
@@ -1300,6 +1324,11 @@
 .map-pin.nivel--bajo { --color-pin: var(--color-pin-bajo); }
 .map-pin.nivel--medio { --color-pin: var(--color-pin-medio); }
 .map-pin.nivel--alto { --color-pin: var(--color-pin-alto); }
+/* Cerrada: solo la pista del anillo y el texto apagado */
+.map-pin.nivel--cerrada {
+  --color-pin: var(--color-pin-pista);
+  color: rgb(255 255 255 / 0.55);
+}
 
 /* Colores del anillo en el globo: vivos sobre el cristal oscuro */
 .map-pin {

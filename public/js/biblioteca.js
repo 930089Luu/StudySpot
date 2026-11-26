@@ -6,14 +6,19 @@
 import { getBiblioteca, getFranjas, guardarFavorita } from './api.js';
 import { confirmar } from './dialogo.js';
 import { MENSAJE_ERROR_GENERICO, mostrarAlerta } from './formulario.js';
-import { CLASES_NIVEL, getNivelOcupacion, getTextoActualizado, getTextoFiabilidad } from './ocupacion.js';
+import {
+  CLASES_NIVEL,
+  getNivelOcupacion,
+  getTextoActualizado,
+  getTextoFiabilidad,
+  pintarApertura,
+} from './ocupacion.js';
 import { PARAM_BIBLIOTECA, RUTA_LOGIN } from './rutas.js';
 
 const HTTP_OK = 200;
 const HTTP_UNAUTHORIZED = 401;
 const INTERVALO_REFRESCO_MS = 60 * 1000;
 const DIAS_POR_SEMANA = 7;
-const TEXTO_SIN_HORARIO = 'Horario no disponible';
 const MENSAJE_NO_ENCONTRADA = 'Esta biblioteca no está disponible.';
 const TEXTO_MARCAR_FAVORITA = 'Marcar como favorita';
 const TEXTO_ES_FAVORITA = 'Favorita';
@@ -63,7 +68,8 @@ function mostrarDetalle(biblioteca) {
   document.title = `${biblioteca.nombre} · StudySpot`;
   document.getElementById('biblioteca-nombre').textContent = biblioteca.nombre;
   document.getElementById('biblioteca-direccion').textContent = biblioteca.direccion;
-  document.getElementById('biblioteca-horario').textContent = getTextoHorario(biblioteca.horario_hoy);
+  // El mismo texto que la tarjeta del mapa: "Abierta · Cierra a las 21:00".
+  pintarApertura(document.getElementById('biblioteca-horario'), biblioteca.horario_hoy, biblioteca.estado_apertura);
   mostrarFoto(biblioteca.foto_url);
   mostrarOcupacion(biblioteca.ocupacion);
   mostrarFiabilidad(biblioteca.fiabilidad, biblioteca.usuarios_activos);
@@ -71,13 +77,6 @@ function mostrarDetalle(biblioteca) {
   mostrarAlerta(document.getElementById('biblioteca-alerta'), '');
   document.getElementById('biblioteca-cargando').hidden = true;
   document.getElementById('biblioteca').hidden = false;
-}
-
-/** Texto del horario de hoy: "08:00 – 21:00", "Cerrado hoy" o el motivo de un periodo especial. */
-function getTextoHorario(horario) {
-  if (horario === null) return TEXTO_SIN_HORARIO;
-  const texto = horario.cerrado ? 'Cerrado hoy' : `${horario.apertura} – ${horario.cierre}`;
-  return horario.motivo ? `${texto} · ${horario.motivo}` : texto;
 }
 
 function mostrarFoto(url) {

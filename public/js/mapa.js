@@ -9,7 +9,15 @@ import { getConfigMapa, getOcupacion, getPerfil } from './api.js';
 import { MENSAJE_ERROR_GENERICO, mostrarAlerta } from './formulario.js';
 import { getIniciales } from './iniciales.js';
 import { actualizarLista, iniciarLista, mostrarTarjeta, ocultarTarjeta } from './lista-bibliotecas.js';
-import { CLASES_NIVEL, crearAnilloOcupacion, getNivelOcupacion, getTextoFiabilidad } from './ocupacion.js';
+import {
+  CLASE_CERRADA,
+  CLASES_NIVEL,
+  crearAnilloOcupacion,
+  getLineaApertura,
+  getNivelOcupacion,
+  getTextoFiabilidad,
+  isCerrada,
+} from './ocupacion.js';
 import { ALTURA_PANEL, ajustarPanel, getAlturaTapada, iniciarPanel } from './panel.js';
 import { RUTA_LOGIN, crearRutaBiblioteca } from './rutas.js';
 
@@ -291,15 +299,20 @@ function crearGlobo() {
 }
 
 // classList y no className: Mapbox añade sus propias clases al elemento del marcador.
-function actualizarGlobo(globo, { id, nombre, ocupacion, fiabilidad }) {
+function actualizarGlobo(globo, biblioteca) {
+  const { id, nombre, ocupacion, fiabilidad, horario_hoy: horario, estado_apertura: estadoApertura } = biblioteca;
+  // Cerrada ahora (US08): globo gris, sin %.
+  const cerrada = isCerrada(estadoApertura);
   globo.classList.remove(...CLASES_NIVEL);
-  globo.classList.add('map-pin', getNivelOcupacion(ocupacion).clase);
+  globo.classList.add('map-pin', cerrada ? CLASE_CERRADA : getNivelOcupacion(ocupacion).clase);
   globo.href = crearRutaBiblioteca(id);
-  globo.style.setProperty('--ocupacion', ocupacion);
-  globo.querySelector('.map-pin__numero').textContent = ocupacion;
+  globo.style.setProperty('--ocupacion', cerrada ? 0 : ocupacion);
+  globo.querySelector('.map-pin__numero').textContent = cerrada ? '–' : ocupacion;
   globo.setAttribute(
     'aria-label',
-    `${nombre}: ${ocupacion} % de ocupación, fiabilidad ${getTextoFiabilidad(fiabilidad).toLowerCase()}`,
+    cerrada
+      ? `${nombre}: ${getLineaApertura(horario, estadoApertura)}`
+      : `${nombre}: ${ocupacion} % de ocupación, fiabilidad ${getTextoFiabilidad(fiabilidad).toLowerCase()}`,
   );
 }
 

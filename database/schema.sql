@@ -54,8 +54,15 @@ CREATE TABLE IF NOT EXISTS biblioteca (
     longitud         DECIMAL(9, 6) NOT NULL,
     capacidad_maxima INT UNSIGNED NOT NULL,
     factor_adopcion  DECIMAL(4, 3) NOT NULL DEFAULT 1.000,
+    -- Zona horaria del edificio (nombre IANA, p. ej. Europe/Madrid): su horario está en esa hora local.
+    zona_horaria     VARCHAR(64) NOT NULL DEFAULT 'Europe/Lisbon',
     PRIMARY KEY (id)
 ) ENGINE = InnoDB;
+
+-- La zona horaria se añadió el 26-11-2026: en una BD anterior se crea aquí (las bibliotecas
+-- que ya había están en Portugal, así que les vale el valor por defecto).
+ALTER TABLE biblioteca
+    ADD COLUMN IF NOT EXISTS zona_horaria VARCHAR(64) NOT NULL DEFAULT 'Europe/Lisbon' AFTER factor_adopcion;
 
 -- Biblioteca favorita de cada usuario: si se borra la biblioteca, se queda sin favorita.
 ALTER TABLE usuario

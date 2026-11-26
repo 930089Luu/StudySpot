@@ -12,6 +12,10 @@ require_once __DIR__ . '/../Usuarios/favorita.php'; // existeBiblioteca
 
 const ROL_ADMIN = 'admin';
 const HORA_FORMATO = '/^([01]\d|2[0-3]):[0-5]\d$/';
+// Estado de apertura en este momento (mapa, lista, tarjeta y detalle).
+const ESTADO_ABIERTA = 'abierta';
+const ESTADO_ABRE_HOY = 'abre_hoy';
+const ESTADO_CERRADA = 'cerrada';
 
 /** true si el usuario es administrador. Se consulta la BD en cada petición, no la sesión. */
 function esAdministrador(PDO $pdo, int $usuarioId): bool
@@ -270,4 +274,68 @@ function findHorarioHoy(PDO $pdo, int $bibliotecaId, DateTimeImmutable $hoy): ?a
     $especial = findEspecialQueCubre($pdo, $bibliotecaId, $hoy->format('Y-m-d'));
     $regular = findHorarioDia($pdo, $bibliotecaId, (int) $hoy->format('N'));
     return resolverHorario($especial, $regular);
+}
+
+/** El momento actual. Se pasa a la hora local de cada biblioteca con getHoraLocal. */
+function getAhora(): DateTimeImmutable
+{
+    return new DateTimeImmutable('now', new DateTimeZone('UTC'));
+}
+
+/** true si es una zona horaria de Europa: "Europe/…" o una de ZONAS_HORARIAS_EUROPA_ATLANTICO. */
+function isZonaHorariaEuropea(string $zona): bool
+{
+    return in_array($zona, DateTimeZone::listIdentifiers(DateTimeZone::EUROPE), true)
+        || in_array($zona, ZONAS_HORARIAS_EUROPA_ATLANTICO, true);
+}
+
+/**
+ * Ese momento en la hora local de la biblioteca. Si su zona horaria no es europea válida (dato
+ * mal escrito en la BD) se usa ZONA_HORARIA_POR_DEFECTO y se deja aviso en el log: así no se
+ * rompe el mapa de todas las bibliotecas por una.
+ */
+function getHoraLocal(DateTimeImmutable $momento, string $zonaHoraria): DateTimeImmutable
+{
+    if (!isZonaHorariaEuropea($zonaHoraria)) {
+        error_log("StudySpot: zona horaria no válida '$zonaHoraria'; se usa " . ZONA_HORARIA_POR_DEFECTO);
+        $zonaHoraria = ZONA_HORARIA_POR_DEFECTO;
+    }
+    return $momento->setTimezone(new DateTimeZone($zonaHoraria));
+}
+
+/**
+ * Estado de la biblioteca a una hora ("HH:MM") según su horario de hoy:
+ * ESTADO_ABIERTA, ESTADO_ABRE_HOY (aún no ha abierto), ESTADO_CERRADA (ya cerró o no abre hoy),
+ * o null si no hay horario (no se sabe: no se marca como cerrada).
+ */
+function getEstadoApertura(?array $horarioHoy, string $hora): ?string
+{
+    if ($horarioHoy === null) {
+        return null;
+    }
+    if ($horarioHoy['cerrado']) {
+        return ESTADO_CERRADA;
+    }
+    if ($hora < $horarioHoy['apertura']) {
+        return ESTADO_ABRE_HOY;
+    }
+    return $hora < $horarioHoy['cierre'] ? ESTADO_ABIERTA : ESTADO_CERRADA;
+}
+
+/**
+ * Horario de hoy y estado de apertura de una biblioteca en un momento dado. "Hoy" y la hora son
+ * los de la biblioteca (su zona horaria): el horario se muestra en su hora local, como en Apple Maps.
+ */
+function getAperturaBiblioteca(PDO $pdo, int $bibliotecaId, string $zonaHoraria, DateTimeImmutable $ahora): array
+{
+    $local = getHoraLocal($ahora, $zonaHoraria);
+    $horario = findHorarioHoy($pdo, $bibliotecaId, $local);
+    return ['horario_hoy' => $horario, 'estado_apertura' => getEstadoApertura($horario, $local->format('H:i'))];
+}
+
+/** true solo si se sabe que está cerrada ahora; sin horario no se impide nada. */
+function isCerradaAhora(PDO $pdo, int $bibliotecaId, string $zonaHoraria, DateTimeImmutable $ahora): bool
+{
+    $estado = getAperturaBiblioteca($pdo, $bibliotecaId, $zonaHoraria, $ahora)['estado_apertura'];
+    return $estado === ESTADO_CERRADA || $estado === ESTADO_ABRE_HOY;
 }

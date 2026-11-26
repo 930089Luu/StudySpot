@@ -11,8 +11,10 @@ require_once __DIR__ . '/../Gamificacion/puntos.php';
 require_once __DIR__ . '/distancia.php';
 require_once __DIR__ . '/zonas.php';
 require_once __DIR__ . '/sesiones.php';
+require_once __DIR__ . '/../Horarios/horarios.php';
 
 const CHECKIN_CREADO = 'creado';
+const CHECKIN_BIBLIOTECA_CERRADA = 'biblioteca_cerrada';
 const CHECKIN_SIN_UBICACION = 'sin_ubicacion';
 const CHECKIN_QR_INVALIDO = 'qr_invalido';
 const CHECKIN_FUERA_DEL_RADIO = 'fuera_del_radio';
@@ -49,17 +51,24 @@ function formatearSesionActiva(array $sesion): array
 }
 
 /**
- * Check-in: valida ubicación, QR y distancia, y abre la sesión.
+ * Check-in: valida ubicación, QR, que la biblioteca esté abierta (US08) y distancia, y abre la sesión.
  * Las coordenadas solo se usan aquí para calcular la distancia: nunca se guardan.
+ * $ahora solo se pasa en los tests.
  */
-function hacerCheckin(PDO $pdo, int $usuarioId, int $zonaId, string $token, ?float $latitud, ?float $longitud): array
-{
+function hacerCheckin(
+    PDO $pdo, int $usuarioId, int $zonaId, string $token, ?float $latitud, ?float $longitud,
+    ?DateTimeImmutable $ahora = null
+): array {
     if (!isCoordenadaValida($latitud, $longitud)) {
         return ['estado' => CHECKIN_SIN_UBICACION];
     }
     $zona = findZonaValida($pdo, $zonaId, $token);
     if ($zona === null) {
         return ['estado' => CHECKIN_QR_INVALIDO];
+    }
+    // Antes que la distancia: si está cerrada, acercarse no sirve de nada.
+    if (isCerradaAhora($pdo, (int) $zona['biblioteca_id'], $zona['zona_horaria'], $ahora ?? getAhora())) {
+        return ['estado' => CHECKIN_BIBLIOTECA_CERRADA];
     }
     $distancia = calcularDistanciaMetros($latitud, $longitud, (float) $zona['latitud'], (float) $zona['longitud']);
     if (!isDentroDelRadio($distancia)) {
