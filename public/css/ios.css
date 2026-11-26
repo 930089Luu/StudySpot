@@ -1645,13 +1645,47 @@ button.ios-row {
   gap: var(--space-4);
 }
 
+/* Escena con perspectiva: el personaje se inclina en 3D hacia el dedo (avatar-editor.js) */
+.editor-avatar__escena {
+  padding-block: var(--space-2) var(--space-4);
+  perspective: 700px;
+  touch-action: pan-y;
+}
+
 .editor-avatar__vista {
-  width: 168px;
-  height: 168px;
+  position: relative;
+  width: 184px;
+  height: 184px;
   margin-inline: auto;
   overflow: hidden;
   border-radius: var(--radius-full);
-  box-shadow: 0 10px 30px rgb(0 0 0 / 0.12);
+  /* Borde de luz y sombra de contacto: da volumen de objeto */
+  box-shadow:
+    inset 0 2px 0 rgb(255 255 255 / 0.6),
+    inset 0 -6px 14px rgb(0 0 0 / 0.1),
+    0 18px 34px -10px rgb(30 30 80 / 0.35),
+    0 4px 10px rgb(0 0 0 / 0.08);
+  transform: rotateX(var(--giro-x, 0deg)) rotateY(var(--giro-y, 0deg));
+  transition: transform 450ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Brillo de cristal que sigue a la inclinación */
+.editor-avatar__vista::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(circle at var(--brillo-x, 34%) var(--brillo-y, 22%), rgb(255 255 255 / 0.38), rgb(255 255 255 / 0) 55%);
+  pointer-events: none;
+}
+
+.editor-avatar__vista--reposo {
+  animation: editor-avatar-balanceo 6s ease-in-out infinite;
+}
+
+@keyframes editor-avatar-balanceo {
+  0%, 100% { transform: rotateX(2deg) rotateY(-7deg); }
+  50% { transform: rotateX(-2deg) rotateY(7deg); }
 }
 
 .editor-avatar__vista--salta {
@@ -1659,7 +1693,7 @@ button.ios-row {
 }
 
 @keyframes editor-avatar-salta {
-  40% { transform: scale(1.06); }
+  40% { scale: 1.06; }
 }
 
 .editor-avatar__categorias {
@@ -1734,6 +1768,23 @@ button.ios-row {
   border-radius: 16px;
   background-color: var(--ios-bg);
   cursor: pointer;
+}
+
+/* Chica / Chico: el personaje con su nombre debajo */
+.editor-avatar__miniatura--nombre {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  aspect-ratio: auto;
+  padding-bottom: var(--space-2);
+  color: var(--color-text);
+  font-size: var(--ios-subheadline);
+  font-weight: var(--font-weight-semibold);
+}
+
+.editor-avatar__miniatura--nombre .avatar-svg {
+  width: 100%;
+  aspect-ratio: 1;
 }
 
 .editor-avatar__miniatura[aria-checked="true"] {

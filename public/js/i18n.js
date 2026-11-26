@@ -413,6 +413,7 @@
     'Orejas': ['Ears', 'Orelhas'], 'Vello facial': ['Facial hair', 'Pelos faciais'], 'Gafas': ['Glasses', 'Óculos'],
     'Gorros': ['Headwear', 'Chapéus'], 'Fondo': ['Background', 'Fundo'],
     'Pelo largo': ['Long hair', 'Cabelo comprido'], 'Barba': ['Beard', 'Barba'], 'Ropa': ['Clothes', 'Roupa'],
+    'Persona': ['Person', 'Pessoa'], 'Chica': ['Girl', 'Rapariga'], 'Chico': ['Boy', 'Rapaz'], 'Pecas': ['Freckles', 'Sardas'], 'Pendientes': ['Earrings', 'Brincos'],
     'Quitar avatar y usar mis iniciales': ['Remove avatar and use my initials', 'Remover avatar e usar as minhas iniciais'],
     '¿Quitar tu avatar?': ['Remove your avatar?', 'Remover o teu avatar?'],
     'Volverán a verse tus iniciales.': ['Your initials will show again.', 'Voltam a ver-se as tuas iniciais.'],
@@ -538,7 +539,7 @@
     [/^El grupo ya tiene el máximo de (\d+) personas\.$/, ['The group already has the maximum of $1 people.', 'O grupo já tem o máximo de $1 pessoas.']],
     [/^Revisa los datos: nombre de (\d+) a (\d+) caracteres y objetivo de (\d+) a (\d+) puntos\.$/, ['Check the data: name of $1 to $2 characters and goal of $3 to $4 points.', 'Revê os dados: nome de $1 a $2 caracteres e objetivo de $3 a $4 pontos.']],
     [/^Color (\d+)$/, ['Colour $1', 'Cor $1']],
-    [/^(Peinado|Pelo largo|Cejas|Ojos|Boca|Barba|Ropa|Cabeza|Nariz|Orejas|Vello facial|Gafas|Gorros) (\d+)$/, ['$1 $2', '$1 $2']],
+    [/^(Peinado|Pelo largo|Cejas|Ojos|Boca|Barba|Ropa|Pecas|Pendientes|Cabeza|Nariz|Orejas|Vello facial|Gafas|Gorros) (\d+)$/, ['$1 $2', '$1 $2']],
     [/^(.+) · StudySpot$/, ['$1 · StudySpot', '$1 · StudySpot']],
   ];
 

@@ -4,7 +4,7 @@
  * acción "avatar"); Cancelar vuelve sin guardar. Los dibujos están en js/avatar.js.
  */
 import { accionCuenta, getCuenta } from './api.js';
-import { AVATAR_INICIAL, AVATAR_OPCIONES, PESTANAS, dibujarAvatar } from './avatar.js';
+import { AVATAR_INICIAL, AVATAR_OPCIONES, PESTANAS, aplicarGenero, dibujarAvatar } from './avatar.js';
 import { confirmar } from './confirmar.js';
 import { MENSAJE_ERROR_GENERICO, mostrarAlerta } from './formulario.js';
 import { RUTA_LOGIN } from './rutas.js';
@@ -21,7 +21,7 @@ let teniaAvatar = false;
 async function init() {
   document.getElementById('avatar-ok').addEventListener('click', guardar);
   document.getElementById('avatar-quitar').addEventListener('click', quitar);
-  pintarCategorias();
+  activarInclinacion();
   try {
     const respuesta = await getCuenta();
     if (respuesta.estado === HTTP_UNAUTHORIZED) return window.location.assign(RUTA_LOGIN);
@@ -33,6 +33,7 @@ async function init() {
     console.error(error);
   }
   document.getElementById('bloque-quitar').hidden = !teniaAvatar;
+  pintarCategorias();
   pintarTodo();
   return null;
 }
@@ -44,9 +45,14 @@ function pintarTodo() {
 
 /* ---------- categorías ---------- */
 
+/** Las pestañas de este personaje (la barba solo sale si es chico). */
+function pestanasVisibles() {
+  return PESTANAS.filter((p) => !p.soloSi || p.soloSi(avatar));
+}
+
 function pintarCategorias() {
   const barra = document.getElementById('avatar-categorias');
-  barra.replaceChildren(...PESTANAS.map((p) => {
+  barra.replaceChildren(...pestanasVisibles().map((p) => {
     const boton = document.createElement('button');
     boton.type = 'button';
     boton.className = 'editor-avatar__categoria';
@@ -64,8 +70,9 @@ function pintarCategorias() {
 }
 
 function marcarCategoria() {
+  const visibles = pestanasVisibles();
   [...document.getElementById('avatar-categorias').children].forEach((boton, indice) => {
-    boton.setAttribute('aria-selected', String(PESTANAS[indice] === pestana));
+    boton.setAttribute('aria-selected', String(visibles[indice] === pestana));
   });
 }
 
@@ -104,19 +111,63 @@ function crearMiniatura(indice) {
   boton.setAttribute('role', 'radio');
   boton.setAttribute('aria-checked', String(avatar[pestana.parte] === indice));
   boton.setAttribute('aria-label', `${pestana.titulo} ${indice + 1}`);
-  boton.innerHTML = dibujarAvatar({ ...avatar, [pestana.parte]: indice }, pestana.encuadre);
+  if (pestana.nombres) {
+    // Chica / Chico: su punto de partida, con el nombre debajo
+    boton.classList.add('editor-avatar__miniatura--nombre');
+    boton.innerHTML = `${dibujarAvatar(aplicarGenero(avatar, indice))}<span>${pestana.nombres[indice]}</span>`;
+    boton.setAttribute('aria-label', pestana.nombres[indice]);
+  } else {
+    boton.innerHTML = dibujarAvatar({ ...avatar, [pestana.parte]: indice }, pestana.encuadre);
+  }
   boton.addEventListener('click', () => elegir(pestana.parte, indice));
   return boton;
 }
 
 function elegir(parte, indice) {
-  avatar = { ...avatar, [parte]: indice };
+  if (parte === 'genero') {
+    if (avatar.genero !== indice) avatar = aplicarGenero(avatar, indice);
+    pintarCategorias();
+  } else {
+    avatar = { ...avatar, [parte]: indice };
+  }
   pintarTodo();
   // Un saltito de la vista previa, como cuando cambias algo en un Memoji.
   const vista = document.getElementById('avatar-vista');
   vista.classList.remove('editor-avatar__vista--salta');
   void vista.offsetWidth;
   vista.classList.add('editor-avatar__vista--salta');
+}
+
+/* ---------- inclinación en 3D ---------- */
+
+/**
+ * El personaje se inclina hacia el dedo o el ratón, con un brillo que se mueve, como las tarjetas
+ * de Apple; al soltar vuelve a su sitio y se balancea suave. Sin movimiento si el sistema lo pide.
+ */
+function activarInclinacion() {
+  const vista = document.getElementById('avatar-vista');
+  const escena = vista.parentElement;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  vista.classList.add('editor-avatar__vista--reposo');
+  const inclinar = (evento) => {
+    const caja = vista.getBoundingClientRect();
+    const x = Math.max(-1, Math.min(1, ((evento.clientX - caja.left) / caja.width) * 2 - 1));
+    const y = Math.max(-1, Math.min(1, ((evento.clientY - caja.top) / caja.height) * 2 - 1));
+    vista.classList.remove('editor-avatar__vista--reposo');
+    vista.style.setProperty('--giro-x', `${(-y * 16).toFixed(1)}deg`);
+    vista.style.setProperty('--giro-y', `${(x * 20).toFixed(1)}deg`);
+    vista.style.setProperty('--brillo-x', `${50 + x * 30}%`);
+    vista.style.setProperty('--brillo-y', `${40 + y * 30}%`);
+  };
+  const soltar = () => {
+    ['--giro-x', '--giro-y', '--brillo-x', '--brillo-y'].forEach((v) => vista.style.removeProperty(v));
+    vista.classList.add('editor-avatar__vista--reposo');
+  };
+  escena.addEventListener('pointermove', inclinar);
+  escena.addEventListener('pointerdown', inclinar);
+  escena.addEventListener('pointerleave', soltar);
+  escena.addEventListener('pointerup', (evento) => { if (evento.pointerType !== 'mouse') soltar(); });
+  escena.addEventListener('pointercancel', soltar);
 }
 
 /* ---------- guardar y quitar ---------- */

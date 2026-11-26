@@ -13,17 +13,22 @@ require_once __DIR__ . '/../Database/conexion.php';
 
 // parte => número de opciones (0 … n-1)
 const AVATAR_OPCIONES = [
+    'genero' => 2,
     'fondo' => 7,
-    'piel' => 5,
+    'piel' => 8,
     'peinado' => 5,
     'melena' => 5,
-    'colorPelo' => 5,
+    'colorPelo' => 11,
     'cejas' => 5,
     'ojos' => 5,
     'boca' => 5,
     'barba' => 6,
     'ropa' => 5,
-    'colorRopa' => 10,
+    'colorRopa' => 11,
+    'gafas' => 5,
+    'gorro' => 5,
+    'pendientes' => 3,
+    'pecas' => 2,
 ];
 
 /** Comprueba un avatar: exactamente esas partes, cada una con un número entero dentro de su rango. */
