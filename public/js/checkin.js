@@ -15,6 +15,10 @@ const HTTP_BAD_REQUEST = 400;
 const HTTP_UNAUTHORIZED = 401;
 const HTTP_FORBIDDEN = 403;
 const HTTP_CONFLICT = 409;
+// Anillo y puntos de la sesión activa (solo para enseñarlos: los puntos de verdad los da el servidor).
+const SEGUNDOS_POR_PUNTO = 15 * 60;
+const PUNTOS_MAXIMOS = 16;
+const SEGUNDOS_MAXIMOS = 4 * 60 * 60;
 const ESTADOS = ['cargando', 'escanear', 'permiso', 'error', 'activa', 'terminada'];
 const SEGUNDOS_POR_MINUTO = 60;
 const SEGUNDOS_POR_HORA = 3600;
@@ -274,10 +278,15 @@ function mostrarSesionActiva(sesion) {
 function iniciarCronometro(segundosIniciales) {
   detenerCronometro();
   const elemento = document.getElementById('sesion-tiempo');
+  const puntos = document.getElementById('sesion-puntos');
+  const anillo = document.getElementById('sesion-anillo');
   const inicio = performance.now();
   const actualizar = () => {
     const segundos = segundosIniciales + Math.floor((performance.now() - inicio) / MS_POR_SEGUNDO);
     elemento.textContent = formatearCronometro(segundos);
+    // Lo mismo que calcula el servidor al hacer check-out: 1 punto cada 15 min, hasta 16 (4 h).
+    puntos.textContent = String(Math.min(PUNTOS_MAXIMOS, Math.floor(segundos / SEGUNDOS_POR_PUNTO)));
+    anillo.style.setProperty('--progreso', String(Math.min(100, (segundos / SEGUNDOS_MAXIMOS) * 100)));
   };
   actualizar();
   cronometro = setInterval(actualizar, MS_POR_SEGUNDO);
