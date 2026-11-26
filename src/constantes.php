@@ -14,7 +14,19 @@ const ALLOWED_EMAIL_DOMAINS = [
     'uco.es', 'ujaen.es', 'ual.es', 'uhu.es', 'ubu.es', 'unileon.es',
     'uji.es', 'uib.es', 'upo.es', 'urjc.es', 'uah.es', 'umh.es',
     'udc.es', 'uned.es', 'unirioja.es', 'unavarra.es', 'upct.es', 'ehu.eus',
-    'uab.cat', 'udg.edu', 'udl.cat', 'urv.cat', 'upc.edu', 'upf.edu', 'islagaia.pt',
+    'uab.cat', 'udg.edu', 'udl.cat', 'urv.cat', 'upc.edu', 'upf.edu',
+    // Oporto y Gaia (las bibliotecas del mapa). Los subdominios de cada facultad (fe.up.pt,
+    // isep.ipp.pt…) ya entran por la regla de subdominio.
+    'up.pt',        // Universidade do Porto (FLUP, FFUP-ICBAS…): up<número>@up.pt
+    'ipp.pt',       // Politécnico do Porto (ISEP, ISCAP, ESE…)
+    'ucp.pt',       // Universidade Católica Portuguesa
+    'upt.pt',       // Universidade Portucalense
+    'ufp.edu.pt',   // Universidade Fernando Pessoa
+    'umaia.pt',     // Universidade da Maia
+    'ipmaia.pt',    // Politécnico da Maia
+    'islagaia.pt',  // ISLA, Politécnico de Gestão e Tecnologia (Gaia)
+    'ispgaya.pt',   // ISPGaya (Gaia)
+    'isag.pt',      // ISAG, European Business School
 ];
 
 const EMAIL_MAX_LENGTH = 254;
