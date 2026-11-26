@@ -5,12 +5,16 @@
  * El filtro se hace aquí, en el navegador: la lista ya trae todas las bibliotecas.
  */
 import {
+  CLASE_CERRADA,
+  CLASES_NIVEL,
   crearAnilloOcupacion,
-  crearBarraOcupacion,
   crearElementoSvg,
+  getLineaApertura,
   getNivelOcupacion,
   getTextoActualizado,
+  getTextoApertura,
   getTextoFiabilidad,
+  isCerrada,
 } from './ocupacion.js';
 import { ALTURA_PANEL, ajustarPanel } from './panel.js';
 import { crearRutaBiblioteca } from './rutas.js';
@@ -73,9 +77,10 @@ function filtrarBibliotecas(bibliotecas, consulta) {
   return bibliotecas.filter(({ nombre, direccion }) => normalizar(`${nombre} ${direccion}`).includes(buscado));
 }
 
-/** Tu favorita primero; después, de más vacía a más llena (lo útil para decidir a dónde ir). */
+/** Tu favorita primero; después las abiertas, de más vacía a más llena; las cerradas al final. */
 function ordenarBibliotecas(bibliotecas, favoritaId) {
   return [...bibliotecas].sort((a, b) => (b.id === favoritaId) - (a.id === favoritaId)
+    || isCerrada(a.estado_apertura) - isCerrada(b.estado_apertura)
     || a.ocupacion - b.ocupacion
     || a.nombre.localeCompare(b.nombre, 'es'));
 }
@@ -87,7 +92,7 @@ function mostrarSinResultados(consulta) {
 }
 
 function crearItemBiblioteca(biblioteca, { isFavorita, onSeleccionar }) {
-  const { id, nombre, ocupacion, fiabilidad } = biblioteca;
+  const { id, nombre } = biblioteca;
   const boton = document.createElement('button');
   boton.type = 'button';
   boton.className = 'library-row';
@@ -97,26 +102,34 @@ function crearItemBiblioteca(biblioteca, { isFavorita, onSeleccionar }) {
   if (isFavorita) nombreCorto.append(crearEstrella());
   const cuerpo = document.createElement('span');
   cuerpo.className = 'library-row__body';
-  cuerpo.append(nombreCorto, crearTexto('library-row__meta', getTextoEstado(ocupacion, fiabilidad)));
-  boton.append(crearAnilloFila(ocupacion), cuerpo);
+  cuerpo.append(nombreCorto, crearTexto('library-row__meta', getTextoFila(biblioteca)));
+  boton.append(crearAnilloFila(biblioteca), cuerpo);
   const item = document.createElement('li');
   item.append(boton);
   return item;
 }
 
-/** Anillo con el número dentro, como el globo del mapa pero en claro. */
-function crearAnilloFila(ocupacion) {
+/** Anillo con el número dentro, como el globo del mapa pero en claro. Cerrada: gris y sin %. */
+function crearAnilloFila({ ocupacion, estado_apertura: estadoApertura }) {
+  const cerrada = isCerrada(estadoApertura);
   const anillo = document.createElement('span');
-  anillo.className = `library-row__ring ${getNivelOcupacion(ocupacion).clase}`;
-  anillo.style.setProperty('--ocupacion', ocupacion);
-  anillo.append(crearAnilloOcupacion(), crearTexto('library-row__value', `${ocupacion}`));
+  anillo.className = `library-row__ring ${cerrada ? CLASE_CERRADA : getNivelOcupacion(ocupacion).clase}`;
+  anillo.style.setProperty('--ocupacion', cerrada ? 0 : ocupacion);
+  anillo.append(crearAnilloOcupacion(), crearTexto('library-row__value', cerrada ? '–' : `${ocupacion}`));
   return anillo;
 }
 
+/** Línea gris de la fila: si está cerrada, su horario; si no, cuánta gente hay. */
+function getTextoFila({ ocupacion, fiabilidad, horario_hoy: horario, estado_apertura: estadoApertura }) {
+  return isCerrada(estadoApertura) ? getLineaApertura(horario, estadoApertura) : getTextoEstado(ocupacion, fiabilidad);
+}
+
 /** Lo que lee el lector de pantalla: el número solo del anillo no se entendería. */
-function getEtiquetaFila({ nombre, ocupacion, fiabilidad }, isFavorita) {
+function getEtiquetaFila(biblioteca, isFavorita) {
+  const { nombre, ocupacion, estado_apertura: estadoApertura } = biblioteca;
   const favorita = isFavorita ? ', tu favorita' : '';
-  return `${nombre}${favorita}: ${ocupacion} % de ocupación, ${getTextoEstado(ocupacion, fiabilidad)}`;
+  const porcentaje = isCerrada(estadoApertura) ? '' : `${ocupacion} % de ocupación, `;
+  return `${nombre}${favorita}: ${porcentaje}${getTextoFila(biblioteca)}`;
 }
 
 /** Estrella pequeña junto al nombre de la favorita. */
@@ -126,13 +139,40 @@ function crearEstrella() {
   return estrella;
 }
 
-function rellenarTarjeta({ id, nombre, direccion, ocupacion, fiabilidad }) {
+/** Ficha de la biblioteca como en Apple Maps: franja HORARIO | OCUPACIÓN | FIABILIDAD. */
+function rellenarTarjeta(biblioteca) {
+  const { id, nombre, direccion, latitud, longitud, ocupacion, fiabilidad } = biblioteca;
+  const { horario_hoy: horario, estado_apertura: estadoApertura, usuarios_activos: activos } = biblioteca;
+  const cerrada = isCerrada(estadoApertura);
   document.getElementById('tarjeta-nombre').textContent = nombre;
   document.getElementById('tarjeta-direccion').textContent = direccion;
-  document.getElementById('tarjeta-valor').textContent = `${ocupacion} %`;
-  document.getElementById('tarjeta-barra').replaceChildren(crearBarraOcupacion(ocupacion));
-  document.getElementById('tarjeta-estado').textContent = getTextoEstado(ocupacion, fiabilidad);
+  document.getElementById('tarjeta-ruta').href = crearRutaComoLlegar(latitud, longitud, nombre);
   document.getElementById('tarjeta-detalle').href = crearRutaBiblioteca(id);
+  // Horario de hoy: para saber si está abierta no hace falta entrar al detalle.
+  const { estado, detalle } = getTextoApertura(horario, estadoApertura);
+  const valorHorario = document.getElementById('tarjeta-horario');
+  valorHorario.textContent = estado || '—';
+  valorHorario.classList.toggle('library-card__stat-value--abierta', Boolean(estado) && !cerrada);
+  valorHorario.classList.toggle('library-card__stat-value--cerrada', cerrada);
+  document.getElementById('tarjeta-horario-detalle').textContent = detalle;
+  // Cerrada: no hay ocupación que enseñar.
+  const valor = document.getElementById('tarjeta-valor');
+  valor.textContent = cerrada ? '—' : `${ocupacion} %`;
+  valor.classList.remove(...CLASES_NIVEL);
+  if (!cerrada) valor.classList.add(getNivelOcupacion(ocupacion).clase);
+  document.getElementById('tarjeta-estado').textContent = cerrada ? 'Sin gente' : getNivelOcupacion(ocupacion).texto;
+  document.getElementById('tarjeta-fiabilidad').textContent = cerrada ? '—' : getTextoFiabilidad(fiabilidad);
+  document.getElementById('tarjeta-activos').textContent = cerrada ? '' : getTextoActivos(activos);
+}
+
+/** Ruta en Apple Maps (en el iPhone abre la app; en otros, su web) desde donde estés. */
+function crearRutaComoLlegar(latitud, longitud, nombre) {
+  const destino = new URLSearchParams({ daddr: `${latitud},${longitud}`, q: nombre });
+  return `https://maps.apple.com/?${destino}`;
+}
+
+function getTextoActivos(activos) {
+  return activos === 1 ? '1 con la app' : `${activos} con la app`;
 }
 
 function getTextoEstado(ocupacion, fiabilidad) {

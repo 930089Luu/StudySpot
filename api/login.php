@@ -28,5 +28,6 @@ ejecutarEndpoint(function (): void {
     }
 
     abrirSesionUsuario($usuario);
-    responderJson(HTTP_OK, ['usuario' => ['nombre' => $usuario['nombre']]]);
+    // El idioma de la cuenta (Ajustes) se aplica en cualquier dispositivo nada más entrar.
+    responderJson(HTTP_OK, ['usuario' => ['nombre' => $usuario['nombre'], 'idioma' => $usuario['idioma']]]);
 });

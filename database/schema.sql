@@ -20,6 +20,8 @@ CREATE TABLE IF NOT EXISTS usuario (
     -- Mejora de US03 (22-11): el mapa se abre en esta biblioteca. La clave ajena va más abajo,
     -- después de crear la tabla biblioteca.
     biblioteca_favorita_id INT UNSIGNED NULL,
+    -- Idioma de la app (Ajustes, 26-11): es, en o pt.
+    idioma             ENUM('es', 'en', 'pt') NOT NULL DEFAULT 'es',
     fecha_registro     DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
     UNIQUE KEY uq_usuario_email (email)
@@ -54,8 +56,15 @@ CREATE TABLE IF NOT EXISTS biblioteca (
     longitud         DECIMAL(9, 6) NOT NULL,
     capacidad_maxima INT UNSIGNED NOT NULL,
     factor_adopcion  DECIMAL(4, 3) NOT NULL DEFAULT 1.000,
+    -- Zona horaria del edificio (nombre IANA, p. ej. Europe/Madrid): su horario está en esa hora local.
+    zona_horaria     VARCHAR(64) NOT NULL DEFAULT 'Europe/Lisbon',
     PRIMARY KEY (id)
 ) ENGINE = InnoDB;
+
+-- La zona horaria se añadió el 26-11-2026: en una BD anterior se crea aquí (las bibliotecas
+-- que ya había están en Portugal, así que les vale el valor por defecto).
+ALTER TABLE biblioteca
+    ADD COLUMN IF NOT EXISTS zona_horaria VARCHAR(64) NOT NULL DEFAULT 'Europe/Lisbon' AFTER factor_adopcion;
 
 -- Biblioteca favorita de cada usuario: si se borra la biblioteca, se queda sin favorita.
 ALTER TABLE usuario
@@ -175,3 +184,39 @@ CREATE TABLE IF NOT EXISTS calendario_especial (
         OR (cerrado = FALSE AND hora_apertura IS NOT NULL AND hora_cierre IS NOT NULL
             AND hora_apertura < hora_cierre))
 ) ENGINE = InnoDB;
+
+-- US07 (26-11): grupos para el ranking semanal. Una persona puede estar en varios (clase,
+-- amigos del cole, pareja…). Cada grupo tiene su objetivo semanal, que ajusta su administrador.
+CREATE TABLE IF NOT EXISTS grupo (
+    id               INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    nombre           VARCHAR(50) NOT NULL,
+    objetivo_semanal SMALLINT UNSIGNED NOT NULL DEFAULT 40,
+    fecha_creacion   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    CONSTRAINT chk_grupo_objetivo CHECK (objetivo_semanal BETWEEN 1 AND 2000)
+) ENGINE = InnoDB;
+
+-- Quién está en cada grupo. estado: invited (invitación sin responder) o member (dentro).
+-- rol: admin (cambia nombre y objetivo, invita, quita gente y nombra administradores) o member.
+-- Solo se invita a amigos aceptados. Siempre queda al menos un admin: si el último se va,
+-- pasa a serlo quien lleva más tiempo dentro; si no queda nadie, el grupo se borra.
+CREATE TABLE IF NOT EXISTS grupo_miembro (
+    grupo_id     INT UNSIGNED NOT NULL,
+    usuario_id   INT UNSIGNED NOT NULL,
+    rol          ENUM('admin', 'member') NOT NULL DEFAULT 'member',
+    estado       ENUM('invited', 'member') NOT NULL DEFAULT 'invited',
+    invitado_por INT UNSIGNED NULL,
+    fecha        DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (grupo_id, usuario_id),
+    KEY idx_grupo_miembro_usuario (usuario_id, estado),
+    CONSTRAINT fk_grupo_miembro_grupo FOREIGN KEY (grupo_id)
+        REFERENCES grupo (id) ON DELETE CASCADE,
+    CONSTRAINT fk_grupo_miembro_usuario FOREIGN KEY (usuario_id)
+        REFERENCES usuario (id) ON DELETE CASCADE,
+    CONSTRAINT fk_grupo_miembro_invitador FOREIGN KEY (invitado_por)
+        REFERENCES usuario (id) ON DELETE SET NULL
+) ENGINE = InnoDB;
+
+-- El idioma se añadió el 26-11-2026: en una BD anterior se crea aquí.
+ALTER TABLE usuario
+    ADD COLUMN IF NOT EXISTS idioma ENUM('es', 'en', 'pt') NOT NULL DEFAULT 'es' AFTER biblioteca_favorita_id;

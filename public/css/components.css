@@ -304,6 +304,34 @@
   color: var(--color-text);
 }
 
+/* Pantalla con Sito (errores, biblioteca cerrada): centrada en vertical como la bienvenida */
+.state--sito {
+  flex: 1;
+  justify-content: center;
+  gap: var(--space-4);
+}
+
+/* El dibujo de Sito trae aire debajo (la sombra): se acerca al título */
+.state--sito .onboarding__hero {
+  margin-block-end: calc(var(--space-4) * -1);
+}
+
+.state--sito .state__text {
+  max-width: 19rem;
+  text-wrap: balance;
+  line-height: var(--line-height-base);
+}
+
+.state__title--large {
+  text-wrap: balance;
+  font-size: var(--font-size-display);
+}
+
+/* Botones de iOS pegados: el principal y, debajo, el de texto */
+.state__actions--ios {
+  gap: var(--space-1);
+}
+
 .state__actions {
   display: flex;
   flex-direction: column;
@@ -1120,11 +1148,13 @@
   color: var(--color-text-muted);
 }
 
-/* ---------- library-card: tarjeta de la biblioteca tocada en el mapa o en la lista ---------- */
+/* ---------- library-card: ficha de la biblioteca tocada en el mapa o en la lista ---------- */
+/* Como la ficha de un lugar en Apple Maps: nombre grande con la dirección debajo y una cruz
+   pequeña gris; una fila de botones tintados; una franja de datos en columnas. */
 .library-card {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: var(--space-4);
 }
 
 .library-card__header {
@@ -1134,55 +1164,20 @@
   gap: var(--space-3);
 }
 
-.library-card__name {
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-bold);
-  overflow-wrap: anywhere;
-}
-
-/* El nombre es el enlace al detalle: la flecha indica que se puede tocar */
-.library-card__link {
-  display: inline-flex;
-  align-items: center;
+.library-card__heading {
+  display: flex;
+  flex-direction: column;
   gap: var(--space-1);
-  min-height: var(--tap-target);
-  color: var(--color-text);
-  text-decoration: none;
+  min-width: 0;
 }
 
-.library-card__link:active {
-  opacity: 0.6;
-}
-
-.library-card__chevron {
-  flex-shrink: 0;
-  width: var(--icon-size);
-  height: var(--icon-size);
-  color: var(--color-accent);
-}
-
-.library-card__close {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--tap-target);
-  height: var(--tap-target);
-  margin-block-start: calc(var(--space-3) * -1);
-  border: 0;
-  border-radius: var(--radius-full);
-  background-color: var(--color-field);
-  color: var(--color-text);
-  cursor: pointer;
-}
-
-.library-card__close:active {
-  transform: scale(var(--press-scale));
-}
-
-.library-card__close-icon {
-  width: var(--icon-size);
-  height: var(--icon-size);
+.library-card__name {
+  margin: 0;
+  font-size: var(--font-size-card-title);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-title);
+  overflow-wrap: anywhere;
 }
 
 .library-card__address {
@@ -1190,28 +1185,117 @@
   color: var(--color-text-muted);
 }
 
-.library-card__occupancy {
+/* Cruz de Apple Maps: círculo gris claro de 30 px con una X gris. El botón mide 44 px para que
+   sea fácil de tocar; el círculo se dibuja dentro y se pega a la esquina. */
+.library-card__close {
+  position: relative;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--tap-target);
+  height: var(--tap-target);
+  margin: calc(var(--card-close-inset) * -1) calc(var(--card-close-inset) * -1) 0 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.library-card__close::before {
+  content: "";
+  position: absolute;
+  inset: var(--card-close-inset);
+  border-radius: var(--radius-full);
+  background-color: var(--color-field);
+}
+
+.library-card__close:active::before {
+  filter: brightness(0.92);
+}
+
+.library-card__close-icon {
+  position: relative;
+  width: var(--card-close-icon-size);
+  height: var(--card-close-icon-size);
+}
+
+/* Botones de acción: rectángulos redondeados tintados, a partes iguales */
+.library-card__actions {
   display: grid;
-  grid-template-columns: auto 1fr;
-  align-items: baseline;
-  gap: var(--space-1) var(--space-3);
+  grid-auto-columns: 1fr;
+  grid-auto-flow: column;
+  gap: var(--space-2);
 }
 
-.library-card__value {
-  font-size: var(--font-size-title);
-  font-weight: var(--font-weight-bold);
-  font-variant-numeric: tabular-nums;
-}
-
-.library-card__status {
+.library-card__action {
+  min-height: var(--tap-target);
+  border-radius: var(--radius-md);
   font-size: var(--font-size-sm);
+}
+
+.library-card__action:active {
+  transform: scale(var(--press-scale));
+}
+
+/* Franja de datos: columnas iguales separadas por una línea fina */
+.library-card__stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin: 0;
+}
+
+.library-card__stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding-inline: var(--space-3);
+  border-inline-start: 1px solid var(--color-border);
+}
+
+.library-card__stat:first-child {
+  padding-inline-start: 0;
+  border-inline-start: 0;
+}
+
+.library-card__stat-label {
+  font-size: var(--font-size-xxs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   color: var(--color-text-muted);
 }
 
-/* display: grid para que la barra (un <span>) tome alto y ancho */
-.library-card__meter {
-  display: grid;
-  grid-column: 1 / -1;
+.library-card__stat-value {
+  margin: 0;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text);
+}
+
+/* El % de ocupación con el color de su nivel; abierta en verde y cerrada en rojo */
+.library-card__stat-value.nivel--bajo,
+.library-card__stat-value.nivel--medio,
+.library-card__stat-value.nivel--alto {
+  color: var(--color-nivel);
+}
+
+.library-card__stat-value--abierta {
+  color: var(--color-success);
+}
+
+.library-card__stat-value--cerrada {
+  color: var(--color-danger);
+}
+
+.library-card__stat-detail {
+  margin: 0;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  overflow-wrap: anywhere;
 }
 
 /* ---------- meter: barra de ocupación (el % llega en la variable --valor desde JS) ---------- */
@@ -1244,6 +1328,30 @@
 
 .nivel--alto {
   --color-nivel: var(--color-danger);
+}
+
+/* Cerrada ahora (US08): gris, sin % */
+.nivel--cerrada {
+  --color-nivel: var(--color-text-muted);
+}
+
+.nivel--cerrada .library-row__value {
+  color: var(--color-text-muted);
+}
+
+/* ---------- apertura: horario de hoy (tarjeta del mapa y detalle), como en Apple Maps ---------- */
+.apertura {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.apertura__estado {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-success);
+}
+
+.apertura__estado--cerrada {
+  color: var(--color-danger);
 }
 
 /* ---------- ring: anillo de ocupación (globo del mapa y filas de la lista) ---------- */
@@ -1300,6 +1408,11 @@
 .map-pin.nivel--bajo { --color-pin: var(--color-pin-bajo); }
 .map-pin.nivel--medio { --color-pin: var(--color-pin-medio); }
 .map-pin.nivel--alto { --color-pin: var(--color-pin-alto); }
+/* Cerrada: solo la pista del anillo y el texto apagado */
+.map-pin.nivel--cerrada {
+  --color-pin: var(--color-pin-pista);
+  color: rgb(255 255 255 / 0.55);
+}
 
 /* Colores del anillo en el globo: vivos sobre el cristal oscuro */
 .map-pin {
@@ -1592,87 +1705,78 @@
   color: var(--color-text-muted);
 }
 
-/* ---------- goal: objetivo compartido semanal (US07) ---------- */
-.goal {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
+/* ---------- ranking (US07): avatares de color, barra del objetivo por tramos y su leyenda ---------- */
+.persona--0 { --color-persona: var(--color-persona-0); }
+.persona--1 { --color-persona: var(--color-persona-1); }
+.persona--2 { --color-persona: var(--color-persona-2); }
+.persona--3 { --color-persona: var(--color-persona-3); }
+.persona--4 { --color-persona: var(--color-persona-4); }
+.persona--5 { --color-persona: var(--color-persona-5); }
+.persona--6 { --color-persona: var(--color-persona-6); }
+.persona--7 { --color-persona: var(--color-persona-7); }
+
+.avatar-persona {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: var(--avatar-persona-size);
+  height: var(--avatar-persona-size);
+  border-radius: var(--radius-full);
+  background-color: var(--color-persona);
+  color: #ffffff;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
 }
 
-.goal__bar {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 100%;
-  height: var(--space-3);
-  border: 0;
-  border-radius: var(--radius-full);
-  background-color: var(--color-field);
+.goal-bar {
+  display: flex;
+  gap: 2px;
+  height: var(--goal-bar-height);
   overflow: hidden;
-}
-
-.goal__bar::-webkit-progress-bar {
-  background-color: var(--color-field);
   border-radius: var(--radius-full);
+  background-color: var(--color-bg);
 }
 
-.goal__bar::-webkit-progress-value {
-  background-color: var(--color-accent);
-  border-radius: var(--radius-full);
-  transition: width var(--duration-base) var(--easing-standard);
+.goal-bar__tramo {
+  flex: 0 0 var(--ancho);
+  background-color: var(--color-persona);
+  transition: flex-basis var(--duration-base) var(--easing-standard);
 }
 
-.goal__bar::-moz-progress-bar {
-  background-color: var(--color-accent);
-  border-radius: var(--radius-full);
-}
-
-/* ---------- rank-list: ranking semanal entre amigos (US07) ---------- */
-.rank-list {
+.goal-legend {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
   margin: 0;
   padding: 0;
   list-style: none;
-  counter-reset: puesto;
 }
 
-.rank-list__item {
-  display: flex;
+.goal-legend__item {
+  display: inline-flex;
   align-items: center;
-  gap: var(--space-3);
-  padding-block: var(--space-3);
-  border-block-end: var(--border-width) solid var(--color-border);
-  counter-increment: puesto;
+  gap: var(--space-2);
+  font-size: var(--font-size-xs);
 }
 
-/* Número de puesto dentro de un círculo */
-.rank-list__item::before {
-  content: counter(puesto);
+.goal-legend__dot {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
-  width: var(--space-6);
-  height: var(--space-6);
+  width: 1.375rem;
+  height: 1.375rem;
   border-radius: var(--radius-full);
-  background-color: var(--color-field);
-  font-weight: var(--font-weight-semibold);
+  background-color: var(--color-persona);
+  color: #ffffff;
+  font-size: 0.5625rem;
+  font-weight: var(--font-weight-bold);
 }
 
-.rank-list__name {
-  flex: 1;
-  min-width: 0;
-  font-weight: var(--font-weight-semibold);
-  overflow-wrap: anywhere;
-}
-
-.rank-list__points {
+.goal-legend__points {
   font-variant-numeric: tabular-nums;
   color: var(--color-text-muted);
 }
-
-.rank-list__item--yo .rank-list__name {
-  color: var(--color-accent-text);
 
 /* ---------- onboarding: bienvenida con Sito (mejora de la experiencia, 23-11) ---------- */
 /* Como la configuración inicial de iOS: fondo liso, ilustración, título grande, frase corta,

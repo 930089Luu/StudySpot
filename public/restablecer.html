@@ -6,16 +6,19 @@
   <!-- La URL lleva el token del correo: no se envía como Referer a ningún otro sitio -->
   <meta name="referrer" content="no-referrer">
   <meta name="robots" content="noindex">
-  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#121316" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
   <title>Nueva contraseña · StudySpot</title>
   <link rel="icon" href="img/studyspot-simbolo-color.png" type="image/png">
+  <script src="js/tema-inicial.js"></script>
+  <script src="js/i18n.js" defer></script>
   <link rel="stylesheet" href="css/tokens.css">
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/ios.css">
   <script type="module" src="js/restablecer.js"></script>
 </head>
-<body class="page">
+<body class="page ios">
   <!-- US09: elegir una contraseña nueva desde el enlace del correo -->
   <main class="auth">
     <header class="auth__header">
@@ -33,21 +36,23 @@
     <form class="form" id="form-restablecer" novalidate>
       <input type="hidden" name="token">
 
-      <div class="field">
-        <label class="field__label" for="password">Contraseña nueva</label>
-        <input class="field__input" id="password" name="password" type="password"
-               autocomplete="new-password" minlength="8" maxlength="72" required
-               aria-describedby="password-ayuda password-error">
-        <p class="field__hint" id="password-ayuda">Mínimo 8 caracteres.</p>
-        <p class="field__error" id="password-error"></p>
-      </div>
+      <div class="ios-group">
+        <div class="field">
+          <label class="field__label" for="password">Nueva</label>
+          <input class="field__input" id="password" name="password" type="password"
+                 autocomplete="new-password" placeholder="Mínimo 8 caracteres" minlength="8" maxlength="72" required
+                 aria-describedby="password-ayuda password-error">
+          <p class="field__hint" id="password-ayuda">Mínimo 8 caracteres.</p>
+          <p class="field__error" id="password-error"></p>
+        </div>
 
-      <div class="field">
-        <label class="field__label" for="password-repetida">Repite la contraseña</label>
-        <input class="field__input" id="password-repetida" name="password_repetida" type="password"
-               autocomplete="new-password" maxlength="72" required
-               aria-describedby="password-repetida-error">
-        <p class="field__error" id="password-repetida-error"></p>
+        <div class="field">
+          <label class="field__label" for="password-repetida">Repetir</label>
+          <input class="field__input" id="password-repetida" name="password_repetida" type="password"
+                 autocomplete="new-password" placeholder="Otra vez la contraseña" maxlength="72" required
+                 aria-describedby="password-repetida-error">
+          <p class="field__error" id="password-repetida-error"></p>
+        </div>
       </div>
 
       <p class="alert alert--error" id="form-restablecer-alerta" role="alert" hidden></p>

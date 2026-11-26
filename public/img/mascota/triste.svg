@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Sito triste: para errores y bibliotecas cerradas. Mismos colores y proporciones que las otras
+       poses (PNG de Claude Design): anillo vacío y apagado, cejas caídas, lágrima y brazos abajo. -->
+  <style>@media (prefers-color-scheme: dark) { .sombra { fill: #26262f; } }</style>
+  <ellipse class="sombra" cx="256" cy="452" rx="70" ry="10" fill="#d5d5e0"/>
+  <!-- Brazos caídos (detrás del cuerpo) -->
+  <path d="M158 300 C 128 318, 116 348, 118 378" fill="none" stroke="#16154a" stroke-width="30" stroke-linecap="round"/>
+  <path d="M158 300 C 128 318, 116 348, 118 378" fill="none" stroke="#3d3bf3" stroke-width="16" stroke-linecap="round"/>
+  <circle cx="118" cy="382" r="15" fill="#3d3bf3" stroke="#16154a" stroke-width="7"/>
+  <path d="M354 300 C 384 318, 396 348, 394 378" fill="none" stroke="#16154a" stroke-width="30" stroke-linecap="round"/>
+  <path d="M354 300 C 384 318, 396 348, 394 378" fill="none" stroke="#3d3bf3" stroke-width="16" stroke-linecap="round"/>
+  <circle cx="394" cy="382" r="15" fill="#3d3bf3" stroke="#16154a" stroke-width="7"/>
+  <!-- Cuerpo: chincheta -->
+  <path d="M256 438 C 214 376, 136 304, 136 214 A 120 120 0 1 1 376 214 C 376 304, 298 376, 256 438 Z"
+        fill="#3d3bf3" stroke="#16154a" stroke-width="8" stroke-linejoin="round"/>
+  <!-- Anillo de progreso vacío (sin color verde) -->
+  <circle cx="256" cy="212" r="98" fill="#6867fa"/>
+  <circle cx="256" cy="212" r="86" fill="none" stroke="#8b8aff" stroke-width="10" opacity="0.5"/>
+  <!-- Cara -->
+  <circle cx="256" cy="212" r="76" fill="#ffffff" stroke="#16154a" stroke-width="7"/>
+  <!-- Cejas tristes -->
+  <path d="M206 172 L 232 162" stroke="#16154a" stroke-width="7" stroke-linecap="round"/>
+  <path d="M306 172 L 280 162" stroke="#16154a" stroke-width="7" stroke-linecap="round"/>
+  <!-- Ojos -->
+  <ellipse cx="222" cy="200" rx="11" ry="15" fill="#16154a"/>
+  <ellipse cx="290" cy="200" rx="11" ry="15" fill="#16154a"/>
+  <circle cx="226" cy="194" r="4" fill="#ffffff"/>
+  <circle cx="294" cy="194" r="4" fill="#ffffff"/>
+  <!-- Lágrima -->
+  <path d="M302 222 C 296 234, 294 242, 302 246 C 310 242, 308 234, 302 222 Z" fill="#8b8aff"/>
+  <!-- Boca triste -->
+  <path d="M236 252 Q 256 236 276 252" fill="none" stroke="#16154a" stroke-width="7" stroke-linecap="round"/>
+</svg>

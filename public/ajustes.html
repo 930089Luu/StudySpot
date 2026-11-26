@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+  <title>Ajustes · StudySpot</title>
+  <link rel="icon" href="img/studyspot-simbolo-color.png" type="image/png">
+  <script src="js/tema-inicial.js"></script>
+  <script src="js/i18n.js" defer></script>
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/ios.css">
+  <script type="module" src="js/ajustes.js"></script>
+</head>
+<body class="page ios">
+  <!--
+    Ajustes (26-11), como Ajustes de iOS: cuenta, preferencias (idioma y apariencia), privacidad,
+    tus datos (descargar y eliminar la cuenta: RGPD), información legal, ayuda y, solo para
+    cuentas de administración, la gestión de horarios (con contraseña, una vez por sesión).
+  -->
+  <main class="ios-screen">
+    <nav class="ios-nav" aria-label="Navegación">
+      <a class="back-link" href="perfil.html">
+        <svg class="back-link__icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+          <path d="M12.5 4 6.5 10l6 6" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>Perfil</span>
+      </a>
+    </nav>
+
+    <h1 class="ios-large-title">Ajustes</h1>
+
+    <p class="ios-section__footer" id="ajustes-cargando" role="status">Cargando…</p>
+    <p class="alert alert--error" id="ajustes-alerta" role="alert" hidden></p>
+    <p class="alert alert--success" id="ajustes-exito" role="status" hidden></p>
+
+    <div class="ios-screen__panel" id="ajustes-contenido" hidden>
+      <!-- Tu cuenta, como la tarjeta del Apple ID -->
+      <div class="ios-list">
+        <div class="ios-row ios-account">
+          <span class="ios-account__avatar" id="cuenta-iniciales" aria-hidden="true"></span>
+          <span class="ios-row__body">
+            <span class="ios-account__name" id="cuenta-nombre-titulo"></span>
+            <span class="ios-row__subtitle" id="cuenta-email-titulo"></span>
+          </span>
+        </div>
+      </div>
+
+      <section class="ios-section" aria-labelledby="titulo-cuenta">
+        <h2 class="ios-section__header" id="titulo-cuenta">Cuenta</h2>
+        <form class="ios-list" id="form-nombre" novalidate>
+          <label class="ios-row">
+            <span class="ios-row__label">Nombre</span>
+            <input class="ios-row__input field__input" id="cuenta-nombre" name="nombre" type="text" maxlength="100"
+                   autocomplete="name" required aria-describedby="cuenta-nombre-error">
+          </label>
+          <div class="ios-row">
+            <span class="ios-row__label">Correo</span>
+            <span class="ios-row__body"></span>
+            <span class="ios-row__value ios-row__value--truncate" id="cuenta-email"></span>
+          </div>
+          <button class="ios-row" id="boton-password" type="button">
+            <span class="ios-row__body"><span class="ios-row__title">Cambiar contraseña</span></span>
+            <svg class="ios-row__chevron" viewBox="0 0 8.5 14" aria-hidden="true"><path d="M1.5 1.5 7 7l-5.5 5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <p class="alert alert--error" role="alert" hidden></p>
+        </form>
+        <p class="field__error ios-section__footer" id="cuenta-nombre-error"></p>
+        <p class="ios-section__footer">El correo es el de tu universidad y no se puede cambiar.</p>
+      </section>
+
+      <section class="ios-section" aria-labelledby="titulo-preferencias">
+        <h2 class="ios-section__header" id="titulo-preferencias">Preferencias</h2>
+        <div class="ios-list">
+          <button class="ios-row" id="boton-idioma" type="button">
+            <span class="ios-row__body"><span class="ios-row__title">Idioma</span></span>
+            <span class="ios-row__value" id="valor-idioma"></span>
+            <svg class="ios-row__chevron" viewBox="0 0 8.5 14" aria-hidden="true"><path d="M1.5 1.5 7 7l-5.5 5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <button class="ios-row" id="boton-apariencia" type="button">
+            <span class="ios-row__body"><span class="ios-row__title">Apariencia</span></span>
+            <span class="ios-row__value" id="valor-apariencia"></span>
+            <svg class="ios-row__chevron" viewBox="0 0 8.5 14" aria-hidden="true"><path d="M1.5 1.5 7 7l-5.5 5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+      </section>
+
+      <section class="ios-section" aria-labelledby="titulo-privacidad">
+        <h2 class="ios-section__header" id="titulo-privacidad">Privacidad</h2>
+        <label class="switch">
+          <span class="switch__text">Compartir dónde estudio</span>
+          <input class="switch__input" id="switch-compartir" type="checkbox" role="switch">
+        </label>
+        <p class="ios-section__footer">Tus amigos solo ven en qué biblioteca estás, y solo mientras tengas una sesión activa. Tu ubicación exacta nunca se guarda.</p>
+        <div class="ios-list">
+          <a class="ios-row" href="social.html#amigos">
+            <span class="ios-row__body"><span class="ios-row__title">Personas bloqueadas</span></span>
+            <svg class="ios-row__chevron" viewBox="0 0 8.5 14" aria-hidden="true"><path d="M1.5 1.5 7 7l-5.5 5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+        </div>
+      </section>
+
+      <section class="ios-section" aria-labelledby="titulo-datos">
+        <h2 class="ios-section__header" id="titulo-datos">Tus datos</h2>
+        <div class="ios-list">
+          <a class="ios-row ios-row--action ios-row--start" href="../api/mis-datos.php" download="studyspot-mis-datos.json">Descargar mis datos</a>
+          <button class="ios-row ios-row--action ios-row--start ios-row--destructive" id="boton-eliminar" type="button">Eliminar mi cuenta</button>
+        </div>
+        <p class="ios-section__footer">Puedes descargar en un archivo todo lo que StudySpot guarda de ti, o borrar tu cuenta y todos tus datos para siempre.</p>
+      </section>
+
+      <section class="ios-section" aria-labelledby="titulo-legal">
+        <h2 class="ios-section__header" id="titulo-legal">Información legal</h2>
+        <div class="ios-list">
+          <a class="ios-row" href="legal.html#privacidad">
+            <span class="ios-row__body"><span class="ios-row__title">Política de privacidad</span></span>
+            <svg class="ios-row__chevron" viewBox="0 0 8.5 14" aria-hidden="true"><path d="M1.5 1.5 7 7l-5.5 5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+          <a class="ios-row" href="legal.html#terminos">
+            <span class="ios-row__body"><span class="ios-row__title">Términos de uso</span></span>
+            <svg class="ios-row__chevron" viewBox="0 0 8.5 14" aria-hidden="true"><path d="M1.5 1.5 7 7l-5.5 5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+          <a class="ios-row" href="legal.html#cookies">
+            <span class="ios-row__body"><span class="ios-row__title">Cookies</span></span>
+            <svg class="ios-row__chevron" viewBox="0 0 8.5 14" aria-hidden="true"><path d="M1.5 1.5 7 7l-5.5 5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+        </div>
+      </section>
+
+      <section class="ios-section" aria-labelledby="titulo-ayuda">
+        <h2 class="ios-section__header" id="titulo-ayuda">Ayuda</h2>
+        <div class="ios-list">
+          <a class="ios-row" href="bienvenida.html">
+            <span class="ios-row__body"><span class="ios-row__title">Ver el tutorial de Sito</span></span>
+            <svg class="ios-row__chevron" viewBox="0 0 8.5 14" aria-hidden="true"><path d="M1.5 1.5 7 7l-5.5 5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+          <a class="ios-row" href="legal.html#contacto">
+            <span class="ios-row__body"><span class="ios-row__title">Contacto</span></span>
+            <svg class="ios-row__chevron" viewBox="0 0 8.5 14" aria-hidden="true"><path d="M1.5 1.5 7 7l-5.5 5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+          <div class="ios-row">
+            <span class="ios-row__label">Versión</span>
+            <span class="ios-row__body"></span>
+            <span class="ios-row__value">0.2 · Sprint 2</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Solo cuentas de administración -->
+      <section class="ios-section" id="bloque-admin" aria-labelledby="titulo-admin" hidden>
+        <h2 class="ios-section__header" id="titulo-admin">Administración</h2>
+        <div class="ios-list">
+          <button class="ios-row" id="boton-admin-horarios" type="button">
+            <span class="ios-row__body"><span class="ios-row__title">Horarios de las bibliotecas</span></span>
+            <svg class="ios-row__chevron" viewBox="0 0 8.5 14" aria-hidden="true"><path d="M1.5 1.5 7 7l-5.5 5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+        <p class="ios-section__footer">Para entrar te pediremos tu contraseña una vez; después queda abierto hasta que cierres sesión.</p>
+      </section>
+
+      <div class="ios-list">
+        <button class="ios-row ios-row--action ios-row--destructive" id="boton-cerrar-sesion" type="button">Cerrar sesión</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- Hoja: elegir una opción (idioma o apariencia) con ✓, como en iOS -->
+  <dialog class="ios-sheet" id="hoja-opciones" aria-labelledby="titulo-hoja-opciones">
+    <div class="ios-sheet__form">
+      <div class="ios-sheet__bar">
+        <span></span>
+        <h2 class="ios-sheet__title" id="titulo-hoja-opciones"></h2>
+        <button class="ios-sheet__bar-button ios-sheet__bar-button--primary" id="cerrar-opciones" type="button">OK</button>
+      </div>
+      <div class="ios-sheet__body">
+        <ul class="ios-list" id="lista-opciones"></ul>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Hoja: cambiar contraseña -->
+  <dialog class="ios-sheet" id="hoja-password" aria-labelledby="titulo-hoja-password">
+    <form class="ios-sheet__form" id="form-password" novalidate>
+      <div class="ios-sheet__bar">
+        <button class="ios-sheet__bar-button" id="cancelar-password" type="button">Cancelar</button>
+        <h2 class="ios-sheet__title" id="titulo-hoja-password">Contraseña</h2>
+        <button class="ios-sheet__bar-button ios-sheet__bar-button--primary" type="submit">Cambiar</button>
+      </div>
+      <div class="ios-sheet__body">
+        <div class="ios-section">
+          <div class="ios-list">
+            <label class="ios-row">
+              <span class="ios-row__label">Actual</span>
+              <input class="ios-row__input field__input" id="password_actual" name="password_actual" type="password"
+                     autocomplete="current-password" required placeholder="Obligatoria" aria-describedby="password_actual-error">
+            </label>
+          </div>
+          <p class="field__error ios-section__footer" id="password_actual-error"></p>
+        </div>
+        <div class="ios-section">
+          <div class="ios-list">
+            <label class="ios-row">
+              <span class="ios-row__label">Nueva</span>
+              <input class="ios-row__input field__input" id="password" name="password" type="password"
+                     autocomplete="new-password" minlength="8" maxlength="72" required placeholder="Mínimo 8 caracteres"
+                     aria-describedby="password-error">
+            </label>
+            <label class="ios-row">
+              <span class="ios-row__label">Repetir</span>
+              <input class="ios-row__input field__input" id="password-repetida" name="password_repetida" type="password"
+                     autocomplete="new-password" maxlength="72" required placeholder="Otra vez la nueva"
+                     aria-describedby="password-repetida-error">
+            </label>
+          </div>
+          <p class="field__error ios-section__footer" id="password-error"></p>
+          <p class="field__error ios-section__footer" id="password-repetida-error"></p>
+        </div>
+        <p class="alert alert--error" role="alert" hidden></p>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Hoja: pedir la contraseña (entrar en la administración o eliminar la cuenta) -->
+  <dialog class="ios-sheet" id="hoja-confirmar" aria-labelledby="titulo-hoja-confirmar">
+    <form class="ios-sheet__form" id="form-confirmar" novalidate>
+      <div class="ios-sheet__bar">
+        <button class="ios-sheet__bar-button" id="cancelar-confirmar" type="button">Cancelar</button>
+        <h2 class="ios-sheet__title" id="titulo-hoja-confirmar"></h2>
+        <button class="ios-sheet__bar-button ios-sheet__bar-button--primary" id="boton-confirmar" type="submit"></button>
+      </div>
+      <div class="ios-sheet__body">
+        <div class="ios-section">
+          <p class="ios-section__footer" id="texto-hoja-confirmar"></p>
+          <div class="ios-list">
+            <label class="ios-row">
+              <span class="ios-row__label">Contraseña</span>
+              <input class="ios-row__input field__input" id="confirmar-password" name="password" type="password"
+                     autocomplete="current-password" required aria-describedby="confirmar-password-error">
+            </label>
+          </div>
+          <p class="field__error ios-section__footer" id="confirmar-password-error"></p>
+        </div>
+        <p class="alert alert--error" role="alert" hidden></p>
+      </div>
+    </form>
+  </dialog>
+</body>
+</html>

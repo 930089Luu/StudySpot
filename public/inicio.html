@@ -9,6 +9,8 @@
   <link rel="icon" href="img/studyspot-simbolo-color.png" type="image/png">
   <!-- Se abre ya la conexión con Mapbox; su CSS y su JS (1,5 MB) los carga mapa.js sin bloquear la lista -->
   <link rel="preconnect" href="https://api.mapbox.com" crossorigin>
+  <script src="js/tema-inicial.js"></script>
+  <script src="js/i18n.js" defer></script>
   <link rel="stylesheet" href="css/tokens.css">
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/components.css">
@@ -107,32 +109,46 @@
         </p>
       </div>
 
-      <!-- Tarjeta de la biblioteca tocada en el mapa o en la lista (sustituye a la lista) -->
+      <!-- Tarjeta de la biblioteca tocada en el mapa o en la lista (sustituye a la lista).
+           Como la ficha de un lugar en Apple Maps: nombre grande y cruz pequeña, botones de
+           acción y una franja de datos en columnas. -->
       <article class="library-card" id="tarjeta-biblioteca" aria-labelledby="tarjeta-nombre" hidden>
         <header class="library-card__header">
-          <h3 class="library-card__name">
-            <!-- Tocar el nombre lleva al detalle de la biblioteca -->
-            <a class="library-card__link" id="tarjeta-detalle" href="biblioteca.html">
-              <span id="tarjeta-nombre"></span>
-              <svg class="library-card__chevron" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                <path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2"
-                      stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </a>
-          </h3>
+          <div class="library-card__heading">
+            <h3 class="library-card__name" id="tarjeta-nombre"></h3>
+            <p class="library-card__address" id="tarjeta-direccion"></p>
+          </div>
           <button class="library-card__close" id="tarjeta-cerrar" type="button" aria-label="Volver a la lista">
             <svg class="library-card__close-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2"
+              <path d="M7 7l10 10M17 7L7 17" fill="none" stroke="currentColor" stroke-width="3"
                     stroke-linecap="round"/>
             </svg>
           </button>
         </header>
-        <p class="library-card__address" id="tarjeta-direccion"></p>
-        <div class="library-card__occupancy">
-          <span class="library-card__value" id="tarjeta-valor"></span>
-          <span class="library-card__status" id="tarjeta-estado"></span>
-          <div class="library-card__meter" id="tarjeta-barra"></div>
+        <div class="library-card__actions">
+          <!-- Abre Apple Maps (o su web) con la ruta hasta la biblioteca -->
+          <a class="button button--tinted library-card__action" id="tarjeta-ruta" href="#"
+             target="_blank" rel="noopener">Cómo llegar</a>
+          <a class="button button--tinted library-card__action" id="tarjeta-detalle" href="biblioteca.html">Detalles</a>
         </div>
+        <!-- Franja de datos: título pequeño en mayúsculas y el valor debajo -->
+        <dl class="library-card__stats">
+          <div class="library-card__stat">
+            <dt class="library-card__stat-label">Horario</dt>
+            <dd class="library-card__stat-value" id="tarjeta-horario"></dd>
+            <dd class="library-card__stat-detail" id="tarjeta-horario-detalle"></dd>
+          </div>
+          <div class="library-card__stat">
+            <dt class="library-card__stat-label">Ocupación</dt>
+            <dd class="library-card__stat-value" id="tarjeta-valor"></dd>
+            <dd class="library-card__stat-detail" id="tarjeta-estado"></dd>
+          </div>
+          <div class="library-card__stat">
+            <dt class="library-card__stat-label">Fiabilidad</dt>
+            <dd class="library-card__stat-value" id="tarjeta-fiabilidad"></dd>
+            <dd class="library-card__stat-detail" id="tarjeta-activos"></dd>
+          </div>
+        </dl>
       </article>
     </section>
 

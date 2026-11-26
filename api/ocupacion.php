@@ -3,7 +3,8 @@
  * GET /api/ocupacion.php — US03
  * Ocupación actual de todas las bibliotecas para el mapa.
  * 200 {bibliotecas: [{id, nombre, direccion, latitud, longitud, ocupacion (%), fiabilidad (low|medium|high),
- *       usuarios_activos}], favorita_id: N | null}
+ *       usuarios_activos, horario_hoy, estado_apertura}], favorita_id: N | null}
+ * horario_hoy y estado_apertura (US08): como en api/biblioteca.php.
  * favorita_id (22-11): biblioteca favorita del usuario, para abrir el mapa en ella sin otra petición.
  * 401 sin sesión.
  * As built: el contrato del Sprint 1 admitía un parámetro biblioteca opcional; el detalle de una

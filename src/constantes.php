@@ -14,11 +14,26 @@ const ALLOWED_EMAIL_DOMAINS = [
     'uco.es', 'ujaen.es', 'ual.es', 'uhu.es', 'ubu.es', 'unileon.es',
     'uji.es', 'uib.es', 'upo.es', 'urjc.es', 'uah.es', 'umh.es',
     'udc.es', 'uned.es', 'unirioja.es', 'unavarra.es', 'upct.es', 'ehu.eus',
-    'uab.cat', 'udg.edu', 'udl.cat', 'urv.cat', 'upc.edu', 'upf.edu', 'islagaia.pt',
+    'uab.cat', 'udg.edu', 'udl.cat', 'urv.cat', 'upc.edu', 'upf.edu',
+    // Oporto y Gaia (las bibliotecas del mapa). Los subdominios de cada facultad (fe.up.pt,
+    // isep.ipp.pt…) ya entran por la regla de subdominio.
+    'up.pt',        // Universidade do Porto (FLUP, FFUP-ICBAS…): up<número>@up.pt
+    'ipp.pt',       // Politécnico do Porto (ISEP, ISCAP, ESE…)
+    'ucp.pt',       // Universidade Católica Portuguesa
+    'upt.pt',       // Universidade Portucalense
+    'ufp.edu.pt',   // Universidade Fernando Pessoa
+    'umaia.pt',     // Universidade da Maia
+    'ipmaia.pt',    // Politécnico da Maia
+    'islagaia.pt',  // ISLA, Politécnico de Gestão e Tecnologia (Gaia)
+    'ispgaya.pt',   // ISPGaya (Gaia)
+    'isag.pt',      // ISAG, European Business School
 ];
 
 const EMAIL_MAX_LENGTH = 254;
 const NOMBRE_MAX_LENGTH = 100;
+// Idiomas de la app (Ajustes): español, inglés y portugués.
+const IDIOMAS_DISPONIBLES = ['es', 'en', 'pt'];
+
 const PASSWORD_MIN_LENGTH = 8;
 // bcrypt (PASSWORD_DEFAULT) ignora todo lo que pase de 72 bytes: se rechaza en vez de truncar en silencio.
 const PASSWORD_MAX_LENGTH = 72;
@@ -31,6 +46,14 @@ const RECUPERACION_TOKEN_BYTES = 32;
 
 // Código SQLSTATE de violación de restricción (p. ej. email UNIQUE repetido).
 const SQLSTATE_INTEGRITY_VIOLATION = '23000';
+
+// Abierta o cerrada se decide con la hora local de cada biblioteca (columna biblioteca.zona_horaria),
+// no con la del servidor ni la del usuario. Se admite cualquier zona de Europa.
+const ZONA_HORARIA_POR_DEFECTO = 'Europe/Lisbon';
+// Zonas europeas que PHP no agrupa en "Europe/": Canarias, Madeira, Azores, Islas Feroe e Islandia.
+const ZONAS_HORARIAS_EUROPA_ATLANTICO = [
+    'Atlantic/Canary', 'Atlantic/Madeira', 'Atlantic/Azores', 'Atlantic/Faroe', 'Atlantic/Reykjavik',
+];
 
 // Check-in y sesiones de estudio (US02)
 // El check-in solo vale a esta distancia (en metros) de las coordenadas de la biblioteca.
@@ -48,6 +71,15 @@ const MAX_PUNTOS_SESION = 16;
 const OBJETIVO_SEMANAL_PUNTOS = 40;
 // Tope del porcentaje del objetivo compartido.
 const OBJETIVO_MAX_PORCENTAJE = 100;
+// Grupos del ranking (US07, 26-11): el objetivo lo ajusta el administrador de cada grupo entre
+// estos límites (los mismos que el CHECK de grupo.objetivo_semanal). Al crearlo vale OBJETIVO_SEMANAL_PUNTOS.
+const GRUPO_NOMBRE_MAX_LENGTH = 50;
+const GRUPO_OBJETIVO_MIN = 1;
+const GRUPO_OBJETIVO_MAX = 2000;
+const GRUPO_MAX_PERSONAS = 30;
+// Colores del ranking: cada persona tiene siempre el mismo (su id % este número). Debe coincidir
+// con los --color-persona-0 … 7 de public/css/tokens.css.
+const RANKING_NUM_COLORES = 8;
 
 // Ocupación (US03): % = (sesiones activas ÷ factor_adopcion) ÷ capacidad_maxima. Recuento directo, sin Little.
 // Fiabilidad según los usuarios activos en la biblioteca: baja < 5 · media 5–14 · alta ≥ 15.

@@ -3,6 +3,7 @@
  * El servidor decide si se puede ver (amigo o solicitud recibida); si no, responde 404.
  */
 import { cambiarBloqueo, getPerfilContacto } from './api.js';
+import { confirmar } from './confirmar.js';
 import { MENSAJE_ERROR_GENERICO, mostrarAlerta } from './formulario.js';
 import { getIniciales } from './iniciales.js';
 import { PARAM_USUARIO, RUTA_AMIGOS, RUTA_LOGIN } from './rutas.js';
@@ -16,7 +17,7 @@ const TEXTOS_RELACION = {
 };
 const MENSAJE_NO_DISPONIBLE = 'Este perfil no está disponible.';
 const MENSAJE_SIN_CONEXION = 'No se ha podido conectar. Revisa tu conexión e inténtalo de nuevo.';
-const formatoPuntos = new Intl.NumberFormat('es-ES');
+const formatoPuntos = new Intl.NumberFormat(document.documentElement.lang || 'es');
 
 async function init() {
   const usuarioId = new URLSearchParams(window.location.search).get(PARAM_USUARIO);
@@ -46,8 +47,9 @@ function mostrarPerfil({ usuario_id: usuarioId, nombre, puntos_totales: puntos, 
   document.getElementById('usuario-nombre').textContent = nombre;
   document.getElementById('usuario-relacion').textContent = TEXTOS_RELACION[relacion] ?? '';
   document.getElementById('usuario-puntos').textContent = formatoPuntos.format(puntos);
-  document.getElementById('boton-bloquear')
-    .addEventListener('click', (evento) => handleBloquear(evento.currentTarget, usuarioId, nombre));
+  const boton = document.getElementById('boton-bloquear');
+  boton.textContent = `Bloquear a ${nombre.trim().split(/\s+/)[0]}`;
+  boton.addEventListener('click', (evento) => handleBloquear(evento.currentTarget, usuarioId, nombre));
   document.getElementById('usuario-cargando').hidden = true;
   document.getElementById('usuario').hidden = false;
 }
@@ -59,9 +61,12 @@ function mostrarError(mensaje) {
 
 /** Pide confirmación, bloquea y vuelve a la pantalla de amigos (ya sin esa persona). */
 async function handleBloquear(boton, usuarioId, nombre) {
-  const confirmado = window.confirm(
-    `¿Bloquear a ${nombre}? Dejaréis de ser amigos y no podrá enviarte solicitudes. No se le avisará.`,
-  );
+  const confirmado = await confirmar({
+    titulo: `¿Bloquear a ${nombre}?`,
+    texto: 'Dejaréis de ser amigos y no podrá enviarte solicitudes ni ver dónde estudias. No se le avisará.',
+    accion: 'Bloquear',
+    destructiva: true,
+  });
   if (!confirmado) return;
 
   const alerta = document.getElementById('bloquear-alerta');

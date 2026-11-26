@@ -17,19 +17,25 @@ require_once __DIR__ . '/../Database/conexion.php';
 require_once __DIR__ . '/../Sesiones/estudio.php';
 require_once __DIR__ . '/../Horarios/horarios.php';
 
-/** Ocupación de todas las bibliotecas, para el mapa y la lista (con la dirección para el buscador). */
-function getOcupacionBibliotecas(PDO $pdo): array
+/**
+ * Ocupación de todas las bibliotecas, para el mapa y la lista (con la dirección para el buscador),
+ * su horario de hoy y si están abiertas ahora (US08). $ahora solo se pasa en los tests.
+ */
+function getOcupacionBibliotecas(PDO $pdo, ?DateTimeImmutable $ahora = null): array
 {
     // Las sesiones de más de 4 h no cuentan: se cierran antes de contar.
     cerrarSesionesCaducadas($pdo);
+    $ahora ??= getAhora();
     return array_map(
-        fn (array $fila): array => formatearOcupacion($fila) + ['direccion' => $fila['direccion']],
+        fn (array $fila): array => formatearOcupacion($fila)
+            + ['direccion' => $fila['direccion']]
+            + getAperturaBiblioteca($pdo, (int) $fila['id'], $fila['zona_horaria'], $ahora),
         findBibliotecasConSesionesActivas($pdo, null)
     );
 }
 
-/** Detalle de una biblioteca con su ocupación y su horario de hoy, o null si no existe. */
-function getDetalleBiblioteca(PDO $pdo, int $bibliotecaId): ?array
+/** Detalle de una biblioteca con su ocupación, su horario de hoy y si está abierta, o null si no existe. */
+function getDetalleBiblioteca(PDO $pdo, int $bibliotecaId, ?DateTimeImmutable $ahora = null): ?array
 {
     cerrarSesionesCaducadas($pdo);
     $filas = findBibliotecasConSesionesActivas($pdo, $bibliotecaId);
@@ -37,12 +43,11 @@ function getDetalleBiblioteca(PDO $pdo, int $bibliotecaId): ?array
         return null;
     }
     $fila = $filas[0];
+    // Horario de hoy: el periodo especial si lo hay; si no, el horario semanal (US08).
     return formatearOcupacion($fila) + [
         'direccion' => $fila['direccion'],
         'foto_url' => $fila['foto_url'],
-        // Horario de hoy: el periodo especial si lo hay; si no, el horario semanal (US08).
-        'horario_hoy' => findHorarioHoy($pdo, $bibliotecaId, new DateTimeImmutable('today')),
-    ];
+    ] + getAperturaBiblioteca($pdo, $bibliotecaId, $fila['zona_horaria'], $ahora ?? getAhora());
 }
 
 /** % de ocupación estimado, de 0 a OCUPACION_MAX_PORCENTAJE. */
@@ -87,7 +92,7 @@ function findBibliotecasConSesionesActivas(PDO $pdo, ?int $bibliotecaId): array
 {
     $consulta = $pdo->prepare(
         "SELECT b.id, b.nombre, b.direccion, b.foto_url, b.latitud, b.longitud,
-                b.capacidad_maxima, b.factor_adopcion, COUNT(s.id) AS sesiones_activas
+                b.capacidad_maxima, b.factor_adopcion, b.zona_horaria, COUNT(s.id) AS sesiones_activas
          FROM biblioteca b
          LEFT JOIN zona z ON z.biblioteca_id = b.id
          LEFT JOIN sesion_estudio s ON s.zona_id = z.id AND s.estado = 'active'

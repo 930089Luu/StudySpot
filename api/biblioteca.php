@@ -3,11 +3,12 @@
  * GET /api/biblioteca.php?id=N — US03
  * Detalle de una biblioteca: nombre, dirección, foto, horario de hoy, ocupación y fiabilidad.
  * 200 {id, nombre, latitud, longitud, ocupacion, fiabilidad, usuarios_activos, direccion, foto_url, horario_hoy,
- *       es_favorita, favorita: {id, nombre} | null}
+ *       estado_apertura, es_favorita, favorita: {id, nombre} | null}
  * es_favorita y favorita (22-11): si esta es la favorita del usuario y cuál es la que tiene ahora
  * (para avisar de que dejará de serlo si marca esta).
  * 400 id no válido · 401 sin sesión · 404 no existe.
- * horario_hoy es null hasta US08 (horarios de las bibliotecas).
+ * horario_hoy (US08): {cerrado, apertura, cierre, motivo}, o null si no hay horario.
+ * estado_apertura (US08): abierta | abre_hoy | cerrada con la hora de Portugal; null sin horario.
  */
 declare(strict_types=1);
 

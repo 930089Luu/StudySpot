@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+  <title>Social · StudySpot</title>
+  <link rel="icon" href="img/studyspot-simbolo-color.png" type="image/png">
+  <script src="js/tema-inicial.js"></script>
+  <script src="js/i18n.js" defer></script>
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/ios.css">
+  <script type="module" src="js/social.js"></script>
+  <script type="module" src="js/amigos.js"></script>
+</head>
+<body class="page ios">
+  <!--
+    Social (US06 + US07): todo lo de amigos y grupos en una pantalla, como Buscar de Apple
+    (Personas | Dispositivos). Pestañas GRUPOS y AMIGOS; el + de arriba crea un grupo o añade un
+    amigo según la pestaña. Tocar un grupo abre su ranking (grupo.html).
+    La pestaña Amigos usa los mismos id que la antigua amigos.html: la sigue pintando amigos.js.
+  -->
+  <main class="ios-screen">
+    <nav class="ios-nav" aria-label="Navegación">
+      <a class="back-link" href="inicio.html">
+        <svg class="back-link__icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+          <path d="M12.5 4 6.5 10l6 6" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>Mapa</span>
+      </a>
+      <span></span>
+      <button class="ios-nav__action" id="boton-anadir" type="button" aria-label="Crear grupo">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </nav>
+
+    <h1 class="ios-large-title">Social</h1>
+
+    <div class="ios-segmented" role="tablist" aria-label="Social">
+      <button class="ios-segmented__option" id="pestana-grupos" type="button" role="tab"
+              aria-controls="panel-grupos" aria-selected="true">Grupos</button>
+      <button class="ios-segmented__option" id="pestana-amigos" type="button" role="tab"
+              aria-controls="panel-amigos" aria-selected="false">Amigos</button>
+    </div>
+
+    <!-- ================= GRUPOS ================= -->
+    <div class="ios-screen__panel" id="panel-grupos" role="tabpanel" aria-labelledby="pestana-grupos">
+      <p class="ios-section__footer" id="grupos-cargando" role="status">Cargando…</p>
+      <p class="alert alert--error" id="grupos-alerta" role="alert" hidden></p>
+
+      <section class="ios-section" id="invitaciones" aria-labelledby="titulo-invitaciones" hidden>
+        <h2 class="ios-section__header" id="titulo-invitaciones">Invitaciones</h2>
+        <ul class="ios-list ios-list--avatars" id="invitaciones-lista"></ul>
+      </section>
+
+      <section class="ios-section" id="grupos" aria-labelledby="titulo-grupos" hidden>
+        <h2 class="ios-section__header" id="titulo-grupos">Tus grupos</h2>
+        <ul class="ios-list ios-list--avatars" id="grupos-lista"></ul>
+        <p class="ios-section__footer">Cada grupo tiene su ranking de la semana (de lunes a domingo) y su objetivo.</p>
+      </section>
+
+      <div class="ios-empty" id="sin-grupos" hidden>
+        <h2 class="ios-empty__title">Sin grupos todavía</h2>
+        <p class="ios-empty__text">
+          Crea uno para tu clase, tus amigos del cole o solo con tu pareja, y competid por ver
+          quién estudia más cada semana.
+        </p>
+        <button class="ios-pill ios-pill--filled" id="boton-primer-grupo" type="button">Crear grupo</button>
+      </div>
+    </div>
+
+    <!-- ================= AMIGOS (lo pinta amigos.js) ================= -->
+    <div class="ios-screen__panel" id="panel-amigos" role="tabpanel" aria-labelledby="pestana-amigos" hidden>
+      <p class="ios-section__footer" id="amigos-cargando" role="status">Cargando…</p>
+      <p class="alert alert--error" id="amigos-alerta" role="alert" hidden></p>
+
+      <div class="ios-screen__panel" id="amigos-contenido" hidden>
+        <section class="ios-section" aria-labelledby="titulo-solicitudes">
+          <h2 class="ios-section__header" id="titulo-solicitudes">Solicitudes</h2>
+          <ul class="friend-list" id="solicitudes-lista"></ul>
+          <p class="ios-section__footer" id="solicitudes-vacias" hidden>No tienes solicitudes pendientes.</p>
+        </section>
+
+        <section class="ios-section" aria-labelledby="titulo-amigos">
+          <h2 class="ios-section__header" id="titulo-amigos">Tus amigos</h2>
+          <ul class="friend-list" id="amigos-lista"></ul>
+          <p class="ios-section__footer" id="amigos-vacios" hidden>Todavía no tienes amigos. Añádelos con el + de arriba.</p>
+          <p class="ios-section__footer">Solo ves dónde estudian los amigos que lo comparten y están en una sesión de estudio.</p>
+        </section>
+
+        <section class="ios-section" aria-labelledby="titulo-privacidad">
+          <h2 class="ios-section__header" id="titulo-privacidad">Privacidad</h2>
+          <label class="switch">
+            <span class="switch__text">Compartir dónde estudio</span>
+            <input class="switch__input" id="switch-compartir" type="checkbox" role="switch">
+          </label>
+          <p class="ios-section__footer">Tus amigos solo ven en qué biblioteca estás, y solo mientras tengas una sesión activa.</p>
+          <p class="alert alert--error" id="visibilidad-alerta" role="alert" hidden></p>
+        </section>
+
+        <section class="ios-section" aria-labelledby="titulo-bloqueados">
+          <h2 class="ios-section__header" id="titulo-bloqueados">Bloqueados</h2>
+          <ul class="friend-list" id="bloqueados-lista"></ul>
+          <p class="ios-section__footer" id="bloqueados-vacios" hidden>No has bloqueado a nadie.</p>
+          <p class="ios-section__footer">No pueden enviarte solicitudes ni ver dónde estudias. No se les avisa.</p>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <!-- Hoja: crear grupo -->
+  <dialog class="ios-sheet" id="hoja-grupo" aria-labelledby="titulo-hoja-grupo">
+    <form class="ios-sheet__form" id="form-grupo" novalidate>
+      <div class="ios-sheet__bar">
+        <button class="ios-sheet__bar-button" id="cancelar-grupo" type="button">Cancelar</button>
+        <h2 class="ios-sheet__title" id="titulo-hoja-grupo">Nuevo grupo</h2>
+        <button class="ios-sheet__bar-button ios-sheet__bar-button--primary" type="submit">Crear</button>
+      </div>
+      <div class="ios-sheet__body">
+        <div class="ios-section">
+          <div class="ios-list">
+            <label class="ios-row">
+              <span class="ios-row__label">Nombre</span>
+              <input class="ios-row__input field__input" id="grupo-nombre" name="nombre" type="text"
+                     maxlength="50" placeholder="Clase de LP" required aria-describedby="grupo-nombre-error">
+            </label>
+            <label class="ios-row">
+              <span class="ios-row__label">Objetivo semanal</span>
+              <input class="ios-row__input field__input" id="grupo-objetivo" name="objetivo" type="number"
+                     inputmode="numeric" min="1" max="2000" value="40" required aria-describedby="grupo-objetivo-error">
+            </label>
+          </div>
+          <p class="field__error ios-section__footer" id="grupo-nombre-error"></p>
+          <p class="field__error ios-section__footer" id="grupo-objetivo-error"></p>
+          <p class="ios-section__footer">Puntos que queréis sumar entre todos cada semana. 1 punto = 15 minutos de estudio, así que 40 puntos son 10 horas.</p>
+        </div>
+        <p class="alert alert--error" role="alert" hidden></p>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Hoja: añadir amigo (mismo formulario y id que la antigua amigos.html: lo envía amigos.js) -->
+  <dialog class="ios-sheet" id="hoja-amigo" aria-labelledby="titulo-hoja-amigo">
+    <form class="ios-sheet__form" id="form-solicitud" novalidate>
+      <div class="ios-sheet__bar">
+        <button class="ios-sheet__bar-button" id="cancelar-amigo" type="button">Cancelar</button>
+        <h2 class="ios-sheet__title" id="titulo-hoja-amigo">Añadir amigo</h2>
+        <button class="ios-sheet__bar-button ios-sheet__bar-button--primary" type="submit">Enviar</button>
+      </div>
+      <div class="ios-sheet__body">
+        <div class="ios-section">
+          <div class="ios-list">
+            <label class="ios-row">
+              <span class="ios-row__label">Correo</span>
+              <input class="ios-row__input field__input" id="friend-email" name="friend_email" type="email"
+                     required autocomplete="off" inputmode="email" maxlength="254" placeholder="nombre@universidad.es"
+                     aria-describedby="friend-email-error">
+            </label>
+          </div>
+          <p class="field__error ios-section__footer" id="friend-email-error"></p>
+          <p class="ios-section__footer">Le llegará una solicitud. Cuando la acepte, podréis estar en los mismos grupos.</p>
+        </div>
+        <p class="alert alert--error" role="alert" hidden></p>
+        <p class="alert alert--success" id="solicitud-exito" role="status" hidden></p>
+      </div>
+    </form>
+  </dialog>
+</body>
+</html>

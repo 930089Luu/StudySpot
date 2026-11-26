@@ -8,6 +8,7 @@
 
   /* Tipografía: pila de fuentes del sistema */
   --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-size-xxs: 0.6875rem; /* 11 px: títulos en mayúsculas de la ficha, como en Apple Maps */
   --font-size-xs: 0.8125rem; /* 13 px: segunda línea de las listas, como en iOS */
   --font-size-sm: 0.875rem;
   --font-size-base: 1rem; /* 16 px: evita el zoom automático de iOS en los campos */
@@ -69,6 +70,12 @@
   --sheet-mini-height: calc(var(--tap-target) * 2 + var(--space-1) * 2 + var(--space-3) + var(--space-4) + env(safe-area-inset-bottom));
   /* Con la tarjeta de una biblioteca: asa, nombre, dirección y ocupación */
   --sheet-card-height: 17rem;
+  --font-size-card-title: 1.375rem; /* 22 px: nombre en la ficha de la biblioteca */
+  --card-close-inset: 7px; /* 44 px de área táctil − 30 px de círculo, entre 2 */
+  --card-close-icon-size: 14px;
+  /* Ranking (US07) */
+  --avatar-persona-size: 32px;
+  --goal-bar-height: 14px;
   --sheet-handle-width: 2.5rem;
   --sheet-handle-height: 4px;
   /* Globo de ocupación del mapa: anillo que se rellena según el % (estilo anillos de actividad) */
@@ -142,10 +149,20 @@
   --shadow-pin: 0 4px 14px rgb(0 0 0 / 0.35);
   --shadow-floating: 0 6px 24px rgb(0 0 0 / 0.28);
   --color-handle-floating: rgb(255 255 255 / 0.85);
+  /* Colores de las personas del ranking (id % 8, src/constantes.php RANKING_NUM_COLORES).
+     Tonos de "más contraste" del sistema de iOS: las iniciales en blanco se leen en claro y oscuro. */
+  --color-persona-0: #d70015;
+  --color-persona-1: #c93400;
+  --color-persona-2: #248a3d;
+  --color-persona-3: #0071a4;
+  --color-persona-4: #0040dd;
+  --color-persona-5: #3634a3;
+  --color-persona-6: #8944ab;
+  --color-persona-7: #d30f45;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-tema="claro"]) {
     --color-bg: #121316;
     --color-page: #000000;
     --color-field: #1d1f24;
@@ -171,4 +188,42 @@
 
     --shadow-card: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 32px rgb(0 0 0 / 0.35);
   }
+}
+
+/* Apariencia "Oscura" elegida en Ajustes, aunque el sistema esté en claro */
+:root[data-tema="oscuro"] {
+  --color-bg: #121316;
+  --color-page: #000000;
+  --color-field: #1d1f24;
+  --color-text: #f2f3f5;
+  --color-text-muted: #a3a8b3;
+  --color-border: #3a3d45;
+  /* Versión clara del azul de marca: el #3d3bf3 no tiene contraste suficiente sobre fondo oscuro */
+  --color-accent: #8b8aff;
+  --color-accent-pressed: #7472f5;
+  --color-accent-text: #a3a2ff;
+  --color-on-accent: #0c0b2e;
+  --color-focus: rgb(139 138 255 / 0.55);
+  --color-danger: #ff8a80;
+  --color-danger-surface: #3a1714;
+  --color-success: #6fd69a;
+  --color-success-surface: #12301f;
+  --color-accent-surface: #23224a;
+  --color-sheet: rgb(28 28 34 / 0.8);
+  --color-mascot-halo: rgb(139 138 255 / 0.35);
+  --color-button-neutral: #ffffff;
+  --color-button-neutral-text: #121316;
+  --color-backdrop: rgb(0 0 0 / 0.55);
+
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 32px rgb(0 0 0 / 0.35);
+}
+
+/* Apariencia elegida en Ajustes (data-tema en <html>, js/preferencias.js): los controles nativos
+   del navegador (barras de desplazamiento, selectores de fecha…) siguen también ese tema. */
+:root[data-tema="claro"] {
+  color-scheme: light;
+}
+
+:root[data-tema="oscuro"] {
+  color-scheme: dark;
 }

@@ -15,6 +15,10 @@ const HTTP_BAD_REQUEST = 400;
 const HTTP_UNAUTHORIZED = 401;
 const HTTP_FORBIDDEN = 403;
 const HTTP_CONFLICT = 409;
+// Anillo y puntos de la sesión activa (solo para enseñarlos: los puntos de verdad los da el servidor).
+const SEGUNDOS_POR_PUNTO = 15 * 60;
+const PUNTOS_MAXIMOS = 16;
+const SEGUNDOS_MAXIMOS = 4 * 60 * 60;
 const ESTADOS = ['cargando', 'escanear', 'permiso', 'error', 'activa', 'terminada'];
 const SEGUNDOS_POR_MINUTO = 60;
 const SEGUNDOS_POR_HORA = 3600;
@@ -24,7 +28,9 @@ const MS_POR_SEGUNDO = 1000;
 const OPCIONES_UBICACION = { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 };
 
 const MENSAJE_SIN_CONEXION = 'No se ha podido conectar. Revisa tu conexión e inténtalo de nuevo.';
-const MENSAJE_SIN_PERMISO = 'Sin permiso de ubicación no podemos comprobar que estás en la biblioteca.';
+const TITULO_ERROR = 'No se ha podido hacer el check-in';
+const TITULO_CERRADA = 'Biblioteca cerrada';
+const MENSAJE_SIN_PERMISO ='Sin permiso de ubicación no podemos comprobar que estás en la biblioteca.';
 const DETALLE_SIN_PERMISO = 'Activa la ubicación para esta página en los ajustes del navegador y vuelve a intentarlo.';
 const MENSAJE_SIN_UBICACION = 'No hemos podido obtener tu ubicación. Inténtalo de nuevo.';
 const MENSAJE_NAVEGADOR = 'Este navegador no permite obtener tu ubicación en esta página (hace falta HTTPS).';
@@ -173,13 +179,18 @@ async function llamarApi(llamada, datos) {
   }
 }
 
-function mostrarError(mensaje, detalle = '', { isReintentable = true } = {}) {
+function mostrarError(mensaje, detalle = '', { isReintentable = true, titulo = TITULO_ERROR } = {}) {
   detenerCronometro();
+  document.getElementById('titulo-error').textContent = titulo;
   document.getElementById('error-mensaje').textContent = mensaje;
   const elementoDetalle = document.getElementById('error-detalle');
   elementoDetalle.textContent = detalle;
   elementoDetalle.hidden = detalle === '';
   document.getElementById('boton-reintentar').hidden = !isReintentable;
+  // Sin reintentar, "Volver al mapa" pasa a ser el botón principal.
+  const volver = document.getElementById('boton-error-mapa');
+  volver.classList.toggle('button--neutral', !isReintentable);
+  volver.classList.toggle('button--plain', isReintentable);
   mostrarEstado('error');
 }
 
@@ -240,7 +251,12 @@ async function enviarCheckin({ latitude, longitude }) {
     // Siempre enviamos coordenadas, así que un 400 aquí es un QR no válido: "Intentar de nuevo" vuelve a escanear.
     qr = null;
   }
-  const { error, biblioteca } = respuesta.cuerpo;
+  const { error, biblioteca, cerrada } = respuesta.cuerpo;
+  if (cerrada) {
+    // Biblioteca cerrada ahora (US08): reintentar no sirve hasta que abra.
+    mostrarError(error ?? MENSAJE_ERROR_GENERICO, '', { isReintentable: false, titulo: TITULO_CERRADA });
+    return;
+  }
   const detalle = respuesta.estado === HTTP_FORBIDDEN && biblioteca
     ? `Acércate a ${biblioteca} y vuelve a intentarlo.`
     : '';
@@ -262,10 +278,15 @@ function mostrarSesionActiva(sesion) {
 function iniciarCronometro(segundosIniciales) {
   detenerCronometro();
   const elemento = document.getElementById('sesion-tiempo');
+  const puntos = document.getElementById('sesion-puntos');
+  const anillo = document.getElementById('sesion-anillo');
   const inicio = performance.now();
   const actualizar = () => {
     const segundos = segundosIniciales + Math.floor((performance.now() - inicio) / MS_POR_SEGUNDO);
     elemento.textContent = formatearCronometro(segundos);
+    // Lo mismo que calcula el servidor al hacer check-out: 1 punto cada 15 min, hasta 16 (4 h).
+    puntos.textContent = String(Math.min(PUNTOS_MAXIMOS, Math.floor(segundos / SEGUNDOS_POR_PUNTO)));
+    anillo.style.setProperty('--progreso', String(Math.min(100, (segundos / SEGUNDOS_MAXIMOS) * 100)));
   };
   actualizar();
   cronometro = setInterval(actualizar, MS_POR_SEGUNDO);

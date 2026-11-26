@@ -9,7 +9,7 @@ require_once __DIR__ . '/../constantes.php';
 function findUsuarioPorEmail(PDO $pdo, string $email): ?array
 {
     $consulta = $pdo->prepare(
-        'SELECT id, nombre, email, password_hash, rol FROM usuario WHERE email = :email'
+        'SELECT id, nombre, email, password_hash, rol, idioma FROM usuario WHERE email = :email'
     );
     $consulta->execute(['email' => $email]);
     $usuario = $consulta->fetch();

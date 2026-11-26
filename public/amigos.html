@@ -2,84 +2,12 @@
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#121316" media="(prefers-color-scheme: dark)">
-  <title>Amigos · StudySpot</title>
-  <link rel="icon" href="img/studyspot-simbolo-color.png" type="image/png">
-  <link rel="stylesheet" href="css/tokens.css">
-  <link rel="stylesheet" href="css/base.css">
-  <link rel="stylesheet" href="css/components.css">
-  <script type="module" src="js/amigos.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Amigos ahora es la pestaña Amigos de la pantalla Social (26-11). Se deja para que los enlaces antiguos sigan funcionando. -->
+  <meta http-equiv="refresh" content="0; url=social.html#amigos">
+  <title>StudySpot</title>
 </head>
-<body class="page">
-  <!--
-    Wireframes 7A (amigos), 7B (añadir amigo) y 8 (privacidad) en una sola pantalla (US06).
-    Los datos vienen de la API; aquí solo se muestran.
-  -->
-  <main class="auth auth--start">
-    <nav aria-label="Navegación">
-      <a class="back-link" href="perfil.html" aria-label="Volver al perfil">
-        <svg class="back-link__icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
-          <path d="M12.5 4 6.5 10l6 6" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </a>
-    </nav>
-
-    <h1 class="auth__title auth__title--small">Amigos</h1>
-
-    <p class="state__text" id="amigos-cargando" role="status">Cargando…</p>
-    <p class="alert alert--error" id="amigos-alerta" role="alert" hidden></p>
-
-    <div class="section" id="amigos-contenido" hidden>
-      <section class="section" aria-labelledby="titulo-solicitudes">
-        <h2 class="section__title" id="titulo-solicitudes">Solicitudes recibidas</h2>
-        <ul class="friend-list" id="solicitudes-lista"></ul>
-        <p class="state__text" id="solicitudes-vacias" hidden>No tienes solicitudes pendientes.</p>
-      </section>
-
-      <section class="section" aria-labelledby="titulo-anadir">
-        <h2 class="section__title" id="titulo-anadir">Añadir amigo</h2>
-        <!-- El aviso de error va dentro del formulario: enviarFormulario lo busca ahí. -->
-        <form class="form" id="form-solicitud" novalidate>
-          <div class="field">
-            <label class="field__label" for="friend-email">Correo de tu amigo</label>
-            <input class="field__input" id="friend-email" name="friend_email" type="email"
-                   required autocomplete="off" inputmode="email" maxlength="254"
-                   aria-describedby="friend-email-error">
-            <p class="field__error" id="friend-email-error"></p>
-          </div>
-          <p class="alert alert--error" role="alert" hidden></p>
-          <button class="button button--primary form__submit" type="submit">Enviar solicitud</button>
-        </form>
-        <p class="alert alert--success" id="solicitud-exito" role="status" hidden></p>
-      </section>
-
-      <section class="section" aria-labelledby="titulo-amigos">
-        <h2 class="section__title" id="titulo-amigos">Tus amigos</h2>
-        <ul class="friend-list" id="amigos-lista"></ul>
-        <p class="state__text" id="amigos-vacios" hidden>Todavía no tienes amigos.</p>
-        <p class="state__text">Solo ves dónde estudian los amigos que comparten su ubicación y están en una sesión de estudio.</p>
-      </section>
-
-      <section class="section" aria-labelledby="titulo-bloqueados">
-        <h2 class="section__title" id="titulo-bloqueados">Bloqueados</h2>
-        <ul class="friend-list" id="bloqueados-lista"></ul>
-        <p class="state__text" id="bloqueados-vacios" hidden>No has bloqueado a nadie.</p>
-        <p class="state__text">Las personas que bloqueas no pueden enviarte solicitudes ni ver dónde estudias. No se les avisa.</p>
-      </section>
-
-      <section class="section" aria-labelledby="titulo-privacidad">
-        <h2 class="section__title" id="titulo-privacidad">Privacidad</h2>
-        <label class="switch">
-          <span class="switch__text">Compartir mi ubicación con mis amigos</span>
-          <input class="switch__input" id="switch-compartir" type="checkbox" role="switch">
-        </label>
-        <p class="state__text">Está desactivado por defecto. Tus amigos solo ven en qué biblioteca estudias, y solo mientras tengas una sesión activa.</p>
-        <p class="alert alert--error" id="visibilidad-alerta" role="alert" hidden></p>
-      </section>
-    </div>
-  </main>
+<body>
+  <p><a href="social.html#amigos">Ir a Social</a></p>
 </body>
 </html>
