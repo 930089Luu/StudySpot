@@ -20,6 +20,7 @@ const AVATAR_OPCIONES = [
     'colorPelo' => 11,
     'cejas' => 5,
     'ojos' => 5,
+    'colorOjos' => 6,
     'boca' => 5,
     'barba' => 6,
     'ropa' => 5,

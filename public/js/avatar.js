@@ -40,6 +40,8 @@ const PELOS = [
 const COLORES_PELO = ['2c1b18', '724133', 'a55728', 'b58143', 'd6b370', 'ecdcb4', 'b93a2e', '9a9a9e', 'f2f2f2', 'e86aa6', '4a6cf7'];
 const CEJAS = ['neutral', 'happy', 'raised', 'sad', 'angry'];
 const OJOS = ['happy', 'wide', 'humble', 'bow', 'wink'];
+// Marrón oscuro, avellana, verde, azul, gris y casi negro
+const COLORES_OJOS = ['5b3420', '9a6a32', '4f8f4f', '3f7fd0', '7f8c9c', '2a2020'];
 const BOCAS = ['smile', 'laugh', 'agape', 'sad', 'angry'];
 const BARBAS = [null, 'chin', 'moustacheTwirl', 'chinMoustache', 'fullBeard', 'longBeard'];
 const ROPAS = ['tShirt', 'shirt', 'turtleNeck', 'openJacket', 'dress'];
@@ -56,14 +58,14 @@ const PRESETS = [
 /** Partes y cuántas opciones tiene cada una (igual que AVATAR_OPCIONES en PHP). */
 export const AVATAR_OPCIONES = {
   genero: GENEROS.length, fondo: FONDOS.length, piel: PIELES.length, peinado: PELOS.length,
-  colorPelo: COLORES_PELO.length, cejas: CEJAS.length, ojos: OJOS.length,
+  colorPelo: COLORES_PELO.length, cejas: CEJAS.length, ojos: OJOS.length, colorOjos: COLORES_OJOS.length,
   boca: BOCAS.length, barba: BARBAS.length, ropa: ROPAS.length, colorRopa: COLORES_ROPA.length,
   gafas: 5, gorro: 5, pendientes: 3, pecas: 2,
 };
 
 /** Un primer personaje para empezar a editar. */
 export const AVATAR_INICIAL = {
-  genero: 1, fondo: 0, piel: 1, peinado: 2, colorPelo: 1, cejas: 0, ojos: 0, boca: 0, barba: 0,
+  genero: 1, fondo: 0, piel: 1, peinado: 2, colorPelo: 1, cejas: 0, ojos: 0, colorOjos: 0, boca: 0, barba: 0,
   ropa: 0, colorRopa: 0, gafas: 0, gorro: 0, pendientes: 0, pecas: 0,
 };
 
@@ -84,7 +86,7 @@ export const PESTANAS = [
   { parte: 'piel', titulo: 'Piel', colores: conAlmohadilla(PIELES) },
   { parte: 'peinado', titulo: 'Pelo', color: { parte: 'colorPelo', colores: conAlmohadilla(COLORES_PELO) } },
   { parte: 'cejas', titulo: 'Cejas', color: { parte: 'colorPelo', colores: conAlmohadilla(COLORES_PELO) }, encuadre: '200 230 368 260' },
-  { parte: 'ojos', titulo: 'Ojos', encuadre: '200 270 368 260' },
+  { parte: 'ojos', titulo: 'Ojos', color: { parte: 'colorOjos', colores: conAlmohadilla(COLORES_OJOS) }, encuadre: '200 270 368 260' },
   { parte: 'boca', titulo: 'Boca', encuadre: '230 380 308 220' },
   { parte: 'barba', titulo: 'Barba', color: { parte: 'colorPelo', colores: conAlmohadilla(COLORES_PELO) }, encuadre: '134 250 500 430', soloSi: (a) => a.genero === 1 },
   { parte: 'pecas', titulo: 'Pecas', encuadre: '200 300 368 260' },
@@ -124,10 +126,10 @@ export function dibujarAvatar(a, viewBox = null) {
     clothesColor: [COLORES_ROPA[a.colorRopa]],
   }).toString();
   const delante = pelo.delante && !tapado ? PELO_DELANTE[pelo.delante](color) : '';
-  const extras = delante + pecas(a.pecas) + pendientes(a.pendientes) + gafas(a.gafas) + gorro(a.gorro, COLORES_PELO[a.colorPelo]) + volumen(id);
+  const extras = delante + mejillas(id, barba) + pecas(a.pecas) + pendientes(a.pendientes) + gafas(a.gafas) + gorro(a.gorro, COLORES_PELO[a.colorPelo]) + volumen(id);
   // Lo de detrás de la cabeza va justo después del fondo
   const detras = pelo.detras ? PELO_DETRAS[pelo.detras](color) : '';
-  const svg = base
+  const svg = ojos3d(base, id, COLORES_OJOS[a.colorOjos])
     .replace(/(<rect fill="#[0-9a-f]{6}" width="768" height="768" x="0" y="0" \/>)/, `$1${detras}`)
     .replace('<svg ', '<svg class="avatar-svg" aria-hidden="true" focusable="false" ')
     .replace(/<\/svg>\s*$/, `${extras}</svg>`);
@@ -195,6 +197,14 @@ const PELO_DETRAS = {
     <path d="M${x - 40} 130 Q${x} 96 ${x + 40} 130" stroke="#000000" stroke-opacity="0.15" stroke-width="7" fill="none"/>`).join(''),
 };
 
+/** Mejillas sonrosadas y difuminadas, como las de un Mii (no con barba poblada). */
+function mejillas(id, barba) {
+  if (barba === 'fullBeard' || barba === 'longBeard') return '';
+  return `<defs><radialGradient id="${id}-rubor"><stop offset="0" stop-color="#ff7a7a" stop-opacity="0.32"/><stop offset="1" stop-color="#ff7a7a" stop-opacity="0"/></radialGradient></defs>
+    <ellipse cx="290" cy="468" rx="46" ry="30" fill="url(#${id}-rubor)"/>
+    <ellipse cx="478" cy="468" rx="46" ry="30" fill="url(#${id}-rubor)"/>`;
+}
+
 function pecas(tipo) {
   if (!tipo) return '';
   const puntos = [[286, 470], [306, 486], [272, 492], [322, 466], [482, 470], [462, 486], [496, 492], [446, 466]];
@@ -258,6 +268,41 @@ function gorro(tipo, colorPelo) {
   const cinta = colorPelo === 'e86aa6' ? '#3d3bf3' : '#e86aa6';
   return `<path d="M214 262 Q384 150 554 262" fill="none" stroke="${TRAZO}" stroke-width="40" stroke-linecap="round"/>
     <path d="M214 262 Q384 150 554 262" fill="none" stroke="${cinta}" stroke-width="30" stroke-linecap="round"/>`;
+}
+
+/** Mezcla dos colores hex (t = 0 → el primero, 1 → el segundo). */
+function mezclar(a, b, t) {
+  const n = (h, i) => parseInt(h.slice(i, i + 2), 16);
+  const canal = (i) => Math.round(n(a, i) + (n(b, i) - n(a, i)) * t).toString(16).padStart(2, '0');
+  return `#${canal(0)}${canal(2)}${canal(4)}`;
+}
+
+/**
+ * Ojos con volumen, como los de un Memoji o un Mii: el blanco con sombra arriba, el iris del color
+ * elegido con degradado y aro, la pupila, la sombra del párpado y dos brillos. Sustituye el iris
+ * plano de Toon Head (círculo de radio 27); los ojos cerrados se quedan como están.
+ */
+function ojos3d(svg, id, color) {
+  const ojo = (x, y) => {
+    const cx = Number(x);
+    const cy = Number(y);
+    return `<circle cx="${cx}" cy="${cy}" r="27" fill="url(#${id}-iris)" stroke="${mezclar(color, '000000', 0.55)}" stroke-width="2.5"/>
+      <circle cx="${cx}" cy="${cy + 1}" r="12.5" fill="#120d0d"/>
+      <circle cx="${cx}" cy="${cy}" r="27" fill="url(#${id}-parpado)"/>
+      <ellipse cx="${cx - 9}" cy="${cy - 10}" rx="9" ry="8" fill="#ffffff"/>
+      <circle cx="${cx + 10}" cy="${cy + 10}" r="4" fill="#ffffff" fill-opacity="0.85"/>`;
+  };
+  const defs = `<defs>
+    <radialGradient id="${id}-iris" cx="50%" cy="68%" r="62%"><stop offset="0" stop-color="${mezclar(color, 'ffffff', 0.45)}"/><stop offset="0.55" stop-color="#${color}"/><stop offset="1" stop-color="${mezclar(color, '000000', 0.4)}"/></radialGradient>
+    <linearGradient id="${id}-parpado" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000000" stop-opacity="0.38"/><stop offset="0.45" stop-color="#000000" stop-opacity="0"/></linearGradient>
+    <linearGradient id="${id}-blanco" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d9cfc2"/><stop offset="0.45" stop-color="#fbf8f3"/><stop offset="1" stop-color="#ffffff"/></linearGradient>
+  </defs>`;
+  return svg
+    .replace(/fill="#F6F1E4"/g, `fill="url(#${id}-blanco)"`)
+    .replace(/<circle cx="([\d.]+)" cy="([\d.]+)" r="27" fill="#4B2422"\/>/g, (_, x, y) => ojo(x, y))
+    .replace(/<circle cx="27" cy="27" r="27" transform="matrix\(-1 0 0 1 ([\d.]+) ([\d.]+)\)" fill="#4B2422"\/>/g,
+      (_, x, y) => ojo(Number(x) - 27, Number(y) + 27))
+    .replace(/<\/svg>\s*$/, `${defs}</svg>`);
 }
 
 /** Luz suave de arriba a la izquierda y sombra abajo: da volumen al dibujo plano. */
