@@ -1702,6 +1702,7 @@
 
 .rank-list__item--yo .rank-list__name {
   color: var(--color-accent-text);
+}
 
 /* ---------- onboarding: bienvenida con Sito (mejora de la experiencia, 23-11) ---------- */
 /* Como la configuración inicial de iOS: fondo liso, ilustración, título grande, frase corta,
