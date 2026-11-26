@@ -1434,6 +1434,39 @@
     var(--shadow-pin);
 }
 
+/* Amigos estudiando en esa biblioteca: sus caras pegadas al globo, como en Buscar de Apple */
+.map-pin__amigos {
+  position: absolute;
+  bottom: calc(100% - 10px);
+  left: calc(100% - 12px);
+  display: flex;
+  pointer-events: none;
+}
+
+.map-pin__amigo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border: 2px solid #ffffff;
+  border-radius: var(--radius-full);
+  background-color: var(--color-accent);
+  box-shadow: 0 2px 6px rgb(0 0 0 / 0.35);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: var(--font-weight-bold);
+}
+
+.map-pin__amigo + .map-pin__amigo {
+  margin-left: -10px;
+}
+
+.map-pin__amigo--mas {
+  background-color: #3a3a3c;
+}
+
 /* ---------- map-button: cápsula flotante sobre el mapa (check-in: "He llegado") ---------- */
 /* Mismo cristal oscuro que los globos: el mapa es siempre oscuro */
 .map-button {

@@ -6,7 +6,7 @@
  * Si el mapa no carga (sin token, sin conexión con Mapbox), la lista sigue funcionando sola.
  */
 import { pintarAvatar } from './avatar.js';
-import { getConfigMapa, getOcupacion, getPerfil } from './api.js';
+import { getAmigos, getConfigMapa, getOcupacion, getPerfil } from './api.js';
 import { MENSAJE_ERROR_GENERICO, mostrarAlerta } from './formulario.js';
 import { getIniciales } from './iniciales.js';
 import { actualizarLista, iniciarLista, mostrarTarjeta, ocultarTarjeta } from './lista-bibliotecas.js';
@@ -25,6 +25,8 @@ import { RUTA_LOGIN, crearRutaBiblioteca } from './rutas.js';
 const HTTP_OK = 200;
 const HTTP_UNAUTHORIZED = 401;
 const INTERVALO_REFRESCO_MS = 60 * 1000;
+// Como en Buscar: hasta 3 caras en el globo y, si hay más, un "+n".
+const AMIGOS_MAX_EN_GLOBO = 3;
 // Mapbox GL JS no es un módulo ES: se añade como <script> y define window.mapboxgl.
 const MAPBOX_JS_URL = 'https://api.mapbox.com/mapbox-gl-js/v3.12.0/mapbox-gl.js';
 // Su CSS se añade también desde aquí: en el <head> bloquearía la primera pantalla (K07).
@@ -68,11 +70,12 @@ async function init() {
   mapboxCargado.catch(() => {});
   const tokenPedido = getConfigMapa().catch((error) => ({ estado: 0, error }));
   mostrarIniciales();
+  const amigosPedidos = cargarAmigosPorBiblioteca();
   const datos = await cargarOcupacion();
   document.getElementById('bibliotecas-cargando').hidden = true;
   if (datos === null) return;
 
-  const estado = { seleccionadaId: null, mapa: null, marcadores: new Map() };
+  const estado = { seleccionadaId: null, mapa: null, marcadores: new Map(), amigos: await amigosPedidos };
   guardarDatos(estado, datos);
   const onSeleccionar = (id) => seleccionarBiblioteca(estado, id);
   iniciarPanel();
@@ -82,8 +85,9 @@ async function init() {
   if (estado.mapa) pintarMarcadores(estado, onSeleccionar);
 
   window.setInterval(async () => {
-    const nuevos = await cargarOcupacion();
+    const [nuevos, amigos] = await Promise.all([cargarOcupacion(), cargarAmigosPorBiblioteca()]);
     if (nuevos === null) return;
+    estado.amigos = amigos;
     guardarDatos(estado, nuevos);
     actualizarLista(estado, onSeleccionar);
     if (estado.mapa) pintarMarcadores(estado, onSeleccionar);
@@ -104,6 +108,26 @@ async function mostrarIniciales() {
   } catch (error) {
     console.error(error);
   }
+}
+
+/**
+ * Amigos que estudian ahora, agrupados por biblioteca (id → [amigos]). Solo llegan los que
+ * comparten su ubicación (findAmigos en el servidor). Si falla, el mapa sigue sin ellos.
+ */
+async function cargarAmigosPorBiblioteca() {
+  const porBiblioteca = new Map();
+  try {
+    const respuesta = await getAmigos();
+    if (respuesta.estado !== HTTP_OK) return porBiblioteca;
+    respuesta.cuerpo.amigos
+      .filter((amigo) => amigo.biblioteca_id !== null)
+      .forEach((amigo) => {
+        porBiblioteca.set(amigo.biblioteca_id, [...(porBiblioteca.get(amigo.biblioteca_id) ?? []), amigo]);
+      });
+  } catch (error) {
+    console.error(error);
+  }
+  return porBiblioteca;
 }
 
 /** Guarda lo que devuelve ocupacion.php; sin favorita, se explica cómo elegirla. */
@@ -266,12 +290,13 @@ function mostrarSinMapa() {
 function pintarMarcadores(estado, onSeleccionar) {
   estado.bibliotecas.forEach((biblioteca) => {
     const existente = estado.marcadores.get(biblioteca.id);
+    const amigos = estado.amigos.get(biblioteca.id) ?? [];
     if (existente) {
-      actualizarGlobo(existente.getElement(), biblioteca);
+      actualizarGlobo(existente.getElement(), biblioteca, amigos);
       return;
     }
     const globo = crearGlobo();
-    actualizarGlobo(globo, biblioteca);
+    actualizarGlobo(globo, biblioteca, amigos);
     // Sigue siendo un enlace al detalle (abrir en otra pestaña), pero el toque abre la tarjeta.
     globo.addEventListener('click', (evento) => {
       evento.preventDefault();
@@ -302,7 +327,7 @@ function crearGlobo() {
 }
 
 // classList y no className: Mapbox añade sus propias clases al elemento del marcador.
-function actualizarGlobo(globo, biblioteca) {
+function actualizarGlobo(globo, biblioteca, amigos = []) {
   const { id, nombre, ocupacion, fiabilidad, horario_hoy: horario, estado_apertura: estadoApertura } = biblioteca;
   // Cerrada ahora (US08): globo gris, sin %.
   const cerrada = isCerrada(estadoApertura);
@@ -311,12 +336,48 @@ function actualizarGlobo(globo, biblioteca) {
   globo.href = crearRutaBiblioteca(id);
   globo.style.setProperty('--ocupacion', cerrada ? 0 : ocupacion);
   globo.querySelector('.map-pin__numero').textContent = cerrada ? '–' : ocupacion;
+  const quienes = amigos.length > 0 ? `. Estudiando aquí: ${amigos.map((amigo) => amigo.nombre).join(', ')}` : '';
   globo.setAttribute(
     'aria-label',
-    cerrada
+    (cerrada
       ? `${nombre}: ${getLineaApertura(horario, estadoApertura)}`
-      : `${nombre}: ${ocupacion} % de ocupación, fiabilidad ${getTextoFiabilidad(fiabilidad).toLowerCase()}`,
+      : `${nombre}: ${ocupacion} % de ocupación, fiabilidad ${getTextoFiabilidad(fiabilidad).toLowerCase()}`) + quienes,
   );
+  pintarAmigosEnGlobo(globo, amigos);
+}
+
+/**
+ * Las caras de los amigos que estudian en esa biblioteca, pegadas al globo como en Buscar.
+ * Solo se vuelve a dibujar si cambia quién está (el refresco es cada minuto).
+ */
+function pintarAmigosEnGlobo(globo, amigos) {
+  const clave = amigos.map((amigo) => `${amigo.usuario_id}:${JSON.stringify(amigo.avatar)}`).join('|');
+  let grupo = globo.querySelector('.map-pin__amigos');
+  if ((grupo?.dataset.clave ?? '') === clave) return;
+  if (amigos.length === 0) {
+    grupo?.remove();
+    return;
+  }
+  if (!grupo) {
+    grupo = document.createElement('span');
+    grupo.className = 'map-pin__amigos';
+    grupo.setAttribute('aria-hidden', 'true');
+    globo.append(grupo);
+  }
+  grupo.dataset.clave = clave;
+  const caras = amigos.slice(0, AMIGOS_MAX_EN_GLOBO).map((amigo) => {
+    const cara = document.createElement('span');
+    cara.className = 'map-pin__amigo';
+    pintarAvatar(cara, amigo.avatar, getIniciales(amigo.nombre));
+    return cara;
+  });
+  if (amigos.length > AMIGOS_MAX_EN_GLOBO) {
+    const mas = document.createElement('span');
+    mas.className = 'map-pin__amigo map-pin__amigo--mas';
+    mas.textContent = `+${amigos.length - AMIGOS_MAX_EN_GLOBO}`;
+    caras.push(mas);
+  }
+  grupo.replaceChildren(...caras);
 }
 
 init();
