@@ -22,6 +22,8 @@ CREATE TABLE IF NOT EXISTS usuario (
     biblioteca_favorita_id INT UNSIGNED NULL,
     -- Idioma de la app (Ajustes, 26-11): es, en o pt.
     idioma             ENUM('es', 'en', 'pt') NOT NULL DEFAULT 'es',
+    -- Avatar tipo Memoji (27-11): JSON con la pieza elegida de cada parte; NULL = iniciales.
+    avatar             VARCHAR(400) NULL,
     fecha_registro     DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
     UNIQUE KEY uq_usuario_email (email)
@@ -220,3 +222,7 @@ CREATE TABLE IF NOT EXISTS grupo_miembro (
 -- El idioma se añadió el 26-11-2026: en una BD anterior se crea aquí.
 ALTER TABLE usuario
     ADD COLUMN IF NOT EXISTS idioma ENUM('es', 'en', 'pt') NOT NULL DEFAULT 'es' AFTER biblioteca_favorita_id;
+
+-- El avatar se añadió el 27-11-2026: en una BD anterior se crea aquí.
+ALTER TABLE usuario
+    ADD COLUMN IF NOT EXISTS avatar VARCHAR(400) NULL AFTER idioma;

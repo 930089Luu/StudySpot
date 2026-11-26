@@ -6,6 +6,7 @@
  */
 declare(strict_types=1);
 
+require_once __DIR__ . '/../Usuarios/avatar.php';
 require_once __DIR__ . '/puntuaciones.php';
 require_once __DIR__ . '/../Usuarios/usuarios.php';
 require_once __DIR__ . '/../Sesiones/estudio.php';
@@ -23,6 +24,7 @@ function getPerfil(PDO $pdo, int $usuarioId): ?array
     return [
         'nombre'         => $usuario['nombre'],
         'email'          => $usuario['email'],
+        'avatar'         => leerAvatar($usuario['avatar']),
         'puntos_totales' => sumPuntosUsuario($pdo, $usuarioId),
     ];
 }

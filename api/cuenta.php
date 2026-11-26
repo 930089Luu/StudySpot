@@ -1,10 +1,11 @@
 <?php
 /*
  * /api/cuenta.php — Ajustes de la cuenta (26-11)
- * GET → 200 {nombre, email, idioma, es_admin, admin_confirmado}
+ * GET → 200 {nombre, email, idioma, avatar, es_admin, admin_confirmado}
  * POST {accion, …}:
  *   "nombre"    nombre                                   → 200 · 400
  *   "idioma"    idioma (es | en | pt)                     → 200 · 400
+ *   "avatar"    avatar: {fondo, piel, … gorro} o null (quitarlo) → 200 · 400
  *   "password"  password_actual, password, password_repetida → 200 · 400 {errores}
  *   "admin"     password: abre la administración el resto de la sesión → 200 · 401 contraseña incorrecta · 403 no admin
  *   "eliminar"  password: borra la cuenta y cierra la sesión (RGPD, derecho de supresión) → 200 · 401
@@ -36,6 +37,8 @@ ejecutarEndpoint(function (): void {
         'idioma' => responderEstado(guardarIdioma($pdo, $usuarioId, leerCampoTexto($datos, 'idioma')),
             'Idioma guardado.', 'Idioma no disponible.'),
         'password' => responderCambioPassword($pdo, $usuarioId, $datos),
+        'avatar' => responderEstado(guardarAvatar($pdo, $usuarioId, $datos['avatar'] ?? null) ? CUENTA_OK : CUENTA_DATOS_NO_VALIDOS,
+            'Avatar guardado.', 'Avatar no válido.'),
         'admin' => responderAdmin($pdo, $usuarioId, leerCampoTexto($datos, 'password')),
         'eliminar' => responderEliminar($pdo, $usuarioId, leerCampoTexto($datos, 'password')),
         default => responderJson(HTTP_BAD_REQUEST, ['error' => 'Acción no válida.']),

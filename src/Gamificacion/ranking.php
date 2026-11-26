@@ -12,7 +12,7 @@
  *   en las semanas anteriores; y, si no, por nombre.
  * - Podio: los tres primeros con algún punto esta semana.
  * - Color de cada persona: fijo según su id (id % RANKING_NUM_COLORES); el CSS elige el tono.
- * Por persona solo se devuelve nombre, iniciales, puntos, posición, color y si eres tú:
+ * Por persona solo se devuelve nombre, iniciales, avatar, puntos, posición, color y si eres tú:
  * nunca id, correo ni ubicación. Solo SQL con sentencias preparadas.
  */
 declare(strict_types=1);
@@ -20,6 +20,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/../constantes.php';
 require_once __DIR__ . '/../Database/conexion.php';
 require_once __DIR__ . '/../Sesiones/estudio.php';
+require_once __DIR__ . '/../Usuarios/avatar.php';
 require_once __DIR__ . '/../Grupos/grupos.php';
 require_once __DIR__ . '/../Horarios/horarios.php';
 
@@ -88,6 +89,7 @@ function formatearRanking(array $filas, int $usuarioId): array
         $personas[] = [
             'nombre'    => $fila['nombre'],
             'iniciales' => getIniciales($fila['nombre']),
+            'avatar'    => leerAvatar($fila['avatar'] ?? null),
             'puntos'    => $puntos,
             'posicion'  => $posicion,
             'color'     => (int) $fila['id'] % RANKING_NUM_COLORES,
@@ -136,7 +138,7 @@ function getLimitesSemanaBd(PDO $pdo, DateTimeImmutable $ahora): array
 function findPuntosSemanaGrupo(PDO $pdo, int $grupoId, string $desde, string $hasta): array
 {
     $consulta = $pdo->prepare(
-        'SELECT u.id, u.nombre, COALESCE(SUM(s.puntos_otorgados), 0) AS puntos,
+        'SELECT u.id, u.nombre, u.avatar, COALESCE(SUM(s.puntos_otorgados), 0) AS puntos,
                 COALESCE(MAX(s.hora_fin), :sin_sesion) AS ultima_sesion,
                 (SELECT COALESCE(SUM(p.puntos_otorgados), 0) FROM sesion_estudio p
                   WHERE p.usuario_id = u.id AND p.estado IN (:fin_antes, :cad_antes)
@@ -148,7 +150,7 @@ function findPuntosSemanaGrupo(PDO $pdo, int $grupoId, string $desde, string $ha
           AND s.estado IN (:finalizada, :caducada)
           AND s.hora_fin >= :desde AND s.hora_fin < :hasta
          WHERE m.grupo_id = :grupo AND m.estado = :dentro
-         GROUP BY u.id, u.nombre
+         GROUP BY u.id, u.nombre, u.avatar
          ORDER BY puntos DESC, ultima_sesion ASC, puntos_antes DESC, u.nombre ASC'
     );
     $consulta->execute([

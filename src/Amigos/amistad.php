@@ -6,6 +6,7 @@
  */
 declare(strict_types=1);
 
+require_once __DIR__ . '/../Usuarios/avatar.php';
 require_once __DIR__ . '/../constantes.php';
 require_once __DIR__ . '/../Database/conexion.php';
 require_once __DIR__ . '/bloqueo.php';
@@ -151,7 +152,7 @@ function actualizarEstadoAmistad(PDO $pdo, int $solicitudId, string $estado): vo
 function findAmigos(PDO $pdo, int $usuarioId): array
 {
     $consulta = $pdo->prepare(
-        'SELECT u.id, u.nombre, u.comparte_ubicacion, b.nombre AS biblioteca
+        'SELECT u.id, u.nombre, u.avatar, u.comparte_ubicacion, b.nombre AS biblioteca
          FROM amistad a
          JOIN usuario u
            ON u.id = CASE WHEN a.solicitante_id = :yo1 THEN a.destinatario_id ELSE a.solicitante_id END
@@ -179,6 +180,7 @@ function findAmigos(PDO $pdo, int $usuarioId): array
         $amigos[] = [
             'usuario_id' => (int) $fila['id'],
             'nombre' => $fila['nombre'],
+            'avatar' => leerAvatar($fila['avatar']),
             'biblioteca' => (int) $fila['comparte_ubicacion'] === 1 ? $fila['biblioteca'] : null,
         ];
     }
