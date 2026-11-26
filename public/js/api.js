@@ -137,6 +137,26 @@ async function leerCuerpoJson(respuesta) {
   return tipo.includes('application/json') ? respuesta.json() : {};
 }
 
+
+/** Horario semanal y periodos especiales de una biblioteca (solo administradores, US08). */
+export function getHorarios(bibliotecaId) {
+  return getJson(`horarios.php?biblioteca=${encodeURIComponent(bibliotecaId)}`);
+}
+
+/** Guarda el horario semanal entero. semana: [{ dia, apertura, cierre }] con los 7 días. */
+export function guardarHorarioSemana(bibliotecaId, semana) {
+  return postJson('horarios.php', { biblioteca: bibliotecaId, accion: 'semana', horario_semanal: semana });
+}
+
+/** Añade un periodo especial (exámenes, festivo…). periodo: { fecha_inicio, fecha_fin, descripcion, cerrado, apertura, cierre }. */
+export function guardarPeriodoEspecial(bibliotecaId, periodo) {
+  return postJson('horarios.php', { biblioteca: bibliotecaId, accion: 'especial', ...periodo });
+}
+
+/** Borra un periodo especial por su id. */
+export function borrarPeriodoEspecial(bibliotecaId, especialId) {
+  return postJson('horarios.php', { biblioteca: bibliotecaId, accion: 'borrar_especial', especial_id: especialId });
+}
 /** Ranking semanal entre tú y tus amigos, y progreso del objetivo compartido. */
 export function getRanking() {
   return getJson('ranking.php');

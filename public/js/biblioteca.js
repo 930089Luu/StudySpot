@@ -63,7 +63,7 @@ function mostrarDetalle(biblioteca) {
   document.title = `${biblioteca.nombre} · StudySpot`;
   document.getElementById('biblioteca-nombre').textContent = biblioteca.nombre;
   document.getElementById('biblioteca-direccion').textContent = biblioteca.direccion;
-  document.getElementById('biblioteca-horario').textContent = biblioteca.horario_hoy ?? TEXTO_SIN_HORARIO;
+  document.getElementById('biblioteca-horario').textContent = getTextoHorario(biblioteca.horario_hoy);
   mostrarFoto(biblioteca.foto_url);
   mostrarOcupacion(biblioteca.ocupacion);
   mostrarFiabilidad(biblioteca.fiabilidad, biblioteca.usuarios_activos);
@@ -71,6 +71,13 @@ function mostrarDetalle(biblioteca) {
   mostrarAlerta(document.getElementById('biblioteca-alerta'), '');
   document.getElementById('biblioteca-cargando').hidden = true;
   document.getElementById('biblioteca').hidden = false;
+}
+
+/** Texto del horario de hoy: "08:00 – 21:00", "Cerrado hoy" o el motivo de un periodo especial. */
+function getTextoHorario(horario) {
+  if (horario === null) return TEXTO_SIN_HORARIO;
+  const texto = horario.cerrado ? 'Cerrado hoy' : `${horario.apertura} – ${horario.cierre}`;
+  return horario.motivo ? `${texto} · ${horario.motivo}` : texto;
 }
 
 function mostrarFoto(url) {
