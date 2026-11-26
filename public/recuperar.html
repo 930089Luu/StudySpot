@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="description" content="Recupera el acceso a tu cuenta de StudySpot.">
-  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#121316" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
   <title>Recuperar contraseña · StudySpot</title>
   <link rel="icon" href="img/studyspot-simbolo-color.png" type="image/png">
   <script src="js/tema-inicial.js"></script>
@@ -13,17 +13,19 @@
   <link rel="stylesheet" href="css/tokens.css">
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/ios.css">
   <script type="module" src="js/recuperar.js"></script>
 </head>
-<body class="page">
+<body class="page ios">
   <!-- US09: pedir el correo de recuperación de contraseña -->
   <main class="auth auth--start">
     <nav aria-label="Navegación">
-      <a class="back-link" href="index.html" aria-label="Volver a iniciar sesión">
+      <a class="back-link" href="index.html">
         <svg class="back-link__icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
           <path d="M12.5 4 6.5 10l6 6" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
+        <span>Iniciar sesión</span>
       </a>
     </nav>
 
@@ -35,13 +37,15 @@
     <p class="alert alert--success" id="confirmacion-recuperar" role="status" tabindex="-1" hidden></p>
 
     <form class="form" id="form-recuperar" novalidate>
-      <div class="field">
-        <label class="field__label" for="email">Correo institucional</label>
-        <input class="field__input" id="email" name="email" type="email"
-               autocomplete="email" inputmode="email" autocapitalize="none" spellcheck="false"
-               placeholder="nombre@unizar.es" maxlength="254" required
-               aria-describedby="email-error">
-        <p class="field__error" id="email-error"></p>
+      <div class="ios-group">
+        <div class="field">
+          <label class="field__label" for="email">Correo</label>
+          <input class="field__input" id="email" name="email" type="email"
+                 autocomplete="email" inputmode="email" autocapitalize="none" spellcheck="false"
+                 placeholder="nombre@universidad.es" maxlength="254" required
+                 aria-describedby="email-error">
+          <p class="field__error" id="email-error"></p>
+        </div>
       </div>
 
       <p class="alert alert--error" id="form-recuperar-alerta" role="alert" hidden></p>
