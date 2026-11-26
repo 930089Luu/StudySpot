@@ -412,6 +412,7 @@
     'Ojos': ['Eyes', 'Olhos'], 'Cabeza': ['Head', 'Cabeça'], 'Nariz': ['Nose', 'Nariz'], 'Boca': ['Mouth', 'Boca'],
     'Orejas': ['Ears', 'Orelhas'], 'Vello facial': ['Facial hair', 'Pelos faciais'], 'Gafas': ['Glasses', 'Óculos'],
     'Gorros': ['Headwear', 'Chapéus'], 'Fondo': ['Background', 'Fundo'],
+    'Pelo largo': ['Long hair', 'Cabelo comprido'], 'Barba': ['Beard', 'Barba'], 'Ropa': ['Clothes', 'Roupa'],
     'Quitar avatar y usar mis iniciales': ['Remove avatar and use my initials', 'Remover avatar e usar as minhas iniciais'],
     '¿Quitar tu avatar?': ['Remove your avatar?', 'Remover o teu avatar?'],
     'Volverán a verse tus iniciales.': ['Your initials will show again.', 'Voltam a ver-se as tuas iniciais.'],
@@ -492,6 +493,9 @@
     'No usamos cookies de publicidad ni de analítica, ni rastreamos lo que haces fuera de StudySpot.': ["We don't use advertising or analytics cookies, and we don't track what you do outside StudySpot.", 'Não usamos cookies de publicidade nem de análise, nem seguimos o que fazes fora do StudySpot.'],
     '¿Dudas, un fallo o algo sobre tus datos? Escríbenos a': ['Questions, a bug or something about your data? Write to us at', 'Dúvidas, uma falha ou algo sobre os teus dados? Escreve-nos para'],
     '[correo de contacto del equipo]': ['[team contact email]', '[email de contacto da equipa]'],
+    'Créditos': ['Credits', 'Créditos'],
+    'Avatares: estilo «Toon Head» de Johan Melin, con licencia CC BY 4.0 (creativecommons.org/licenses/by/4.0), generado con DiceBear (licencia MIT).': ['Avatars: "Toon Head" style by Johan Melin, licensed CC BY 4.0 (creativecommons.org/licenses/by/4.0), generated with DiceBear (MIT licence).', 'Avatares: estilo «Toon Head» de Johan Melin, com licença CC BY 4.0 (creativecommons.org/licenses/by/4.0), gerado com o DiceBear (licença MIT).'],
+    'Mapa: Mapbox. Lector de códigos QR: jsQR (licencia Apache 2.0).': ['Map: Mapbox. QR code reader: jsQR (Apache 2.0 licence).', 'Mapa: Mapbox. Leitor de códigos QR: jsQR (licença Apache 2.0).'],
   };
 
   // Textos con datos dentro. $1, $2… se traducen a su vez si están en T (p. ej. "alta" → "high").
@@ -534,7 +538,7 @@
     [/^El grupo ya tiene el máximo de (\d+) personas\.$/, ['The group already has the maximum of $1 people.', 'O grupo já tem o máximo de $1 pessoas.']],
     [/^Revisa los datos: nombre de (\d+) a (\d+) caracteres y objetivo de (\d+) a (\d+) puntos\.$/, ['Check the data: name of $1 to $2 characters and goal of $3 to $4 points.', 'Revê os dados: nome de $1 a $2 caracteres e objetivo de $3 a $4 pontos.']],
     [/^Color (\d+)$/, ['Colour $1', 'Cor $1']],
-    [/^(Peinado|Cejas|Ojos|Cabeza|Nariz|Boca|Orejas|Vello facial|Gafas|Gorros) (\d+)$/, ['$1 $2', '$1 $2']],
+    [/^(Peinado|Pelo largo|Cejas|Ojos|Boca|Barba|Ropa|Cabeza|Nariz|Orejas|Vello facial|Gafas|Gorros) (\d+)$/, ['$1 $2', '$1 $2']],
     [/^(.+) · StudySpot$/, ['$1 · StudySpot', '$1 · StudySpot']],
   ];
 

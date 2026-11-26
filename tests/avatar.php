@@ -16,7 +16,7 @@ return function (PDO $pdo): array {
         ['T141', 'Avatar válido: todas las partes y cada una dentro de su rango; falta una, sobra otra o se sale → no',
             function () use ($valido): bool {
                 $sinParte = $valido;
-                unset($sinParte['gorro']);
+                unset($sinParte['fondo']);
                 $deMas = $valido + ['alas' => 1];
                 $fuera = ['peinado' => AVATAR_OPCIONES['peinado']] + $valido;
                 $texto = ['piel' => '2'] + $valido;

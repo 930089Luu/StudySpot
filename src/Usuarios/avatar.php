@@ -1,6 +1,7 @@
 <?php
 /*
- * Avatar de cada persona (27-11), como un Memoji pero con dibujos propios de StudySpot.
+ * Avatar de cada persona (27-11): creador parte por parte, como un Memoji, con el estilo
+ * Toon Head (Johan Melin, CC BY 4.0) que dibuja DiceBear en el navegador.
  * Solo se guardan las elecciones (qué pieza de cada parte), en JSON en usuario.avatar; el dibujo
  * lo hace el navegador (public/js/avatar.js). null = sin avatar: se ven las iniciales.
  * Las partes y cuántas opciones tiene cada una deben coincidir con AVATAR_PARTES de avatar.js.
@@ -13,19 +14,16 @@ require_once __DIR__ . '/../Database/conexion.php';
 // parte => número de opciones (0 … n-1)
 const AVATAR_OPCIONES = [
     'fondo' => 7,
-    'piel' => 8,
-    'cabeza' => 3,
-    'orejas' => 3,
-    'peinado' => 10,
-    'colorPelo' => 12,
+    'piel' => 5,
+    'peinado' => 5,
+    'melena' => 5,
+    'colorPelo' => 5,
     'cejas' => 5,
-    'ojos' => 6,
-    'colorOjos' => 5,
-    'nariz' => 5,
-    'boca' => 6,
-    'vello' => 5,
-    'gafas' => 5,
-    'gorro' => 5,
+    'ojos' => 5,
+    'boca' => 5,
+    'barba' => 6,
+    'ropa' => 5,
+    'colorRopa' => 10,
 ];
 
 /** Comprueba un avatar: exactamente esas partes, cada una con un número entero dentro de su rango. */
