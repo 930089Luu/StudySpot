@@ -133,7 +133,8 @@ export function dibujarAvatar(a, viewBox = null) {
     .replace(/(<rect fill="#[0-9a-f]{6}" width="768" height="768" x="0" y="0" \/>)/, `$1${detras}`)
     .replace('<svg ', '<svg class="avatar-svg" aria-hidden="true" focusable="false" ')
     .replace(/<\/svg>\s*$/, `${extras}</svg>`);
-  return viewBox ? svg.replace(/viewBox="[^"]*"/, `viewBox="${viewBox}"`) : svg;
+  const conVolumen = cabeza3d(svg, id, PIELES[a.piel], COLORES_PELO[a.colorPelo], COLORES_ROPA[a.colorRopa]);
+  return viewBox ? conVolumen.replace(/viewBox="[^"]*"/, `viewBox="${viewBox}"`) : conVolumen;
 }
 
 /**
@@ -268,6 +269,32 @@ function gorro(tipo, colorPelo) {
   const cinta = colorPelo === 'e86aa6' ? '#3d3bf3' : '#e86aa6';
   return `<path d="M214 262 Q384 150 554 262" fill="none" stroke="${TRAZO}" stroke-width="40" stroke-linecap="round"/>
     <path d="M214 262 Q384 150 554 262" fill="none" stroke="${cinta}" stroke-width="30" stroke-linecap="round"/>`;
+}
+
+/**
+ * Cabeza con volumen, como un Memoji: la piel, el pelo y la ropa dejan de ser de un color plano y
+ * se sombrean como una esfera (luz arriba a la izquierda, más oscuro hacia los bordes); cada pieza
+ * (cabeza, orejas, cuello, mechones) se sombrea por separado. Los contornos negros pasan a ser
+ * finos y del tono de la piel, para que parezca un objeto y no un dibujo.
+ */
+function cabeza3d(svg, id, piel, pelo, ropa) {
+  const esfera = (nombre, color, luz, sombra) => `<radialGradient id="${id}-${nombre}" cx="42%" cy="34%" r="72%" fx="38%" fy="28%">
+      <stop offset="0" stop-color="${mezclar(color, 'ffffff', luz)}"/>
+      <stop offset="0.55" stop-color="#${color}"/>
+      <stop offset="1" stop-color="${mezclar(color, '000000', sombra)}"/>
+    </radialGradient>`;
+  // Gorros, auriculares y cinta (colores de las piezas propias), también con volumen
+  const accesorios = ['3d3bf3', '2321b5', 'e8505b', 'c43c47', 'f2f3f7', 'f5f5f5', 'e86aa6'];
+  const defs = `<defs>${esfera('piel', piel, 0.22, 0.28)}${esfera('pelo', pelo, 0.3, 0.42)}${esfera('ropa', ropa, 0.2, 0.35)}${
+    accesorios.map((color) => esfera(color, color, 0.3, 0.3)).join('')}</defs>`;
+  const conAccesorios = accesorios.reduce((texto, color) => texto.replaceAll(`fill="#${color}"`, `fill="url(#${id}-${color})"`), svg);
+  const borde = mezclar(piel, '000000', 0.6);
+  return conAccesorios
+    .replaceAll(`fill="#${piel}"`, `fill="url(#${id}-piel)"`)
+    .replaceAll(`fill="#${pelo}"`, `fill="url(#${id}-pelo)"`)
+    .replaceAll(`fill="#${ropa}"`, `fill="url(#${id}-ropa)"`)
+    .replaceAll('stroke="black"', `stroke="${borde}" stroke-opacity="0.7"`)
+    .replace(/<\/svg>\s*$/, `${defs}</svg>`);
 }
 
 /** Mezcla dos colores hex (t = 0 → el primero, 1 → el segundo). */
