@@ -8,6 +8,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../constantes.php';
 require_once __DIR__ . '/../Database/conexion.php';
+require_once __DIR__ . '/../Usuarios/favorita.php'; // existeBiblioteca
 
 const ROL_ADMIN = 'admin';
 const HORA_FORMATO = '/^([01]\d|2[0-3]):[0-5]\d$/';
@@ -18,13 +19,6 @@ function esAdministrador(PDO $pdo, int $usuarioId): bool
     $consulta = $pdo->prepare('SELECT rol FROM usuario WHERE id = :id');
     $consulta->execute(['id' => $usuarioId]);
     return $consulta->fetchColumn() === ROL_ADMIN;
-}
-
-function existeBiblioteca(PDO $pdo, int $bibliotecaId): bool
-{
-    $consulta = $pdo->prepare('SELECT 1 FROM biblioteca WHERE id = :id');
-    $consulta->execute(['id' => $bibliotecaId]);
-    return $consulta->fetchColumn() !== false;
 }
 
 /** Horas de un día: las dos a null = cerrado; si no, HH:MM y apertura antes que cierre. */
