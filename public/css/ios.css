@@ -1299,3 +1299,340 @@ button.ios-row {
 .ios-group .field.ios-check {
   grid-template-columns: 1fr auto;
 }
+
+/* =====================================================================================
+ * Check-in (como Wallet al escanear) y sesión activa (como una Actividad en directo)
+ * ===================================================================================== */
+.checkin__escanear,
+.checkin__sesion {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.checkin__visor {
+  width: 100%;
+  max-width: none;
+  aspect-ratio: 1;
+  height: auto;
+  border-radius: 22px;
+  box-shadow: 0 12px 30px rgb(0 0 0 / 0.18);
+}
+
+.checkin__ayuda {
+  text-align: center;
+  font-size: var(--ios-subheadline);
+  color: var(--ios-label-secondary);
+}
+
+.checkin__aviso:empty {
+  display: none;
+}
+
+.checkin__aviso {
+  text-align: center;
+  font-weight: var(--font-weight-semibold);
+}
+
+/* Icono del permiso: glifo de ubicación sobre un círculo azul, como los permisos de iOS */
+.checkin__permiso-icono {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 88px;
+  height: 88px;
+  border-radius: 22px;
+  background: linear-gradient(180deg, #4a7dff, var(--color-accent));
+  color: #ffffff;
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--color-accent) 35%, transparent);
+}
+
+.checkin__permiso-icono svg {
+  width: 48px;
+  height: 48px;
+}
+
+/* ---------- Actividad en directo ---------- */
+.live {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: 24px;
+  background: linear-gradient(160deg, #1c1c2e, #0b0b14);
+  color: #ffffff;
+  box-shadow: 0 16px 40px rgb(10 10 30 / 0.3);
+}
+
+.live__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--ios-footnote);
+}
+
+.live__icono {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background-color: #ffffff;
+}
+
+.live__app {
+  font-weight: var(--font-weight-semibold);
+  color: rgb(255 255 255 / 0.85);
+}
+
+.live__estado {
+  margin-inline-start: auto;
+  padding: 2px 10px;
+  border-radius: var(--radius-full);
+  background-color: rgb(48 209 88 / 0.2);
+  color: #30d158;
+  font-weight: var(--font-weight-semibold);
+}
+
+.live__cuerpo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.live__texto {
+  min-width: 0;
+}
+
+.live__lugar {
+  font-size: var(--ios-body);
+  font-weight: var(--font-weight-semibold);
+  overflow-wrap: anywhere;
+}
+
+.live__detalle {
+  font-size: var(--ios-footnote);
+  color: rgb(255 255 255 / 0.6);
+}
+
+.live__tiempo {
+  margin-block-start: var(--space-2);
+  font-size: 2.75rem;
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.live__anillo {
+  position: relative;
+  flex-shrink: 0;
+  width: 92px;
+  height: 92px;
+}
+
+.live__anillo svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.live__pista,
+.live__progreso {
+  fill: none;
+  stroke-width: 4.5;
+}
+
+.live__pista {
+  stroke: rgb(48 209 88 / 0.2);
+}
+
+.live__progreso {
+  stroke: #30d158;
+  stroke-linecap: round;
+  stroke-dasharray: calc(var(--progreso, 0) * 1) 100;
+  transition: stroke-dasharray 600ms var(--easing-standard);
+}
+
+.live__puntos {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.05;
+}
+
+.live__puntos strong {
+  font-size: 1.5rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.live__puntos span {
+  font-size: var(--ios-footnote);
+  color: rgb(255 255 255 / 0.6);
+}
+
+/* =====================================================================================
+ * Detalle de biblioteca, como la app Tiempo: el lugar, el dato grande (la ocupación, como la
+ * temperatura) y tarjetas con un título pequeño en mayúsculas. El color sigue al nivel.
+ * ===================================================================================== */
+.biblio__hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  margin: 0 calc(var(--ios-row-padding-inline) * -1);
+  padding: var(--space-3) var(--ios-row-padding-inline) var(--space-5);
+  border: 0;
+  border-radius: 0 0 28px 28px;
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--color-nivel, var(--color-accent)) 22%, var(--ios-bg)) 0%,
+    var(--ios-bg) 100%);
+  box-shadow: none;
+  text-align: center;
+}
+
+.biblio__foto {
+  width: 100%;
+  max-height: 10rem;
+  margin-block-end: var(--space-3);
+  border-radius: var(--ios-radius);
+  object-fit: cover;
+}
+
+.biblio__nombre {
+  font-size: var(--ios-title-2);
+  font-weight: var(--font-weight-semibold);
+  text-wrap: balance;
+}
+
+/* El número grande y fino, como la temperatura */
+.biblio__valor {
+  font-size: 5.5rem;
+  font-weight: 200;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+}
+
+.biblio__nivel {
+  font-size: var(--ios-title-2);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-nivel, var(--color-text));
+}
+
+.biblio__horario {
+  font-size: var(--ios-subheadline);
+  color: var(--ios-label-secondary);
+}
+
+.biblio__barra {
+  width: min(16rem, 80%);
+  margin-block-start: var(--space-3);
+}
+
+.biblio__actualizado {
+  font-size: var(--ios-footnote);
+  color: var(--ios-label-secondary);
+}
+
+/* Tarjetas: fondo de celda, título pequeño en mayúsculas con icono */
+.wx-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--ios-row-padding-inline) var(--space-4);
+  border-radius: var(--ios-radius);
+  background-color: var(--ios-cell);
+}
+
+.wx-card__titulo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-block-end: var(--space-2);
+  border-block-end: 0.5px solid var(--ios-separator);
+  font-size: var(--ios-footnote);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--ios-label-secondary);
+}
+
+.wx-card__titulo svg {
+  width: 15px;
+  height: 15px;
+}
+
+.wx-card__texto {
+  font-size: var(--ios-body);
+}
+
+.wx-card__nota {
+  font-size: var(--ios-footnote);
+  line-height: 1.35;
+  color: var(--ios-label-secondary);
+}
+
+/* Dos tarjetas pequeñas lado a lado, como las de Tiempo (UV, viento…) */
+.wx-fila {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+.biblio .reliability {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.biblio .reliability__text {
+  font-size: 1.75rem;
+  font-weight: var(--font-weight-semibold);
+  line-height: 1;
+}
+
+/* Días como el selector segmentado de iOS */
+.biblio .day-picker {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0;
+  padding: 2px;
+  border-radius: 9px;
+  background-color: var(--ios-segmented-bg);
+}
+
+.biblio .day-picker__button {
+  min-width: 0;
+  min-height: 30px;
+  border: 0;
+  border-radius: 7px;
+  background: none;
+  color: var(--color-text);
+  font-size: var(--ios-footnote);
+  font-weight: var(--font-weight-semibold);
+}
+
+.biblio .day-picker__button[aria-pressed="true"] {
+  background-color: var(--ios-segmented-thumb);
+  color: var(--color-text);
+  box-shadow: 0 3px 8px rgb(0 0 0 / 0.12), 0 3px 1px rgb(0 0 0 / 0.04);
+}
+
+/* Estrella de favorita en la barra, como el corazón de favoritos de Música */
+.biblio .favorite-button {
+  width: var(--tap-target);
+  min-height: var(--tap-target);
+  padding: 0;
+  border: 0;
+  background: none;
+  box-shadow: none;
+}
+
+.biblio .favorite-button__icon {
+  width: 24px;
+  height: 24px;
+}

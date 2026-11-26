@@ -175,6 +175,7 @@
     'Marcar como favorita': ['Mark as favourite', 'Marcar como favorita'],
     'Tu biblioteca favorita': ['Your favourite library', 'A tua biblioteca favorita'],
     '¿Cambiar de favorita?': ['Change favourite?', 'Mudar de favorita?'],
+    'Dirección': ['Address', 'Morada'],
     'Ocupación actual': ['Current occupancy', 'Ocupação atual'],
     'Fiabilidad de los datos:': ['Data reliability:', 'Fiabilidade dos dados:'],
     'Ocupación típica': ['Typical occupancy', 'Ocupação habitual'],

@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#121316" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
   <title>Biblioteca · StudySpot</title>
   <link rel="icon" href="img/studyspot-simbolo-color.png" type="image/png">
   <script src="js/tema-inicial.js"></script>
@@ -12,63 +12,54 @@
   <link rel="stylesheet" href="css/tokens.css">
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/ios.css">
   <script type="module" src="js/biblioteca.js"></script>
 </head>
-<body class="page">
+<body class="page ios">
   <!--
     Wireframe 3: detalle de una biblioteca. Ocupación actual con su fiabilidad (US03)
     y ocupación típica por día y hora con la ley de Little (US05).
   -->
-  <main class="auth auth--start">
-    <nav aria-label="Navegación">
-      <a class="back-link" href="inicio.html" aria-label="Volver al mapa">
+  <main class="ios-screen biblio">
+    <nav class="ios-nav" aria-label="Navegación">
+      <a class="back-link" href="inicio.html">
         <svg class="back-link__icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
           <path d="M12.5 4 6.5 10l6 6" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
+        <span>Mapa</span>
       </a>
+      <span></span>
+      <!-- Favorita: el mapa se abre en ella y sale la primera de la lista -->
+      <button class="ios-nav__action favorite-button" id="boton-favorita" type="button" aria-pressed="false">
+        <svg class="favorite-button__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M12 3.5l2.6 5.3 5.9.9-4.25 4.15 1 5.85L12 16.9l-5.25 2.8 1-5.85L3.5 9.7l5.9-.9z"
+                stroke-linejoin="round"/>
+        </svg>
+        <span class="visually-hidden" id="boton-favorita-texto">Marcar como favorita</span>
+      </button>
     </nav>
 
-    <p class="state__text" id="biblioteca-cargando" role="status">Cargando…</p>
+    <p class="ios-section__footer" id="biblioteca-cargando" role="status">Cargando…</p>
     <p class="alert alert--error" id="biblioteca-alerta" role="alert" hidden></p>
 
-    <article class="section" id="biblioteca" aria-labelledby="biblioteca-nombre" hidden>
-      <img class="library__photo" id="biblioteca-foto" alt="" hidden>
-      <header>
-        <h1 class="library__name" id="biblioteca-nombre"></h1>
-        <p class="library__detail" id="biblioteca-direccion"></p>
-        <p class="library__detail" id="biblioteca-horario"></p>
-        <!-- Favorita: el mapa se abre en ella y sale la primera de la lista -->
-        <button class="favorite-button" id="boton-favorita" type="button" aria-pressed="false">
-          <svg class="favorite-button__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-            <path d="M12 3.5l2.6 5.3 5.9.9-4.25 4.15 1 5.85L12 16.9l-5.25 2.8 1-5.85L3.5 9.7l5.9-.9z"
-                  stroke-linejoin="round"/>
-          </svg>
-          <span id="boton-favorita-texto">Marcar como favorita</span>
-        </button>
+    <!-- Como la app Tiempo: el lugar, el dato grande (aquí la ocupación) y debajo tarjetas -->
+    <article class="ios-screen__panel" id="biblioteca" aria-labelledby="biblioteca-nombre" hidden>
+      <header class="biblio__hero occupancy-card" id="ocupacion-tarjeta" aria-label="Ocupación actual">
+        <img class="biblio__foto" id="biblioteca-foto" alt="" hidden>
+        <h1 class="biblio__nombre" id="biblioteca-nombre"></h1>
+        <p class="biblio__valor" id="ocupacion-valor"></p>
+        <p class="biblio__nivel" id="ocupacion-nivel"></p>
+        <p class="biblio__horario" id="biblioteca-horario"></p>
+        <span class="meter biblio__barra" id="ocupacion-barra"></span>
+        <p class="biblio__actualizado" id="ocupacion-actualizado" role="status"></p>
       </header>
 
-      <section class="occupancy-card" id="ocupacion-tarjeta" aria-label="Ocupación actual">
-        <p class="occupancy-card__label">Ocupación actual</p>
-        <p class="occupancy-card__value" id="ocupacion-valor"></p>
-        <p class="occupancy-card__level" id="ocupacion-nivel"></p>
-        <span class="meter" id="ocupacion-barra"></span>
-        <p class="occupancy-card__meta" id="ocupacion-actualizado" role="status"></p>
-      </section>
-
-      <div>
-        <p class="reliability" id="fiabilidad">
-          <span>Fiabilidad de los datos:</span>
-          <span class="reliability__bars" aria-hidden="true">
-            <span class="reliability__bar"></span><span class="reliability__bar"></span><span class="reliability__bar"></span>
-          </span>
-          <span class="reliability__text" id="fiabilidad-texto"></span>
-        </p>
-        <p class="state__text" id="fiabilidad-detalle"></p>
-      </div>
-
-      <section class="section" aria-labelledby="titulo-franjas">
-        <h2 class="section__title" id="titulo-franjas">Ocupación típica</h2>
+      <section class="wx-card" aria-labelledby="titulo-franjas">
+        <h2 class="wx-card__titulo" id="titulo-franjas">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          Ocupación típica
+        </h2>
         <div class="day-picker" role="group" aria-label="Día de la semana">
           <button class="day-picker__button" type="button" data-dia="1" aria-label="Lunes">L</button>
           <button class="day-picker__button" type="button" data-dia="2" aria-label="Martes">M</button>
@@ -79,7 +70,7 @@
           <button class="day-picker__button" type="button" data-dia="7" aria-label="Domingo">D</button>
         </div>
         <p class="alert alert--error" id="franjas-alerta" role="alert" hidden></p>
-        <p class="state__text" id="franjas-vacias" hidden>Aún no hay datos suficientes para este día.</p>
+        <p class="wx-card__texto" id="franjas-vacias" hidden>Aún no hay datos suficientes para este día.</p>
         <div id="franjas-contenido">
           <ul class="chart" id="grafico-franjas"></ul>
           <p class="chart__axis" aria-hidden="true">
@@ -87,8 +78,33 @@
           </p>
         </div>
         <p class="chart__legend" id="franjas-resumen"></p>
-        <p class="state__text">Media de las semanas anteriores, calculada con la ley de Little (llegadas por hora × duración media de las sesiones).</p>
+        <p class="wx-card__nota">Media de las semanas anteriores, calculada con la ley de Little (llegadas por hora × duración media de las sesiones).</p>
       </section>
+
+      <div class="wx-fila">
+        <section class="wx-card" aria-labelledby="titulo-fiabilidad">
+          <h2 class="wx-card__titulo" id="titulo-fiabilidad">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+            Fiabilidad
+          </h2>
+          <p class="reliability" id="fiabilidad">
+            <span class="visually-hidden">Fiabilidad de los datos:</span>
+            <span class="reliability__text" id="fiabilidad-texto"></span>
+            <span class="reliability__bars" aria-hidden="true">
+              <span class="reliability__bar"></span><span class="reliability__bar"></span><span class="reliability__bar"></span>
+            </span>
+          </p>
+          <p class="wx-card__nota" id="fiabilidad-detalle"></p>
+        </section>
+
+        <section class="wx-card" aria-labelledby="titulo-direccion">
+          <h2 class="wx-card__titulo" id="titulo-direccion">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+            Dirección
+          </h2>
+          <p class="wx-card__texto" id="biblioteca-direccion"></p>
+        </section>
+      </div>
     </article>
 
     <!-- Aviso al cambiar de favorita (solo se puede tener una) -->
