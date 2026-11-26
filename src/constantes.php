@@ -68,6 +68,15 @@ const MAX_PUNTOS_SESION = 16;
 const OBJETIVO_SEMANAL_PUNTOS = 40;
 // Tope del porcentaje del objetivo compartido.
 const OBJETIVO_MAX_PORCENTAJE = 100;
+// Grupos del ranking (US07, 26-11): el objetivo lo ajusta el administrador de cada grupo entre
+// estos límites (los mismos que el CHECK de grupo.objetivo_semanal). Al crearlo vale OBJETIVO_SEMANAL_PUNTOS.
+const GRUPO_NOMBRE_MAX_LENGTH = 50;
+const GRUPO_OBJETIVO_MIN = 1;
+const GRUPO_OBJETIVO_MAX = 2000;
+const GRUPO_MAX_PERSONAS = 30;
+// Colores del ranking: cada persona tiene siempre el mismo (su id % este número). Debe coincidir
+// con los --color-persona-0 … 7 de public/css/tokens.css.
+const RANKING_NUM_COLORES = 8;
 
 // Ocupación (US03): % = (sesiones activas ÷ factor_adopcion) ÷ capacidad_maxima. Recuento directo, sin Little.
 // Fiabilidad según los usuarios activos en la biblioteca: baja < 5 · media 5–14 · alta ≥ 15.

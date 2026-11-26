@@ -18,6 +18,8 @@ function borrarUsuariosPrueba(PDO $pdo): void
 {
     $consulta = $pdo->prepare('DELETE FROM usuario WHERE email LIKE :prefijo');
     $consulta->execute(['prefijo' => TEST_EMAIL_PREFIJO . '%']);
+    // Los grupos de prueba se quedan sin nadie al borrar a sus personas: se borran también.
+    $pdo->exec('DELETE FROM grupo WHERE NOT EXISTS (SELECT 1 FROM grupo_miembro m WHERE m.grupo_id = grupo.id)');
 }
 
 /** Crea un usuario de prueba con TEST_PASSWORD y devuelve su correo. */

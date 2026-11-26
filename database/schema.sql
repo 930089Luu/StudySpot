@@ -182,3 +182,35 @@ CREATE TABLE IF NOT EXISTS calendario_especial (
         OR (cerrado = FALSE AND hora_apertura IS NOT NULL AND hora_cierre IS NOT NULL
             AND hora_apertura < hora_cierre))
 ) ENGINE = InnoDB;
+
+-- US07 (26-11): grupos para el ranking semanal. Una persona puede estar en varios (clase,
+-- amigos del cole, pareja…). Cada grupo tiene su objetivo semanal, que ajusta su administrador.
+CREATE TABLE IF NOT EXISTS grupo (
+    id               INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    nombre           VARCHAR(50) NOT NULL,
+    objetivo_semanal SMALLINT UNSIGNED NOT NULL DEFAULT 40,
+    fecha_creacion   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    CONSTRAINT chk_grupo_objetivo CHECK (objetivo_semanal BETWEEN 1 AND 2000)
+) ENGINE = InnoDB;
+
+-- Quién está en cada grupo. estado: invited (invitación sin responder) o member (dentro).
+-- rol: admin (cambia nombre y objetivo, invita, quita gente y nombra administradores) o member.
+-- Solo se invita a amigos aceptados. Siempre queda al menos un admin: si el último se va,
+-- pasa a serlo quien lleva más tiempo dentro; si no queda nadie, el grupo se borra.
+CREATE TABLE IF NOT EXISTS grupo_miembro (
+    grupo_id     INT UNSIGNED NOT NULL,
+    usuario_id   INT UNSIGNED NOT NULL,
+    rol          ENUM('admin', 'member') NOT NULL DEFAULT 'member',
+    estado       ENUM('invited', 'member') NOT NULL DEFAULT 'invited',
+    invitado_por INT UNSIGNED NULL,
+    fecha        DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (grupo_id, usuario_id),
+    KEY idx_grupo_miembro_usuario (usuario_id, estado),
+    CONSTRAINT fk_grupo_miembro_grupo FOREIGN KEY (grupo_id)
+        REFERENCES grupo (id) ON DELETE CASCADE,
+    CONSTRAINT fk_grupo_miembro_usuario FOREIGN KEY (usuario_id)
+        REFERENCES usuario (id) ON DELETE CASCADE,
+    CONSTRAINT fk_grupo_miembro_invitador FOREIGN KEY (invitado_por)
+        REFERENCES usuario (id) ON DELETE SET NULL
+) ENGINE = InnoDB;
