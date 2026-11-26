@@ -5,6 +5,7 @@
  * sale su tarjeta. Los datos se piden de nuevo cada 60 s (criterio: datos de < 60 s).
  * Si el mapa no carga (sin token, sin conexión con Mapbox), la lista sigue funcionando sola.
  */
+import { pintarAvatar } from './avatar.js';
 import { getConfigMapa, getOcupacion, getPerfil } from './api.js';
 import { MENSAJE_ERROR_GENERICO, mostrarAlerta } from './formulario.js';
 import { getIniciales } from './iniciales.js';
@@ -95,7 +96,8 @@ async function mostrarIniciales() {
     const respuesta = await getPerfil();
     if (respuesta.estado !== HTTP_OK) return;
     const iniciales = document.getElementById('avatar-iniciales');
-    iniciales.textContent = getIniciales(respuesta.cuerpo.nombre);
+    // Tu avatar si lo has creado; si no, tus iniciales.
+    pintarAvatar(iniciales, respuesta.cuerpo.avatar, getIniciales(respuesta.cuerpo.nombre));
     iniciales.hidden = false;
     // Es un <svg>: no tiene la propiedad hidden de los elementos HTML, hay que poner el atributo.
     document.getElementById('avatar-icono').setAttribute('hidden', '');

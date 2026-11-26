@@ -1636,3 +1636,123 @@ button.ios-row {
   width: 24px;
   height: 24px;
 }
+
+/* =====================================================================================
+ * Editor del avatar (como crear un Memoji): vista grande, categorías deslizables, colores y
+ * miniaturas. Los dibujos (js/avatar.js) son SVG que llenan su contenedor redondo.
+ * ===================================================================================== */
+.editor-avatar {
+  gap: var(--space-4);
+}
+
+.editor-avatar__vista {
+  width: 168px;
+  height: 168px;
+  margin-inline: auto;
+  overflow: hidden;
+  border-radius: var(--radius-full);
+  box-shadow: 0 10px 30px rgb(0 0 0 / 0.12);
+}
+
+.editor-avatar__vista--salta {
+  animation: editor-avatar-salta 320ms var(--easing-standard);
+}
+
+@keyframes editor-avatar-salta {
+  40% { transform: scale(1.06); }
+}
+
+.editor-avatar__categorias {
+  display: flex;
+  gap: var(--space-1);
+  margin-inline: calc(var(--ios-row-padding-inline) * -1);
+  padding: 2px var(--ios-row-padding-inline);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.editor-avatar__categoria {
+  flex-shrink: 0;
+  min-height: 34px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: none;
+  color: var(--ios-label-secondary);
+  font-size: var(--ios-subheadline);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+}
+
+.editor-avatar__categoria[aria-selected="true"] {
+  background-color: var(--ios-cell);
+  color: var(--color-text);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.08);
+}
+
+.editor-avatar__panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  border-radius: 18px;
+  background-color: var(--ios-cell);
+}
+
+.editor-avatar__colores {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.editor-avatar__muestra {
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: var(--radius-full);
+  background-color: var(--muestra);
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.12);
+  cursor: pointer;
+}
+
+.editor-avatar__muestra[aria-checked="true"] {
+  box-shadow: 0 0 0 3px var(--ios-cell), 0 0 0 5px var(--color-accent);
+}
+
+.editor-avatar__opciones {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-3);
+}
+
+.editor-avatar__miniatura {
+  aspect-ratio: 1;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 16px;
+  background-color: var(--ios-bg);
+  cursor: pointer;
+}
+
+.editor-avatar__miniatura[aria-checked="true"] {
+  box-shadow: 0 0 0 3px var(--color-accent);
+}
+
+.editor-avatar__miniatura:active,
+.editor-avatar__muestra:active {
+  transform: scale(0.95);
+}
+
+/* Enlace "Editar" bajo el avatar del perfil, como en Contactos */
+.ios-contact__editar {
+  font-size: var(--ios-subheadline);
+  color: var(--color-accent-text);
+  text-decoration: none;
+}
+
+/* Los botones de la barra que son enlaces (Cancelar del editor de avatar) no van subrayados */
+a.ios-sheet__bar-button {
+  text-decoration: none;
+}

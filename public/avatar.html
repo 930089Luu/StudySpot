@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+  <title>Avatar · StudySpot</title>
+  <link rel="icon" href="img/studyspot-simbolo-color.png" type="image/png">
+  <script src="js/tema-inicial.js"></script>
+  <script src="js/i18n.js" defer></script>
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/ios.css">
+  <script type="module" src="js/avatar-editor.js"></script>
+</head>
+<body class="page ios">
+  <!--
+    Editor del avatar (27-11), con el proceso de crear un Memoji: el avatar grande arriba, la barra
+    de categorías (piel, peinado, cejas, ojos…), muestras de color y una cuadrícula de miniaturas
+    con TU avatar llevando cada opción. Cancelar y OK arriba. Dibujos propios: js/avatar.js.
+  -->
+  <main class="ios-screen editor-avatar">
+    <nav class="ios-nav" aria-label="Navegación">
+      <a class="ios-sheet__bar-button" id="avatar-cancelar" href="perfil.html">Cancelar</a>
+      <h1 class="ios-nav__title">Avatar</h1>
+      <button class="ios-sheet__bar-button ios-sheet__bar-button--primary" id="avatar-ok" type="button">OK</button>
+    </nav>
+
+    <p class="alert alert--error" id="avatar-alerta" role="alert" hidden></p>
+
+    <!-- Vista previa: cambia al instante con cada elección -->
+    <div class="editor-avatar__vista" id="avatar-vista" aria-live="polite" aria-label="Vista previa de tu avatar"></div>
+
+    <!-- Categorías, deslizables como en Memoji -->
+    <div class="editor-avatar__categorias" id="avatar-categorias" role="tablist" aria-label="Partes del avatar"></div>
+
+    <section class="editor-avatar__panel" id="avatar-panel" role="tabpanel">
+      <div class="editor-avatar__colores" id="avatar-colores" role="radiogroup"></div>
+      <div class="editor-avatar__opciones" id="avatar-opciones" role="radiogroup"></div>
+    </section>
+
+    <div class="ios-list" id="bloque-quitar" hidden>
+      <button class="ios-row ios-row--action ios-row--destructive" id="avatar-quitar" type="button">Quitar avatar y usar mis iniciales</button>
+    </div>
+  </main>
+</body>
+</html>
