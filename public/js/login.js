@@ -1,6 +1,7 @@
 /*
  * Pantalla de inicio de sesión (wireframe 1A).
  */
+import { setIdioma } from './preferencias.js';
 import { iniciarSesion } from './api.js';
 import {
   MENSAJE_ERROR_GENERICO,
@@ -73,6 +74,7 @@ async function handleSubmit(evento) {
   if (respuesta === null) return;
 
   if (respuesta.estado === HTTP_OK) {
+    if (respuesta.cuerpo.usuario?.idioma) setIdioma(respuesta.cuerpo.usuario.idioma);
     window.location.assign(RUTA_INICIO);
     return;
   }

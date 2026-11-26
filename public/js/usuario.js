@@ -17,7 +17,7 @@ const TEXTOS_RELACION = {
 };
 const MENSAJE_NO_DISPONIBLE = 'Este perfil no está disponible.';
 const MENSAJE_SIN_CONEXION = 'No se ha podido conectar. Revisa tu conexión e inténtalo de nuevo.';
-const formatoPuntos = new Intl.NumberFormat('es-ES');
+const formatoPuntos = new Intl.NumberFormat(document.documentElement.lang || 'es');
 
 async function init() {
   const usuarioId = new URLSearchParams(window.location.search).get(PARAM_USUARIO);

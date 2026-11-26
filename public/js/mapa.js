@@ -188,6 +188,7 @@ async function crearMapa({ bibliotecas, favoritaId }, mapboxCargado, tokenPedido
     const mapa = new window.mapboxgl.Map({
       container: 'mapa',
       style: ESTILO_MAPA,
+      language: document.documentElement.lang || 'es',
       config: CONFIG_ESTILO,
       ...crearVistaInicial(bibliotecas, inicial),
     });

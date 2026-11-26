@@ -15,7 +15,7 @@ import {
 const HTTP_OK = 200;
 const HTTP_UNAUTHORIZED = 401;
 const MENSAJE_SIN_CONEXION = 'No se ha podido conectar. Revisa tu conexión e inténtalo de nuevo.';
-const formatoPuntos = new Intl.NumberFormat('es-ES');
+const formatoPuntos = new Intl.NumberFormat(document.documentElement.lang || 'es');
 
 async function init() {
   document.getElementById('boton-cerrar-sesion').addEventListener('click', handleCerrarSesion);
