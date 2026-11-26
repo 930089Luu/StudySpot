@@ -54,6 +54,8 @@ const DURACION_ENTRADA_MS = 2500;
 // solo entonces se destapa y se mueve la cámara. Si tarda más de esto, se destapa igualmente.
 const ESPERA_MAXIMA_MAPA_MS = 15000;
 const MARGEN_ENCUADRE_PX = 64;
+// Arriba, más: ahí están el botón "He llegado" y las caras de los amigos sobre los globos.
+const MARGEN_ENCUADRE_ARRIBA_PX = 130;
 const ZOOM_MAXIMO_ENCUADRE = 15;
 // Vuelo hasta la biblioteca elegida (Mapbox lo hace sin animación si el móvil pide menos movimiento).
 const DURACION_VUELO_MS = 2000;
@@ -239,7 +241,10 @@ function crearVistaInicial(bibliotecas, inicial) {
   }
   return {
     bounds: crearEncuadre(bibliotecas),
-    fitBoundsOptions: { padding: MARGEN_ENCUADRE_PX, maxZoom: ZOOM_MAXIMO_ENCUADRE },
+    fitBoundsOptions: {
+      padding: { top: MARGEN_ENCUADRE_ARRIBA_PX, right: MARGEN_ENCUADRE_PX, bottom: MARGEN_ENCUADRE_PX, left: MARGEN_ENCUADRE_PX },
+      maxZoom: ZOOM_MAXIMO_ENCUADRE,
+    },
   };
 }
 
