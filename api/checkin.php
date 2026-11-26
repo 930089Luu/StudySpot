@@ -16,7 +16,7 @@ const RESPUESTAS_CHECKIN = [
     CHECKIN_SIN_UBICACION    => [HTTP_BAD_REQUEST, 'No hemos podido obtener tu ubicación. Activa el permiso de ubicación e inténtalo de nuevo.'],
     CHECKIN_QR_INVALIDO      => [HTTP_BAD_REQUEST, 'Este código QR no es válido. Escanea el QR de tu zona de estudio.'],
     CHECKIN_FUERA_DEL_RADIO  => [HTTP_FORBIDDEN, 'Parece que estás demasiado lejos de la biblioteca.'],
-    CHECKIN_BIBLIOTECA_CERRADA => [HTTP_FORBIDDEN, 'La biblioteca está cerrada ahora. Consulta su horario en el mapa.'],
+    CHECKIN_BIBLIOTECA_CERRADA => [HTTP_FORBIDDEN, 'Vuelve en otro momento o revisa su horario en el mapa.'],
     CHECKIN_SESION_YA_ACTIVA => [HTTP_CONFLICT, 'Ya tienes una sesión de estudio activa. Haz check-out antes de empezar otra.'],
 ];
 
@@ -39,5 +39,10 @@ ejecutarEndpoint(function (): void {
     }
     [$codigo, $mensaje] = RESPUESTAS_CHECKIN[$resultado['estado']];
     // La biblioteca solo viene si está demasiado lejos: la pantalla dice a cuál acercarse.
-    responderJson($codigo, array_filter(['error' => $mensaje, 'biblioteca' => $resultado['biblioteca'] ?? null]));
+    // cerrada (US08): para que la pantalla no ofrezca reintentar.
+    responderJson($codigo, array_filter([
+        'error' => $mensaje,
+        'biblioteca' => $resultado['biblioteca'] ?? null,
+        'cerrada' => $resultado['estado'] === CHECKIN_BIBLIOTECA_CERRADA,
+    ]));
 });

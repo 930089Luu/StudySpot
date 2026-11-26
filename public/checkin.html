@@ -67,19 +67,18 @@
       </div>
     </section>
 
-    <section class="state" id="estado-error" aria-labelledby="titulo-error" hidden>
-      <span class="icon-badge icon-badge--danger" aria-hidden="true">
-        <svg class="icon-badge__icon" viewBox="0 0 24 24" focusable="false">
-          <path d="M12 4 2.8 20h18.4zM12 10v4.5M12 17.2v.1" fill="none" stroke="currentColor"
-                stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </span>
-      <h1 class="state__title" id="titulo-error">No se ha podido hacer el check-in</h1>
-      <p class="state__text state__text--strong" id="error-mensaje" role="alert"></p>
+    <!-- Wireframe 4C con el estilo de la bienvenida: Sito triste (como el dinosaurio de Chrome),
+         título grande, una frase y botones de iOS. También para la biblioteca cerrada (US08). -->
+    <section class="state state--sito" id="estado-error" aria-labelledby="titulo-error" hidden>
+      <div class="onboarding__hero">
+        <img class="mascot" src="img/mascota/triste.svg" alt="" width="512" height="512">
+      </div>
+      <h1 class="state__title state__title--large" id="titulo-error">No se ha podido hacer el check-in</h1>
+      <p class="state__text" id="error-mensaje" role="alert"></p>
       <p class="state__text" id="error-detalle" hidden></p>
-      <div class="state__actions">
-        <button class="button button--primary" id="boton-reintentar" type="button">Intentar de nuevo</button>
-        <a class="button button--secondary" href="inicio.html">Volver al inicio</a>
+      <div class="state__actions state__actions--ios">
+        <button class="button button--neutral button--ios" id="boton-reintentar" type="button">Intentar de nuevo</button>
+        <a class="button button--plain button--ios" id="boton-error-mapa" href="inicio.html">Volver al mapa</a>
       </div>
     </section>
 

@@ -304,6 +304,34 @@
   color: var(--color-text);
 }
 
+/* Pantalla con Sito (errores, biblioteca cerrada): centrada en vertical como la bienvenida */
+.state--sito {
+  flex: 1;
+  justify-content: center;
+  gap: var(--space-4);
+}
+
+/* El dibujo de Sito trae aire debajo (la sombra): se acerca al título */
+.state--sito .onboarding__hero {
+  margin-block-end: calc(var(--space-4) * -1);
+}
+
+.state--sito .state__text {
+  max-width: 19rem;
+  text-wrap: balance;
+  line-height: var(--line-height-base);
+}
+
+.state__title--large {
+  text-wrap: balance;
+  font-size: var(--font-size-display);
+}
+
+/* Botones de iOS pegados: el principal y, debajo, el de texto */
+.state__actions--ios {
+  gap: var(--space-1);
+}
+
 .state__actions {
   display: flex;
   flex-direction: column;
