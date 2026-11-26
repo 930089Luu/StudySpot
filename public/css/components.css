@@ -1148,74 +1148,36 @@
   color: var(--color-text-muted);
 }
 
-/* ---------- library-card: tarjeta de la biblioteca tocada en el mapa o en la lista ---------- */
+/* ---------- library-card: ficha de la biblioteca tocada en el mapa o en la lista ---------- */
+/* Como la ficha de un lugar en Apple Maps: nombre grande con la dirección debajo y una cruz
+   pequeña gris; una fila de botones tintados; una franja de datos en columnas. */
 .library-card {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: var(--space-4);
 }
 
-/* Nombre y cruz en la misma fila, centrados entre sí. La fila mide lo que el área táctil (44 px):
-   se recoge por abajo para que el hueco hasta la dirección sea igual que entre las demás líneas. */
 .library-card__header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: var(--space-3);
-  margin-block-end: calc(var(--space-3) * -1);
+}
+
+.library-card__heading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
 }
 
 .library-card__name {
-  min-width: 0;
   margin: 0;
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-card-title);
   font-weight: var(--font-weight-bold);
   line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-title);
   overflow-wrap: anywhere;
-}
-
-/* El nombre es el enlace al detalle: la flecha indica que se puede tocar */
-.library-card__link {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  min-height: var(--tap-target);
-  color: var(--color-text);
-  text-decoration: none;
-}
-
-.library-card__link:active {
-  opacity: 0.6;
-}
-
-.library-card__chevron {
-  flex-shrink: 0;
-  width: var(--icon-size);
-  height: var(--icon-size);
-  color: var(--color-accent);
-}
-
-.library-card__close {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--tap-target);
-  height: var(--tap-target);
-  border: 0;
-  border-radius: var(--radius-full);
-  background-color: var(--color-field);
-  color: var(--color-text);
-  cursor: pointer;
-}
-
-.library-card__close:active {
-  transform: scale(var(--press-scale));
-}
-
-.library-card__close-icon {
-  width: var(--icon-size);
-  height: var(--icon-size);
 }
 
 .library-card__address {
@@ -1223,30 +1185,117 @@
   color: var(--color-text-muted);
 }
 
-/* La ocupación es otro bloque: un poco más de aire por encima que entre dirección y horario */
-.library-card__occupancy {
+/* Cruz de Apple Maps: círculo gris claro de 30 px con una X gris. El botón mide 44 px para que
+   sea fácil de tocar; el círculo se dibuja dentro y se pega a la esquina. */
+.library-card__close {
+  position: relative;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--tap-target);
+  height: var(--tap-target);
+  margin: calc(var(--card-close-inset) * -1) calc(var(--card-close-inset) * -1) 0 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.library-card__close::before {
+  content: "";
+  position: absolute;
+  inset: var(--card-close-inset);
+  border-radius: var(--radius-full);
+  background-color: var(--color-field);
+}
+
+.library-card__close:active::before {
+  filter: brightness(0.92);
+}
+
+.library-card__close-icon {
+  position: relative;
+  width: var(--card-close-icon-size);
+  height: var(--card-close-icon-size);
+}
+
+/* Botones de acción: rectángulos redondeados tintados, a partes iguales */
+.library-card__actions {
   display: grid;
-  grid-template-columns: auto 1fr;
-  align-items: baseline;
-  gap: var(--space-1) var(--space-3);
-  margin-block-start: var(--space-2);
+  grid-auto-columns: 1fr;
+  grid-auto-flow: column;
+  gap: var(--space-2);
 }
 
-.library-card__value {
-  font-size: var(--font-size-title);
-  font-weight: var(--font-weight-bold);
-  font-variant-numeric: tabular-nums;
-}
-
-.library-card__status {
+.library-card__action {
+  min-height: var(--tap-target);
+  border-radius: var(--radius-md);
   font-size: var(--font-size-sm);
+}
+
+.library-card__action:active {
+  transform: scale(var(--press-scale));
+}
+
+/* Franja de datos: columnas iguales separadas por una línea fina */
+.library-card__stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin: 0;
+}
+
+.library-card__stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding-inline: var(--space-3);
+  border-inline-start: 1px solid var(--color-border);
+}
+
+.library-card__stat:first-child {
+  padding-inline-start: 0;
+  border-inline-start: 0;
+}
+
+.library-card__stat-label {
+  font-size: var(--font-size-xxs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   color: var(--color-text-muted);
 }
 
-/* display: grid para que la barra (un <span>) tome alto y ancho */
-.library-card__meter {
-  display: grid;
-  grid-column: 1 / -1;
+.library-card__stat-value {
+  margin: 0;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text);
+}
+
+/* El % de ocupación con el color de su nivel; abierta en verde y cerrada en rojo */
+.library-card__stat-value.nivel--bajo,
+.library-card__stat-value.nivel--medio,
+.library-card__stat-value.nivel--alto {
+  color: var(--color-nivel);
+}
+
+.library-card__stat-value--abierta {
+  color: var(--color-success);
+}
+
+.library-card__stat-value--cerrada {
+  color: var(--color-danger);
+}
+
+.library-card__stat-detail {
+  margin: 0;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  overflow-wrap: anywhere;
 }
 
 /* ---------- meter: barra de ocupación (el % llega en la variable --valor desde JS) ---------- */

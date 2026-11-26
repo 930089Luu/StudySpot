@@ -6,15 +6,15 @@
  */
 import {
   CLASE_CERRADA,
+  CLASES_NIVEL,
   crearAnilloOcupacion,
-  crearBarraOcupacion,
   crearElementoSvg,
   getLineaApertura,
   getNivelOcupacion,
   getTextoActualizado,
+  getTextoApertura,
   getTextoFiabilidad,
   isCerrada,
-  pintarApertura,
 } from './ocupacion.js';
 import { ALTURA_PANEL, ajustarPanel } from './panel.js';
 import { crearRutaBiblioteca } from './rutas.js';
@@ -139,17 +139,40 @@ function crearEstrella() {
   return estrella;
 }
 
-function rellenarTarjeta({ id, nombre, direccion, ocupacion, fiabilidad, horario_hoy: horario, estado_apertura: estadoApertura }) {
+/** Ficha de la biblioteca como en Apple Maps: franja HORARIO | OCUPACIÓN | FIABILIDAD. */
+function rellenarTarjeta(biblioteca) {
+  const { id, nombre, direccion, latitud, longitud, ocupacion, fiabilidad } = biblioteca;
+  const { horario_hoy: horario, estado_apertura: estadoApertura, usuarios_activos: activos } = biblioteca;
+  const cerrada = isCerrada(estadoApertura);
   document.getElementById('tarjeta-nombre').textContent = nombre;
   document.getElementById('tarjeta-direccion').textContent = direccion;
-  // Horario de hoy en la tarjeta: para saber si está abierta no hace falta entrar al detalle.
-  pintarApertura(document.getElementById('tarjeta-horario'), horario, estadoApertura);
-  // Cerrada: no hay ocupación que enseñar.
-  document.getElementById('tarjeta-ocupacion').hidden = isCerrada(estadoApertura);
-  document.getElementById('tarjeta-valor').textContent = `${ocupacion} %`;
-  document.getElementById('tarjeta-barra').replaceChildren(crearBarraOcupacion(ocupacion));
-  document.getElementById('tarjeta-estado').textContent = getTextoEstado(ocupacion, fiabilidad);
+  document.getElementById('tarjeta-ruta').href = crearRutaComoLlegar(latitud, longitud, nombre);
   document.getElementById('tarjeta-detalle').href = crearRutaBiblioteca(id);
+  // Horario de hoy: para saber si está abierta no hace falta entrar al detalle.
+  const { estado, detalle } = getTextoApertura(horario, estadoApertura);
+  const valorHorario = document.getElementById('tarjeta-horario');
+  valorHorario.textContent = estado || '—';
+  valorHorario.classList.toggle('library-card__stat-value--abierta', Boolean(estado) && !cerrada);
+  valorHorario.classList.toggle('library-card__stat-value--cerrada', cerrada);
+  document.getElementById('tarjeta-horario-detalle').textContent = detalle;
+  // Cerrada: no hay ocupación que enseñar.
+  const valor = document.getElementById('tarjeta-valor');
+  valor.textContent = cerrada ? '—' : `${ocupacion} %`;
+  valor.classList.remove(...CLASES_NIVEL);
+  if (!cerrada) valor.classList.add(getNivelOcupacion(ocupacion).clase);
+  document.getElementById('tarjeta-estado').textContent = cerrada ? 'Sin gente' : getNivelOcupacion(ocupacion).texto;
+  document.getElementById('tarjeta-fiabilidad').textContent = cerrada ? '—' : getTextoFiabilidad(fiabilidad);
+  document.getElementById('tarjeta-activos').textContent = cerrada ? '' : getTextoActivos(activos);
+}
+
+/** Ruta en Apple Maps (en el iPhone abre la app; en otros, su web) desde donde estés. */
+function crearRutaComoLlegar(latitud, longitud, nombre) {
+  const destino = new URLSearchParams({ daddr: `${latitud},${longitud}`, q: nombre });
+  return `https://maps.apple.com/?${destino}`;
+}
+
+function getTextoActivos(activos) {
+  return activos === 1 ? '1 con la app' : `${activos} con la app`;
 }
 
 function getTextoEstado(ocupacion, fiabilidad) {

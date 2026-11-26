@@ -8,6 +8,7 @@
 
   /* Tipografía: pila de fuentes del sistema */
   --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-size-xxs: 0.6875rem; /* 11 px: títulos en mayúsculas de la ficha, como en Apple Maps */
   --font-size-xs: 0.8125rem; /* 13 px: segunda línea de las listas, como en iOS */
   --font-size-sm: 0.875rem;
   --font-size-base: 1rem; /* 16 px: evita el zoom automático de iOS en los campos */
@@ -69,6 +70,9 @@
   --sheet-mini-height: calc(var(--tap-target) * 2 + var(--space-1) * 2 + var(--space-3) + var(--space-4) + env(safe-area-inset-bottom));
   /* Con la tarjeta de una biblioteca: asa, nombre, dirección y ocupación */
   --sheet-card-height: 17rem;
+  --font-size-card-title: 1.375rem; /* 22 px: nombre en la ficha de la biblioteca */
+  --card-close-inset: 7px; /* 44 px de área táctil − 30 px de círculo, entre 2 */
+  --card-close-icon-size: 14px;
   --sheet-handle-width: 2.5rem;
   --sheet-handle-height: 4px;
   /* Globo de ocupación del mapa: anillo que se rellena según el % (estilo anillos de actividad) */
