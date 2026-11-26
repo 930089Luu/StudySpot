@@ -17,6 +17,9 @@ CREATE TABLE IF NOT EXISTS usuario (
     password_hash      VARCHAR(255) NOT NULL,
     rol                ENUM('student', 'admin') NOT NULL DEFAULT 'student',
     comparte_ubicacion BOOLEAN NOT NULL DEFAULT FALSE,
+    -- Mejora de US03 (22-11): el mapa se abre en esta biblioteca. La clave ajena va más abajo,
+    -- después de crear la tabla biblioteca.
+    biblioteca_favorita_id INT UNSIGNED NULL,
     fecha_registro     DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
     UNIQUE KEY uq_usuario_email (email)
@@ -53,6 +56,11 @@ CREATE TABLE IF NOT EXISTS biblioteca (
     factor_adopcion  DECIMAL(4, 3) NOT NULL DEFAULT 1.000,
     PRIMARY KEY (id)
 ) ENGINE = InnoDB;
+
+-- Biblioteca favorita de cada usuario: si se borra la biblioteca, se queda sin favorita.
+ALTER TABLE usuario
+    ADD FOREIGN KEY IF NOT EXISTS fk_usuario_biblioteca_favorita (biblioteca_favorita_id)
+        REFERENCES biblioteca (id) ON DELETE SET NULL;
 
 -- US02: zonas de cada biblioteca. Cada zona tiene un QR impreso con su token_qr.
 CREATE TABLE IF NOT EXISTS zona (

@@ -3,7 +3,8 @@
  * US03: ocupación actual, nivel y fiabilidad; se pide de nuevo cada 60 s.
  * US05: ocupación típica de cada hora del día elegido (ley de Little, calculada en el servidor).
  */
-import { getBiblioteca, getFranjas } from './api.js';
+import { getBiblioteca, getFranjas, guardarFavorita } from './api.js';
+import { confirmar } from './dialogo.js';
 import { MENSAJE_ERROR_GENERICO, mostrarAlerta } from './formulario.js';
 import { CLASES_NIVEL, getNivelOcupacion, getTextoActualizado, getTextoFiabilidad } from './ocupacion.js';
 import { PARAM_BIBLIOTECA, RUTA_LOGIN } from './rutas.js';
@@ -14,6 +15,8 @@ const INTERVALO_REFRESCO_MS = 60 * 1000;
 const DIAS_POR_SEMANA = 7;
 const TEXTO_SIN_HORARIO = 'Horario no disponible';
 const MENSAJE_NO_ENCONTRADA = 'Esta biblioteca no está disponible.';
+const TEXTO_MARCAR_FAVORITA = 'Marcar como favorita';
+const TEXTO_ES_FAVORITA = 'Favorita';
 const MENSAJE_SIN_CONEXION = 'No se ha podido conectar. Revisa tu conexión e inténtalo de nuevo.';
 
 async function init() {
@@ -22,17 +25,20 @@ async function init() {
     mostrarErrorPagina(MENSAJE_NO_ENCONTRADA);
     return;
   }
-  if (!(await cargarDetalle(bibliotecaId))) return;
+  // favorita: la que tiene ahora el usuario ({id, nombre} o null); nombre: el de esta biblioteca.
+  const estado = { id: Number(bibliotecaId), nombre: '', favorita: null };
+  if (!(await cargarDetalle(bibliotecaId, estado))) return;
 
+  document.getElementById('boton-favorita').addEventListener('click', () => cambiarFavorita(estado));
   document.querySelectorAll('.day-picker__button').forEach((boton) => {
     boton.addEventListener('click', () => cargarFranjas(bibliotecaId, Number(boton.dataset.dia)));
   });
   cargarFranjas(bibliotecaId, getDiaDeHoy());
-  window.setInterval(() => cargarDetalle(bibliotecaId), INTERVALO_REFRESCO_MS);
+  window.setInterval(() => cargarDetalle(bibliotecaId, estado), INTERVALO_REFRESCO_MS);
 }
 
 /** Pide y pinta la ocupación actual. Devuelve false si no se pudo (el error ya se muestra). */
-async function cargarDetalle(bibliotecaId) {
+async function cargarDetalle(bibliotecaId, estado) {
   try {
     const respuesta = await getBiblioteca(bibliotecaId);
     if (respuesta.estado === HTTP_UNAUTHORIZED) {
@@ -43,6 +49,7 @@ async function cargarDetalle(bibliotecaId) {
       mostrarErrorPagina(respuesta.cuerpo.error ?? MENSAJE_ERROR_GENERICO);
       return false;
     }
+    Object.assign(estado, { nombre: respuesta.cuerpo.nombre, favorita: respuesta.cuerpo.favorita });
     mostrarDetalle(respuesta.cuerpo);
     return true;
   } catch (error) {
@@ -60,6 +67,7 @@ function mostrarDetalle(biblioteca) {
   mostrarFoto(biblioteca.foto_url);
   mostrarOcupacion(biblioteca.ocupacion);
   mostrarFiabilidad(biblioteca.fiabilidad, biblioteca.usuarios_activos);
+  marcarFavorita(biblioteca.es_favorita);
   mostrarAlerta(document.getElementById('biblioteca-alerta'), '');
   document.getElementById('biblioteca-cargando').hidden = true;
   document.getElementById('biblioteca').hidden = false;
@@ -98,6 +106,47 @@ function mostrarFiabilidad(fiabilidad, usuariosActivos) {
   const estudiantes = usuariosActivos === 1 ? 'estudiante' : 'estudiantes';
   document.getElementById('fiabilidad-detalle').textContent =
     `Basada en ${usuariosActivos} ${estudiantes} con sesión activa. Con menos de 5, la estimación es poco fiable.`;
+}
+
+/**
+ * Marca esta biblioteca como favorita, o la quita si ya lo era. Solo se puede tener una: si había
+ * otra, antes se avisa de que dejará de serlo.
+ */
+async function cambiarFavorita(estado) {
+  const isMarcar = estado.favorita?.id !== estado.id;
+  if (isMarcar && estado.favorita && !(await confirmarCambioFavorita(estado.favorita.nombre))) return;
+  const boton = document.getElementById('boton-favorita');
+  boton.disabled = true;
+  try {
+    const respuesta = await guardarFavorita(isMarcar ? estado.id : null);
+    if (respuesta.estado === HTTP_UNAUTHORIZED) {
+      window.location.assign(RUTA_LOGIN);
+      return;
+    }
+    if (respuesta.estado !== HTTP_OK) {
+      mostrarAlerta(document.getElementById('biblioteca-alerta'), respuesta.cuerpo.error ?? MENSAJE_ERROR_GENERICO);
+      return;
+    }
+    estado.favorita = isMarcar ? { id: estado.id, nombre: estado.nombre } : null;
+    marcarFavorita(isMarcar);
+  } catch (error) {
+    console.error(error);
+    mostrarAlerta(document.getElementById('biblioteca-alerta'), MENSAJE_SIN_CONEXION);
+  } finally {
+    boton.disabled = false;
+  }
+}
+
+function confirmarCambioFavorita(nombreAnterior) {
+  return confirmar(
+    document.getElementById('dialogo-favorita'),
+    `${nombreAnterior} dejará de ser tu favorita. Solo puedes tener una.`,
+  );
+}
+
+function marcarFavorita(isFavorita) {
+  document.getElementById('boton-favorita').setAttribute('aria-pressed', String(isFavorita));
+  document.getElementById('boton-favorita-texto').textContent = isFavorita ? TEXTO_ES_FAVORITA : TEXTO_MARCAR_FAVORITA;
 }
 
 /** Pide y pinta la ocupación típica de cada hora del día elegido (US05). */

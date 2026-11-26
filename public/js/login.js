@@ -15,8 +15,10 @@ import {
   AVISO_SESION_CERRADA,
   PARAM_AVISO,
   PARAM_PUNTOS,
+  RUTA_BIENVENIDA,
   RUTA_INICIO,
 } from './rutas.js';
+import { isBienvenidaVista } from './primera-vez.js';
 
 const HTTP_OK = 200;
 const MENSAJES_AVISO = {
@@ -26,6 +28,13 @@ const MENSAJES_AVISO = {
 };
 
 function init() {
+  // La primera vez, antes del login, Sito enseña cómo funciona la app. Si se llega con un aviso
+  // (cuenta creada, sesión cerrada…), ya se conoce la app: no se desvía.
+  const hasAviso = new URL(window.location.href).searchParams.has(PARAM_AVISO);
+  if (!isBienvenidaVista() && !hasAviso) {
+    window.location.replace(RUTA_BIENVENIDA);
+    return;
+  }
   const formulario = document.getElementById('form-login');
   mostrarAvisoDeUrl();
   activarValidacionEnVivo(formulario);

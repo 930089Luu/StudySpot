@@ -8,7 +8,13 @@ declare(strict_types=1);
 // Correo institucional: se acepta el dominio exacto o cualquier subdominio.
 const ALLOWED_EMAIL_DOMAINS = [
     'unizar.es', 'ucm.es', 'upm.es', 'uam.es', 'uc3m.es', 'ub.edu',
-    'uv.es', 'upv.es', 'us.es', 'ugr.es', 'usal.es',
+    'uv.es', 'upv.es', 'us.es', 'ugr.es', 'usal.es', 'uca.es',
+    'uniovi.es', 'um.es', 'uma.es', 'ua.es', 'uva.es', 'uvigo.es',
+    'usc.es', 'ulpgc.es', 'ull.edu.es', 'unican.es', 'unex.es', 'uclm.es',
+    'uco.es', 'ujaen.es', 'ual.es', 'uhu.es', 'ubu.es', 'unileon.es',
+    'uji.es', 'uib.es', 'upo.es', 'urjc.es', 'uah.es', 'umh.es',
+    'udc.es', 'uned.es', 'unirioja.es', 'unavarra.es', 'upct.es', 'ehu.eus',
+    'uab.cat', 'udg.edu', 'udl.cat', 'urv.cat', 'upc.edu', 'upf.edu', 'islagaia.pt',
 ];
 
 const EMAIL_MAX_LENGTH = 254;
@@ -37,6 +43,11 @@ const RADIO_TIERRA_METROS = 6371000;
 // Puntos (US04): 1 punto por cada 15 minutos completos, como máximo 16 (= 4 h).
 const MINUTOS_POR_PUNTO = 15;
 const MAX_PUNTOS_SESION = 16;
+
+// Ranking semanal y objetivo compartido (US07): puntos que suma el grupo (tú y tus amigos) cada semana.
+const OBJETIVO_SEMANAL_PUNTOS = 40;
+// Tope del porcentaje del objetivo compartido.
+const OBJETIVO_MAX_PORCENTAJE = 100;
 
 // Ocupación (US03): % = (sesiones activas ÷ factor_adopcion) ÷ capacidad_maxima. Recuento directo, sin Little.
 // Fiabilidad según los usuarios activos en la biblioteca: baja < 5 · media 5–14 · alta ≥ 15.
