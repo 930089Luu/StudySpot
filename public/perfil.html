@@ -3,53 +3,83 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#121316" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
   <title>Perfil · StudySpot</title>
   <link rel="icon" href="img/studyspot-simbolo-color.png" type="image/png">
+  <script src="js/tema-inicial.js"></script>
   <link rel="stylesheet" href="css/tokens.css">
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/ios.css">
   <script type="module" src="js/perfil.js"></script>
 </head>
-<body class="page">
+<body class="page ios">
   <!--
-    Wireframe 6 (perfil): cabecera, puntos totales y acceso a amigos (US06).
-    El objetivo semanal y el ranking son de US07 (Sprint 3).
+    Perfil (wireframe 6, US04): tu ficha, tus puntos, amigos y grupos, y la tuerca de Ajustes.
+    Estilo iOS (26-11). Los id son los de siempre: los rellena perfil.js.
   -->
-  <main class="auth auth--start">
-    <nav aria-label="Navegación">
-      <a class="back-link" href="inicio.html" aria-label="Volver al inicio">
+  <main class="ios-screen">
+    <nav class="ios-nav" aria-label="Navegación">
+      <a class="back-link" href="inicio.html">
         <svg class="back-link__icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
           <path d="M12.5 4 6.5 10l6 6" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
+        <span>Mapa</span>
+      </a>
+      <span></span>
+      <a class="ios-nav__action" href="ajustes.html" aria-label="Ajustes">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4z" fill="none" stroke="currentColor" stroke-width="1.8"/>
+          <path d="M19.4 13.5a7.6 7.6 0 0 0 0-3l2-1.6-2-3.4-2.4 1a7.8 7.8 0 0 0-2.6-1.5L14 2.5h-4l-.4 2.5A7.8 7.8 0 0 0 7 6.5l-2.4-1-2 3.4 2 1.6a7.6 7.6 0 0 0 0 3l-2 1.6 2 3.4 2.4-1a7.8 7.8 0 0 0 2.6 1.5l.4 2.5h4l.4-2.5a7.8 7.8 0 0 0 2.6-1.5l2.4 1 2-3.4z"
+                fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+        </svg>
       </a>
     </nav>
 
-    <p class="state__text" id="perfil-cargando" role="status">Cargando…</p>
+    <p class="ios-section__footer" id="perfil-cargando" role="status">Cargando…</p>
     <p class="alert alert--error" id="perfil-alerta" role="alert" hidden></p>
 
-    <section class="profile" id="perfil" aria-labelledby="perfil-nombre" hidden>
-      <header class="profile__header">
-        <span class="avatar" id="perfil-iniciales" aria-hidden="true"></span>
-        <div>
-          <h1 class="profile__name" id="perfil-nombre"></h1>
-          <p class="profile__email" id="perfil-email"></p>
-        </div>
+    <section class="ios-screen__panel" id="perfil" aria-labelledby="perfil-nombre" hidden>
+      <header class="ios-contact">
+        <span class="ios-contact__avatar" id="perfil-iniciales" aria-hidden="true"></span>
+        <h1 class="ios-contact__name" id="perfil-nombre"></h1>
+        <p class="ios-contact__subtitle" id="perfil-email"></p>
       </header>
 
-      <div class="points-card">
-        <p class="points-card__value" id="perfil-puntos"></p>
-        <p class="points-card__label">Puntos totales</p>
+      <div class="ios-section">
+        <div class="ios-list">
+          <div class="ios-row">
+            <span class="ios-row__label">Puntos totales</span>
+            <span class="ios-row__body"></span>
+            <span class="ios-row__value" id="perfil-puntos"></span>
+          </div>
+        </div>
+        <p class="ios-section__footer">Ganas puntos al terminar cada sesión de estudio: 1 punto cada 15 minutos.</p>
       </div>
 
-      <p class="state__text">Ganas puntos al terminar cada sesión de estudio.</p>
+      <div class="ios-list">
+        <a class="ios-row" href="social.html">
+          <span class="ios-row__body"><span class="ios-row__title">Amigos y grupos</span></span>
+          <svg class="ios-row__chevron" viewBox="0 0 8.5 14" aria-hidden="true">
+            <path d="M1.5 1.5 7 7l-5.5 5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+        <a class="ios-row" href="ajustes.html">
+          <span class="ios-row__body"><span class="ios-row__title">Ajustes</span></span>
+          <svg class="ios-row__chevron" viewBox="0 0 8.5 14" aria-hidden="true">
+            <path d="M1.5 1.5 7 7l-5.5 5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+      </div>
 
-      <a class="button button--secondary" href="social.html">Amigos y grupos</a>
-
-      <p class="alert alert--error" id="cerrar-sesion-alerta" role="alert" hidden></p>
-      <button class="button button--secondary" id="boton-cerrar-sesion" type="button">Cerrar sesión</button>
+      <div class="ios-section">
+        <div class="ios-list">
+          <button class="ios-row ios-row--action ios-row--destructive" id="boton-cerrar-sesion" type="button">Cerrar sesión</button>
+        </div>
+        <p class="alert alert--error" id="cerrar-sesion-alerta" role="alert" hidden></p>
+      </div>
     </section>
   </main>
 </body>

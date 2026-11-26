@@ -176,3 +176,13 @@ export function getGrupo(grupoId) {
 export function accionGrupo(accion, datos = {}) {
   return postJson('grupos.php', { accion, ...datos });
 }
+
+/** Tu cuenta para Ajustes: { nombre, email, idioma, es_admin, admin_confirmado }. */
+export function getCuenta() {
+  return getJson('cuenta.php');
+}
+
+/** Acción de Ajustes: nombre, idioma, password, admin o eliminar (ver api/cuenta.php). */
+export function accionCuenta(accion, datos = {}) {
+  return postJson('cuenta.php', { accion, ...datos });
+}
