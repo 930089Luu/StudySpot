@@ -7,98 +7,105 @@
   <meta name="theme-color" content="#121316" media="(prefers-color-scheme: dark)">
   <title>Horarios · StudySpot</title>
   <link rel="icon" href="img/studyspot-simbolo-color.png" type="image/png">
+  <script src="js/tema-inicial.js"></script>
   <link rel="stylesheet" href="css/tokens.css">
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/ios.css">
   <script type="module" src="js/admin.js"></script>
 </head>
-<body class="page">
+<body class="page ios">
   <!--
     Wireframe 9 (administración de horarios) (US08).
     Solo para administradores: el servidor comprueba el rol en cada petición.
   -->
-  <main class="auth auth--start">
-    <nav aria-label="Navegación">
-      <a class="back-link" href="inicio.html" aria-label="Volver al inicio">
+  <main class="ios-screen admin">
+    <nav class="ios-nav" aria-label="Navegación">
+      <a class="back-link" href="ajustes.html">
         <svg class="back-link__icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
           <path d="M12.5 4 6.5 10l6 6" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
+        <span>Ajustes</span>
       </a>
     </nav>
 
-    <h1 class="auth__title auth__title--small">Horarios</h1>
+    <h1 class="ios-large-title">Horarios</h1>
 
-    <p class="state__text" id="admin-cargando" role="status">Cargando…</p>
+    <p class="ios-section__footer" id="admin-cargando" role="status">Cargando…</p>
     <p class="alert alert--error" id="admin-alerta" role="alert" hidden></p>
 
-    <div class="section" id="admin-contenido" hidden>
-      <div class="field">
-        <label class="field__label" for="select-biblioteca">Biblioteca</label>
-        <select class="field__input" id="select-biblioteca"></select>
+    <div class="ios-screen__panel" id="admin-contenido" hidden>
+      <div class="ios-list">
+        <label class="ios-row">
+          <span class="ios-row__label">Biblioteca</span>
+          <select class="ios-row__select" id="select-biblioteca"></select>
+        </label>
       </div>
 
-      <section class="section" aria-labelledby="titulo-semana">
-        <h2 class="section__title" id="titulo-semana">Horario semanal</h2>
+      <section class="ios-section" aria-labelledby="titulo-semana">
+        <h2 class="ios-section__header" id="titulo-semana">Horario semanal</h2>
         <form class="form" id="form-semana" novalidate>
+          <p class="ios-section__footer">Horas en la hora local de la biblioteca. Marca "Cerrado" los días que no abre.</p>
           <div class="schedule">
             <div class="schedule__row">
-              <span class="schedule__day">Lunes</span>
+              <span class="schedule__day"><span aria-hidden="true">Lun</span><span class="visually-hidden">Lunes</span></span>
               <label class="schedule__closed"><input type="checkbox" name="cerrado-1"> Cerrado</label>
               <input class="field__input schedule__time" type="time" name="apertura-1" aria-label="Apertura del lunes">
               <input class="field__input schedule__time" type="time" name="cierre-1" aria-label="Cierre del lunes">
             </div>
             <div class="schedule__row">
-              <span class="schedule__day">Martes</span>
+              <span class="schedule__day"><span aria-hidden="true">Mar</span><span class="visually-hidden">Martes</span></span>
               <label class="schedule__closed"><input type="checkbox" name="cerrado-2"> Cerrado</label>
               <input class="field__input schedule__time" type="time" name="apertura-2" aria-label="Apertura del martes">
               <input class="field__input schedule__time" type="time" name="cierre-2" aria-label="Cierre del martes">
             </div>
             <div class="schedule__row">
-              <span class="schedule__day">Miércoles</span>
+              <span class="schedule__day"><span aria-hidden="true">Mié</span><span class="visually-hidden">Miércoles</span></span>
               <label class="schedule__closed"><input type="checkbox" name="cerrado-3"> Cerrado</label>
               <input class="field__input schedule__time" type="time" name="apertura-3" aria-label="Apertura del miércoles">
               <input class="field__input schedule__time" type="time" name="cierre-3" aria-label="Cierre del miércoles">
             </div>
             <div class="schedule__row">
-              <span class="schedule__day">Jueves</span>
+              <span class="schedule__day"><span aria-hidden="true">Jue</span><span class="visually-hidden">Jueves</span></span>
               <label class="schedule__closed"><input type="checkbox" name="cerrado-4"> Cerrado</label>
               <input class="field__input schedule__time" type="time" name="apertura-4" aria-label="Apertura del jueves">
               <input class="field__input schedule__time" type="time" name="cierre-4" aria-label="Cierre del jueves">
             </div>
             <div class="schedule__row">
-              <span class="schedule__day">Viernes</span>
+              <span class="schedule__day"><span aria-hidden="true">Vie</span><span class="visually-hidden">Viernes</span></span>
               <label class="schedule__closed"><input type="checkbox" name="cerrado-5"> Cerrado</label>
               <input class="field__input schedule__time" type="time" name="apertura-5" aria-label="Apertura del viernes">
               <input class="field__input schedule__time" type="time" name="cierre-5" aria-label="Cierre del viernes">
             </div>
             <div class="schedule__row">
-              <span class="schedule__day">Sábado</span>
+              <span class="schedule__day"><span aria-hidden="true">Sáb</span><span class="visually-hidden">Sábado</span></span>
               <label class="schedule__closed"><input type="checkbox" name="cerrado-6"> Cerrado</label>
               <input class="field__input schedule__time" type="time" name="apertura-6" aria-label="Apertura del sábado">
               <input class="field__input schedule__time" type="time" name="cierre-6" aria-label="Cierre del sábado">
             </div>
             <div class="schedule__row">
-              <span class="schedule__day">Domingo</span>
+              <span class="schedule__day"><span aria-hidden="true">Dom</span><span class="visually-hidden">Domingo</span></span>
               <label class="schedule__closed"><input type="checkbox" name="cerrado-7"> Cerrado</label>
               <input class="field__input schedule__time" type="time" name="apertura-7" aria-label="Apertura del domingo">
               <input class="field__input schedule__time" type="time" name="cierre-7" aria-label="Cierre del domingo">
             </div>
           </div>
           <p class="alert alert--error" role="alert" hidden></p>
-          <button class="button button--primary form__submit" type="submit">Guardar horario semanal</button>
+          <button class="button button--primary button--ios form__submit" type="submit">Guardar horario semanal</button>
         </form>
         <p class="alert alert--success" id="semana-exito" role="status" hidden></p>
       </section>
 
-      <section class="section" aria-labelledby="titulo-especiales">
-        <h2 class="section__title" id="titulo-especiales">Periodos especiales</h2>
+      <section class="ios-section" aria-labelledby="titulo-especiales">
+        <h2 class="ios-section__header" id="titulo-especiales">Periodos especiales</h2>
         <ul class="friend-list" id="especiales-lista"></ul>
-        <p class="state__text" id="especiales-vacios" hidden>No hay periodos especiales para esta biblioteca.</p>
+        <p class="ios-section__footer" id="especiales-vacios" hidden>No hay periodos especiales para esta biblioteca.</p>
 
-        <h3 class="section__subtitle">Añadir periodo</h3>
+        <h3 class="ios-section__header">Añadir periodo</h3>
         <!-- El aviso de error va dentro del formulario: enviarFormulario lo busca ahí. -->
         <form class="form" id="form-especial" novalidate>
+          <div class="ios-group">
           <div class="field">
             <label class="field__label" for="fecha_inicio">Desde</label>
             <input class="field__input" id="fecha_inicio" name="fecha_inicio" type="date" required>
@@ -115,19 +122,20 @@
                    placeholder="Exámenes, Navidad…">
             <p class="field__error" id="descripcion-error"></p>
           </div>
-          <label class="schedule__closed"><input type="checkbox" name="cerrado" id="cerrado"> Cerrada todo el periodo</label>
+          <label class="field ios-check"><span class="field__label">Cerrada todo el periodo</span><input type="checkbox" name="cerrado" id="cerrado"></label>
           <div class="field">
-            <label class="field__label" for="apertura">Apertura (si no está cerrada)</label>
+            <label class="field__label" for="apertura">Apertura</label>
             <input class="field__input" id="apertura" name="apertura" type="time">
             <p class="field__error" id="apertura-error"></p>
           </div>
           <div class="field">
-            <label class="field__label" for="cierre">Cierre (si no está cerrada)</label>
+            <label class="field__label" for="cierre">Cierre</label>
             <input class="field__input" id="cierre" name="cierre" type="time">
             <p class="field__error" id="cierre-error"></p>
           </div>
+          </div>
           <p class="alert alert--error" role="alert" hidden></p>
-          <button class="button button--primary form__submit" type="submit">Añadir periodo</button>
+          <button class="button button--primary button--ios form__submit" type="submit">Añadir periodo</button>
         </form>
         <p class="alert alert--success" id="especial-exito" role="status" hidden></p>
       </section>

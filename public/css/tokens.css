@@ -162,7 +162,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-tema="claro"]) {
     --color-bg: #121316;
     --color-page: #000000;
     --color-field: #1d1f24;
@@ -188,4 +188,42 @@
 
     --shadow-card: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 32px rgb(0 0 0 / 0.35);
   }
+}
+
+/* Apariencia "Oscura" elegida en Ajustes, aunque el sistema esté en claro */
+:root[data-tema="oscuro"] {
+  --color-bg: #121316;
+  --color-page: #000000;
+  --color-field: #1d1f24;
+  --color-text: #f2f3f5;
+  --color-text-muted: #a3a8b3;
+  --color-border: #3a3d45;
+  /* Versión clara del azul de marca: el #3d3bf3 no tiene contraste suficiente sobre fondo oscuro */
+  --color-accent: #8b8aff;
+  --color-accent-pressed: #7472f5;
+  --color-accent-text: #a3a2ff;
+  --color-on-accent: #0c0b2e;
+  --color-focus: rgb(139 138 255 / 0.55);
+  --color-danger: #ff8a80;
+  --color-danger-surface: #3a1714;
+  --color-success: #6fd69a;
+  --color-success-surface: #12301f;
+  --color-accent-surface: #23224a;
+  --color-sheet: rgb(28 28 34 / 0.8);
+  --color-mascot-halo: rgb(139 138 255 / 0.35);
+  --color-button-neutral: #ffffff;
+  --color-button-neutral-text: #121316;
+  --color-backdrop: rgb(0 0 0 / 0.55);
+
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 32px rgb(0 0 0 / 0.35);
+}
+
+/* Apariencia elegida en Ajustes (data-tema en <html>, js/preferencias.js): los controles nativos
+   del navegador (barras de desplazamiento, selectores de fecha…) siguen también ese tema. */
+:root[data-tema="claro"] {
+  color-scheme: light;
+}
+
+:root[data-tema="oscuro"] {
+  color-scheme: dark;
 }

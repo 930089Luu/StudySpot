@@ -30,7 +30,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-tema="claro"]) {
     --ios-bg: #000000;
     --ios-cell: #1c1c1e;
     --ios-separator: rgb(84 84 88 / 0.65);
@@ -41,6 +41,19 @@
     --ios-chevron: rgb(235 235 245 / 0.3);
     --ios-switch-off: rgb(120 120 128 / 0.32);
   }
+}
+
+/* Apariencia "Oscura" elegida en Ajustes, aunque el sistema esté en claro */
+:root[data-tema="oscuro"] {
+  --ios-bg: #000000;
+  --ios-cell: #1c1c1e;
+  --ios-separator: rgb(84 84 88 / 0.65);
+  --ios-label-secondary: rgb(235 235 245 / 0.6);
+  --ios-segmented-bg: rgb(118 118 128 / 0.24);
+  --ios-segmented-thumb: #636366;
+  --ios-row-pressed: #3a3a3c;
+  --ios-chevron: rgb(235 235 245 / 0.3);
+  --ios-switch-off: rgb(120 120 128 / 0.32);
 }
 
 /* ---------- pantalla ---------- */
@@ -1032,22 +1045,40 @@ button.ios-row {
 }
 
 @media (prefers-color-scheme: dark) {
-  .ios-alert {
+  :root:not([data-tema="claro"]) .ios-alert {
     --ios-alert-bg: rgb(30 30 30 / 0.92);
   }
 
-  .ios-alert__buttons,
-  .ios-alert__button + .ios-alert__button {
+  :root:not([data-tema="claro"]) .ios-alert__buttons,
+  :root:not([data-tema="claro"]) .ios-alert__button + .ios-alert__button {
     border-color: rgb(84 84 88 / 0.65);
   }
 
-  .ios-alert__button {
+  :root:not([data-tema="claro"]) .ios-alert__button {
     color: #0a84ff;
   }
 
-  .ios-alert__button--destructiva {
+  :root:not([data-tema="claro"]) .ios-alert__button--destructiva {
     color: #ff453a;
   }
+}
+
+/* Apariencia "Oscura" elegida en Ajustes, aunque el sistema esté en claro */
+:root[data-tema="oscuro"] .ios-alert {
+  --ios-alert-bg: rgb(30 30 30 / 0.92);
+}
+
+:root[data-tema="oscuro"] .ios-alert__buttons,
+:root[data-tema="oscuro"] .ios-alert__button + .ios-alert__button {
+  border-color: rgb(84 84 88 / 0.65);
+}
+
+:root[data-tema="oscuro"] .ios-alert__button {
+  color: #0a84ff;
+}
+
+:root[data-tema="oscuro"] .ios-alert__button--destructiva {
+  color: #ff453a;
 }
 
 /* ---------- ficha de una persona (como Contactos): avatar grande centrado y su nombre ---------- */
@@ -1095,4 +1126,176 @@ button.ios-row {
 
 .ios .switch__input:checked::before {
   transform: translateX(20px);
+}
+
+/* ---------- Ajustes ---------- */
+/* Tu cuenta arriba, como la tarjeta del Apple ID */
+.ios-account {
+  gap: var(--space-4);
+  padding-block: 12px;
+}
+
+.ios-account__avatar {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(180deg, #a5abb6, #858994);
+  color: #ffffff;
+  font-size: 1.5rem;
+  font-weight: var(--font-weight-semibold);
+}
+
+.ios-account__name {
+  font-size: var(--ios-title-2);
+  font-weight: var(--font-weight-semibold);
+  overflow-wrap: anywhere;
+}
+
+/* Valor largo (el correo): se corta con … en vez de empujar la fila */
+.ios-row__value--truncate {
+  min-width: 0;
+  max-width: 65%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ✓ de la opción elegida (idioma, apariencia) */
+.ios-row__check {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  color: var(--color-accent-text);
+}
+
+.ios-sheet__bar-button--destructive {
+  color: var(--color-danger);
+}
+
+/* ---------- información legal: texto largo legible, en tarjetas ---------- */
+.legal__aviso {
+  padding-inline: var(--ios-row-padding-inline);
+  font-size: var(--ios-footnote);
+  color: var(--ios-label-secondary);
+}
+
+.legal__texto {
+  scroll-margin-top: var(--space-4);
+  padding: var(--space-4) var(--ios-row-padding-inline);
+  border-radius: var(--ios-radius);
+  background-color: var(--ios-cell);
+  font-size: var(--ios-subheadline);
+  line-height: 1.5;
+}
+
+.legal__texto h2 {
+  margin: 0 0 var(--space-2);
+  font-size: var(--ios-title-2);
+}
+
+.legal__texto h3 {
+  margin: var(--space-4) 0 var(--space-1);
+  font-size: var(--ios-body);
+}
+
+.legal__texto p,
+.legal__texto ul {
+  margin: 0 0 var(--space-2);
+}
+
+.legal__texto ul {
+  padding-inline-start: 1.2rem;
+}
+
+.legal__texto li + li {
+  margin-block-start: var(--space-1);
+}
+
+/* ---------- administración de horarios (admin.html) ---------- */
+.ios-row__select {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ios-label-secondary);
+  font-size: var(--ios-body);
+  text-align: end;
+  text-align-last: end;
+}
+
+.admin .schedule {
+  display: block;
+  overflow: hidden;
+  border-radius: var(--ios-radius);
+  background-color: var(--ios-cell);
+}
+
+.admin .schedule__row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 2.6rem 1fr 1fr auto;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--ios-row-min-height);
+  padding: 6px var(--ios-row-padding-inline);
+  border: 0;
+}
+
+.admin .schedule__row + .schedule__row::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto var(--ios-row-padding-inline);
+  height: 0.5px;
+  background-color: var(--ios-separator);
+}
+
+.admin .schedule__day {
+  font-size: var(--ios-body);
+  font-weight: var(--font-weight-regular);
+}
+
+/* Orden visual: día · apertura – cierre · Cerrado */
+.admin .schedule__closed {
+  order: 5;
+  font-size: var(--ios-footnote);
+  color: var(--ios-label-secondary);
+}
+
+.admin .schedule__time {
+  min-width: 0;
+  min-height: 34px;
+  padding: 0 6px;
+  border: 0;
+  border-radius: 8px;
+  background-color: var(--ios-segmented-bg);
+  font-size: var(--ios-subheadline);
+  font-variant-numeric: tabular-nums;
+}
+
+.admin .schedule__time:disabled {
+  opacity: 0.35;
+}
+
+.admin .friend-list:empty + .ios-section__footer {
+  margin-block-start: 0;
+}
+
+/* Casilla dentro de una lista agrupada (Cerrada todo el periodo) */
+.ios-group .ios-check {
+  cursor: pointer;
+}
+
+.ios-group .ios-check input {
+  justify-self: end;
+  width: 20px;
+  height: 20px;
+  accent-color: var(--color-accent);
+}
+
+.ios-group .field.ios-check {
+  grid-template-columns: 1fr auto;
 }
