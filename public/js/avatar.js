@@ -126,14 +126,15 @@ export function dibujarAvatar(a, viewBox = null) {
     clothesColor: [COLORES_ROPA[a.colorRopa]],
   }).toString();
   const delante = pelo.delante && !tapado ? PELO_DELANTE[pelo.delante](color) : '';
-  const extras = delante + mejillas(id, barba) + pecas(a.pecas) + pendientes(a.pendientes) + gafas(a.gafas) + gorro(a.gorro, COLORES_PELO[a.colorPelo]) + volumen(id);
+  const extras = delante + (a.genero === 1 ? '' : mejillas(id, barba)) + pecas(a.pecas) + pendientes(a.pendientes) + gafas(a.gafas) + gorro(a.gorro, COLORES_PELO[a.colorPelo]) + volumen(id);
   // Lo de detrás de la cabeza va justo después del fondo
   const detras = pelo.detras ? PELO_DETRAS[pelo.detras](color) : '';
-  const svg = ojos3d(base, id, COLORES_OJOS[a.colorOjos])
+  const cara = a.genero === 1 ? caraDeChico(base, id, COLORES_PELO[a.colorPelo]) : base;
+  const svg = ojos3d(cara, id, COLORES_OJOS[a.colorOjos], a.genero === 1)
     .replace(/(<rect fill="#[0-9a-f]{6}" width="768" height="768" x="0" y="0" \/>)/, `$1${detras}`)
     .replace('<svg ', '<svg class="avatar-svg" aria-hidden="true" focusable="false" ')
     .replace(/<\/svg>\s*$/, `${extras}</svg>`);
-  const conVolumen = cabeza3d(svg, id, PIELES[a.piel], COLORES_PELO[a.colorPelo], COLORES_ROPA[a.colorRopa]);
+  const conVolumen = cabeza3d(svg, id, PIELES[a.piel], COLORES_PELO[a.colorPelo], COLORES_ROPA[a.colorRopa], a.genero === 1);
   return viewBox ? conVolumen.replace(/viewBox="[^"]*"/, `viewBox="${viewBox}"`) : conVolumen;
 }
 
@@ -277,7 +278,7 @@ function gorro(tipo, colorPelo) {
  * (cabeza, orejas, cuello, mechones) se sombrea por separado. Los contornos negros pasan a ser
  * finos y del tono de la piel, para que parezca un objeto y no un dibujo.
  */
-function cabeza3d(svg, id, piel, pelo, ropa) {
+function cabeza3d(svg, id, piel, pelo, ropa, chico) {
   const esfera = (nombre, color, luz, sombra) => `<radialGradient id="${id}-${nombre}" cx="42%" cy="34%" r="72%" fx="38%" fy="28%">
       <stop offset="0" stop-color="${mezclar(color, 'ffffff', luz)}"/>
       <stop offset="0.55" stop-color="#${color}"/>
@@ -285,7 +286,7 @@ function cabeza3d(svg, id, piel, pelo, ropa) {
     </radialGradient>`;
   // Gorros, auriculares y cinta (colores de las piezas propias), también con volumen
   const accesorios = ['3d3bf3', '2321b5', 'e8505b', 'c43c47', 'f2f3f7', 'f5f5f5', 'e86aa6'];
-  const defs = `<defs>${esfera('piel', piel, 0.22, 0.28)}${esfera('pelo', pelo, 0.3, 0.42)}${esfera('ropa', ropa, 0.2, 0.35)}${
+  const defs = `<defs>${esfera('piel', piel, chico ? 0.16 : 0.22, chico ? 0.36 : 0.28)}${esfera('pelo', pelo, 0.3, 0.42)}${esfera('ropa', ropa, 0.2, 0.35)}${
     accesorios.map((color) => esfera(color, color, 0.3, 0.3)).join('')}</defs>`;
   const conAccesorios = accesorios.reduce((texto, color) => texto.replaceAll(`fill="#${color}"`, `fill="url(#${id}-${color})"`), svg);
   const borde = mezclar(piel, '000000', 0.6);
@@ -295,6 +296,19 @@ function cabeza3d(svg, id, piel, pelo, ropa) {
     .replaceAll(`fill="#${ropa}"`, `fill="url(#${id}-ropa)"`)
     .replaceAll('stroke="black"', `stroke="${borde}" stroke-opacity="0.7"`)
     .replace(/<\/svg>\s*$/, `${defs}</svg>`);
+}
+
+/**
+ * Cara de chico: cejas más gruesas y, en vez de pestañas con rabillo, una línea de párpado lisa
+ * (la dibuja ojos3d). Las cejas son el único grupo con el color del pelo.
+ */
+function caraDeChico(svg, id, pelo) {
+  return svg
+    .replace(new RegExp(`<g fill="#${pelo}"><path d="([^"]*)"/><path d="[^"]*" stroke="black"/></g>`),
+      (_, d) => `<path d="${d}" fill="#${pelo}" stroke="#${pelo}" stroke-width="9" stroke-linejoin="round"/>`
+)
+    // Pestañas de los ojos abiertos (empiezan en x 266 o 500); ojos3d dibuja el párpado
+    .replace(/<path d="[mM](?:266\.5|500\.\d+)[^"]*" fill="#4B2422"\/>/g, '');
 }
 
 /** Mezcla dos colores hex (t = 0 → el primero, 1 → el segundo). */
@@ -309,15 +323,19 @@ function mezclar(a, b, t) {
  * elegido con degradado y aro, la pupila, la sombra del párpado y dos brillos. Sustituye el iris
  * plano de Toon Head (círculo de radio 27); los ojos cerrados se quedan como están.
  */
-function ojos3d(svg, id, color) {
-  const ojo = (x, y) => {
+function ojos3d(svg, id, color, parpado = false) {
+  const ojo = (x, y, lado) => {
     const cx = Number(x);
     const cy = Number(y);
+    // lado: -1 ojo izquierdo, 1 derecho (el rabillo exterior queda hacia fuera)
+    const linea = parpado
+      ? `<path d="M${cx + lado * 31} ${cy - 9} Q${cx + lado * 4} ${cy - 38} ${cx - lado * 31} ${cy - 21}" fill="none" stroke="#4B2422" stroke-width="9" stroke-linecap="round"/>`
+      : '';
     return `<circle cx="${cx}" cy="${cy}" r="27" fill="url(#${id}-iris)" stroke="${mezclar(color, '000000', 0.55)}" stroke-width="2.5"/>
       <circle cx="${cx}" cy="${cy + 1}" r="12.5" fill="#120d0d"/>
       <circle cx="${cx}" cy="${cy}" r="27" fill="url(#${id}-parpado)"/>
       <ellipse cx="${cx - 9}" cy="${cy - 10}" rx="9" ry="8" fill="#ffffff"/>
-      <circle cx="${cx + 10}" cy="${cy + 10}" r="4" fill="#ffffff" fill-opacity="0.85"/>`;
+      <circle cx="${cx + 10}" cy="${cy + 10}" r="4" fill="#ffffff" fill-opacity="0.85"/>${linea}`;
   };
   const defs = `<defs>
     <radialGradient id="${id}-iris" cx="50%" cy="68%" r="62%"><stop offset="0" stop-color="${mezclar(color, 'ffffff', 0.45)}"/><stop offset="0.55" stop-color="#${color}"/><stop offset="1" stop-color="${mezclar(color, '000000', 0.4)}"/></radialGradient>
@@ -326,9 +344,9 @@ function ojos3d(svg, id, color) {
   </defs>`;
   return svg
     .replace(/fill="#F6F1E4"/g, `fill="url(#${id}-blanco)"`)
-    .replace(/<circle cx="([\d.]+)" cy="([\d.]+)" r="27" fill="#4B2422"\/>/g, (_, x, y) => ojo(x, y))
+    .replace(/<circle cx="([\d.]+)" cy="([\d.]+)" r="27" fill="#4B2422"\/>/g, (_, x, y) => ojo(x, y, -1))
     .replace(/<circle cx="27" cy="27" r="27" transform="matrix\(-1 0 0 1 ([\d.]+) ([\d.]+)\)" fill="#4B2422"\/>/g,
-      (_, x, y) => ojo(Number(x) - 27, Number(y) + 27))
+      (_, x, y) => ojo(Number(x) - 27, Number(y) + 27, 1))
     .replace(/<\/svg>\s*$/, `${defs}</svg>`);
 }
 
