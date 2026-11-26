@@ -157,7 +157,22 @@ export function guardarPeriodoEspecial(bibliotecaId, periodo) {
 export function borrarPeriodoEspecial(bibliotecaId, especialId) {
   return postJson('horarios.php', { biblioteca: bibliotecaId, accion: 'borrar_especial', especial_id: especialId });
 }
-/** Ranking semanal entre tú y tus amigos, y progreso del objetivo compartido. */
-export function getRanking() {
-  return getJson('ranking.php');
+/** Ranking semanal de un grupo y progreso de su objetivo compartido. */
+export function getRanking(grupoId) {
+  return getJson(`ranking.php?grupo=${encodeURIComponent(grupoId)}`);
+}
+
+/** Tus grupos del ranking y las invitaciones que tienes sin responder. */
+export function getGrupos() {
+  return getJson('grupos.php');
+}
+
+/** Un grupo: nombre, objetivo, si eres admin y quién está (o está invitado). */
+export function getGrupo(grupoId) {
+  return getJson(`grupos.php?grupo=${encodeURIComponent(grupoId)}`);
+}
+
+/** Acción sobre un grupo: crear, invitar, aceptar, rechazar, editar, quitar, hacer_admin, quitar_admin o salir. */
+export function accionGrupo(accion, datos = {}) {
+  return postJson('grupos.php', { accion, ...datos });
 }

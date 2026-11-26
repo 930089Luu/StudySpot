@@ -2,49 +2,12 @@
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#121316" media="(prefers-color-scheme: dark)">
-  <title>Ranking · StudySpot</title>
-  <link rel="icon" href="img/studyspot-simbolo-color.png" type="image/png">
-  <link rel="stylesheet" href="css/tokens.css">
-  <link rel="stylesheet" href="css/base.css">
-  <link rel="stylesheet" href="css/components.css">
-  <script type="module" src="js/ranking.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- El ranking ahora está dentro de cada grupo, en la pantalla Social (26-11). Se deja para que los enlaces antiguos sigan funcionando. -->
+  <meta http-equiv="refresh" content="0; url=social.html">
+  <title>StudySpot</title>
 </head>
-<body class="page">
-  <!--
-    Ranking semanal y objetivo compartido (US07).
-    La semana va de lunes a domingo y solo cuentan las sesiones ya cerradas.
-  -->
-  <main class="auth auth--start">
-    <nav aria-label="Navegación">
-      <a class="back-link" href="perfil.html" aria-label="Volver al perfil">
-        <svg class="back-link__icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
-          <path d="M12.5 4 6.5 10l6 6" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </a>
-    </nav>
-
-    <h1 class="auth__title auth__title--small">Ranking semanal</h1>
-
-    <p class="state__text" id="ranking-cargando" role="status">Cargando…</p>
-    <p class="alert alert--error" id="ranking-alerta" role="alert" hidden></p>
-
-    <div class="section" id="ranking-contenido" hidden>
-      <section class="goal" aria-labelledby="titulo-objetivo">
-        <h2 class="section__title" id="titulo-objetivo">Objetivo compartido</h2>
-        <progress class="goal__bar" id="objetivo-barra" max="100" value="0" aria-labelledby="titulo-objetivo"></progress>
-        <p class="state__text" id="objetivo-texto"></p>
-      </section>
-
-      <section class="section" aria-labelledby="titulo-ranking">
-        <h2 class="section__title" id="titulo-ranking">Esta semana</h2>
-        <ol class="rank-list" id="ranking-lista"></ol>
-        <p class="state__text" id="ranking-vacio" hidden>Añade amigos para competir con ellos. Los puntos cuentan de lunes a domingo.</p>
-      </section>
-    </div>
-  </main>
+<body>
+  <p><a href="social.html">Ir a Social</a></p>
 </body>
 </html>

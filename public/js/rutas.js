@@ -26,7 +26,7 @@ export function crearRutaLoginConPuntos(aviso, puntos) {
 }
 
 // Amigos y perfil de otra persona (US06): usuario.html?id=<id>
-export const RUTA_AMIGOS = 'amigos.html';
+export const RUTA_AMIGOS = 'social.html#amigos';
 export const RUTA_PERFIL_CONTACTO = 'usuario.html';
 export const PARAM_USUARIO = 'id';
 
@@ -63,4 +63,12 @@ export const PARAM_BIBLIOTECA = 'id';
 
 export function crearRutaBiblioteca(bibliotecaId) {
   return `${RUTA_BIBLIOTECA}?${PARAM_BIBLIOTECA}=${encodeURIComponent(bibliotecaId)}`;
+}
+
+// Grupos (US07): grupo.html?grupo=N abre su ranking, personas y ajustes.
+export const RUTA_GRUPO = 'grupo.html';
+export const PARAM_GRUPO = 'grupo';
+
+export function crearRutaGrupo(grupoId) {
+  return `${RUTA_GRUPO}?${new URLSearchParams({ [PARAM_GRUPO]: grupoId })}`;
 }

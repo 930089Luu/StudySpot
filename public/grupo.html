@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+  <title>Grupo · StudySpot</title>
+  <link rel="icon" href="img/studyspot-simbolo-color.png" type="image/png">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/ios.css">
+  <script type="module" src="js/grupo.js"></script>
+</head>
+<body class="page ios">
+  <!--
+    Un grupo (US07): ranking de la semana (podio, clasificación y objetivo), personas, ajustes y
+    salir. Como los detalles de un grupo de Mensajes. La administración invita ("Añadir personas"),
+    cambia nombre y objetivo y gestiona a las personas; el servidor comprueba el rol en cada acción.
+  -->
+  <main class="ios-screen">
+    <nav class="ios-nav" aria-label="Navegación">
+      <a class="back-link" href="social.html">
+        <svg class="back-link__icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+          <path d="M12.5 4 6.5 10l6 6" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>Social</span>
+      </a>
+    </nav>
+
+    <header class="ios-section">
+      <h1 class="ios-large-title" id="grupo-titulo">Grupo</h1>
+      <p class="ios-row__subtitle">Ranking de lunes a domingo. Empieza de cero cada lunes.</p>
+    </header>
+
+    <p class="ios-section__footer" id="grupo-cargando" role="status">Cargando…</p>
+    <p class="alert alert--error" id="grupo-alerta" role="alert" hidden></p>
+
+    <div class="ios-screen__panel" id="grupo-contenido" hidden>
+      <!-- Añadir personas: lo primero que se ve si eres administradora -->
+      <div class="ios-list" id="bloque-anadir" hidden>
+        <button class="ios-row ios-row--action ios-row--start" id="boton-anadir-personas" type="button">
+          <svg class="ios-row__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M15 19c0-2.8-2.7-5-6-5s-6 2.2-6 5M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM19 8v6M16 11h6"
+                  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Añadir personas
+        </button>
+      </div>
+
+      <section class="ios-section" aria-labelledby="titulo-podio">
+        <h2 class="ios-section__header" id="titulo-podio">Podio de la semana</h2>
+        <ol class="ios-podium" id="ranking-podio"></ol>
+        <p class="ios-section__footer" id="ranking-podio-vacio" hidden>Nadie ha sumado puntos esta semana todavía.</p>
+      </section>
+
+      <section class="ios-section" aria-labelledby="titulo-clasificacion">
+        <h2 class="ios-section__header" id="titulo-clasificacion">Clasificación</h2>
+        <ol class="ios-list ios-list--avatars" id="ranking-lista"></ol>
+      </section>
+
+      <section class="ios-section" aria-labelledby="titulo-objetivo">
+        <h2 class="ios-section__header" id="titulo-objetivo">Objetivo del grupo</h2>
+        <div class="ios-goal">
+          <p class="ios-goal__numbers">
+            <span class="ios-goal__points" id="objetivo-puntos"></span>
+            <span class="ios-goal__percent" id="objetivo-porcentaje"></span>
+          </p>
+          <div class="goal-bar" id="objetivo-barra" role="img"></div>
+          <ul class="goal-legend" id="objetivo-leyenda"></ul>
+        </div>
+      </section>
+
+      <section class="ios-section" aria-labelledby="titulo-personas">
+        <h2 class="ios-section__header" id="titulo-personas">Personas</h2>
+        <ul class="ios-list ios-list--avatars" id="miembros-lista"></ul>
+        <p class="ios-section__footer" id="miembros-ayuda"></p>
+      </section>
+
+      <section class="ios-section" aria-labelledby="titulo-ajustes">
+        <h2 class="ios-section__header" id="titulo-ajustes">Ajustes del grupo</h2>
+        <form class="ios-list" id="form-ajustes" novalidate>
+          <label class="ios-row">
+            <span class="ios-row__label">Nombre</span>
+            <input class="ios-row__input field__input" id="ajuste-nombre" name="nombre" type="text" maxlength="50" required
+                   aria-describedby="ajuste-nombre-error">
+          </label>
+          <label class="ios-row">
+            <span class="ios-row__label">Objetivo semanal</span>
+            <input class="ios-row__input field__input" id="ajuste-objetivo" name="objetivo" type="number" inputmode="numeric"
+                   min="1" max="2000" required aria-describedby="ajuste-objetivo-error">
+          </label>
+          <p class="alert alert--error" role="alert" hidden></p>
+        </form>
+        <p class="field__error ios-section__footer" id="ajuste-nombre-error"></p>
+        <p class="field__error ios-section__footer" id="ajuste-objetivo-error"></p>
+        <p class="ios-section__footer" id="ajustes-ayuda"></p>
+      </section>
+
+      <div class="ios-list">
+        <button class="ios-row ios-row--action ios-row--destructive" id="boton-salir" type="button">Salir del grupo</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- Hoja: añadir personas (tus amigos que no están, y un amigo nuevo por correo) -->
+  <dialog class="ios-sheet" id="hoja-anadir" aria-labelledby="titulo-hoja-anadir">
+    <div class="ios-sheet__form">
+      <div class="ios-sheet__bar">
+        <span></span>
+        <h2 class="ios-sheet__title" id="titulo-hoja-anadir">Añadir personas</h2>
+        <button class="ios-sheet__bar-button ios-sheet__bar-button--primary" id="cerrar-anadir" type="button">OK</button>
+      </div>
+      <div class="ios-sheet__body">
+        <section class="ios-section" aria-labelledby="titulo-tus-amigos">
+          <h3 class="ios-section__header" id="titulo-tus-amigos">Tus amigos</h3>
+          <ul class="ios-list ios-list--avatars" id="invitar-lista"></ul>
+          <p class="ios-section__footer" id="invitar-ayuda">Les llegará una invitación y entrarán cuando la acepten.</p>
+        </section>
+
+        <!-- Alguien que aún no es tu amigo: se le envía la solicitud de amistad desde aquí -->
+        <section class="ios-section" aria-labelledby="titulo-nuevo-amigo">
+          <h3 class="ios-section__header" id="titulo-nuevo-amigo">¿No está en la lista?</h3>
+          <form class="ios-list" id="form-nuevo-amigo" novalidate>
+            <label class="ios-row">
+              <span class="ios-row__label">Correo</span>
+              <input class="ios-row__input field__input" id="nuevo-amigo-email" name="friend_email" type="email"
+                     required autocomplete="off" inputmode="email" maxlength="254" placeholder="nombre@universidad.es"
+                     aria-describedby="nuevo-amigo-email-error">
+            </label>
+            <button class="ios-row ios-row--action" type="submit">Enviar solicitud de amistad</button>
+            <p class="alert alert--error" role="alert" hidden></p>
+          </form>
+          <p class="field__error ios-section__footer" id="nuevo-amigo-email-error"></p>
+          <p class="ios-section__footer" id="nuevo-amigo-ayuda">
+            Solo se puede invitar a amigos. Cuando acepte tu solicitud, aparecerá arriba para invitarle.
+          </p>
+        </section>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Menú de acciones sobre una persona (solo administración), como las hojas de acciones de iOS -->
+  <dialog class="ios-sheet ios-actions" id="hoja-persona" aria-labelledby="titulo-hoja-persona">
+    <div class="ios-sheet__body">
+      <div class="ios-list">
+        <p class="ios-row ios-row--action ios-actions__title" id="titulo-hoja-persona"></p>
+        <button class="ios-row ios-row--action" id="accion-admin" type="button"></button>
+        <button class="ios-row ios-row--action ios-row--destructive" id="accion-quitar" type="button"></button>
+      </div>
+      <div class="ios-list">
+        <button class="ios-row ios-row--action ios-actions__cancel" id="accion-cancelar" type="button">Cancelar</button>
+      </div>
+    </div>
+  </dialog>
+</body>
+</html>

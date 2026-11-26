@@ -73,6 +73,9 @@
   --font-size-card-title: 1.375rem; /* 22 px: nombre en la ficha de la biblioteca */
   --card-close-inset: 7px; /* 44 px de área táctil − 30 px de círculo, entre 2 */
   --card-close-icon-size: 14px;
+  /* Ranking (US07) */
+  --avatar-persona-size: 32px;
+  --goal-bar-height: 14px;
   --sheet-handle-width: 2.5rem;
   --sheet-handle-height: 4px;
   /* Globo de ocupación del mapa: anillo que se rellena según el % (estilo anillos de actividad) */
@@ -146,6 +149,16 @@
   --shadow-pin: 0 4px 14px rgb(0 0 0 / 0.35);
   --shadow-floating: 0 6px 24px rgb(0 0 0 / 0.28);
   --color-handle-floating: rgb(255 255 255 / 0.85);
+  /* Colores de las personas del ranking (id % 8, src/constantes.php RANKING_NUM_COLORES).
+     Tonos de "más contraste" del sistema de iOS: las iniciales en blanco se leen en claro y oscuro. */
+  --color-persona-0: #d70015;
+  --color-persona-1: #c93400;
+  --color-persona-2: #248a3d;
+  --color-persona-3: #0071a4;
+  --color-persona-4: #0040dd;
+  --color-persona-5: #3634a3;
+  --color-persona-6: #8944ab;
+  --color-persona-7: #d30f45;
 }
 
 @media (prefers-color-scheme: dark) {
