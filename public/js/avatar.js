@@ -9,8 +9,34 @@ import { createAvatar, toonHead } from './vendor/dicebear-toon-head.js';
 
 // null = "ninguno" en las partes que se pueden quitar.
 const PIELES = ['fde0cc', 'f1c3a5', 'e3ac8a', 'c68e7a', 'b98e6a', 'a36b4f', '8d5524', '5c3829'];
-const PEINADOS = [null, 'sideComed', 'undercut', 'spiky', 'bun'];
-const MELENAS = [null, 'neckHigh', 'shoulderHigh', 'longStraight', 'longWavy'];
+/*
+ * Peinados: una sola lista. Cada uno junta el pelo de arriba (d) y el de detrás (t) de Toon Head,
+ * o piezas propias dibujadas aquí (delante / detras): rapado, rizos, afro, flequillo, coletas y
+ * dos moños.
+ */
+const PELOS = [
+  {},
+  { delante: 'rapado' },
+  { d: 'sideComed' },
+  { d: 'undercut' },
+  { d: 'spiky' },
+  { delante: 'rizos' },
+  { delante: 'rizos', detras: 'afro' },
+  { d: 'bun' },
+  { d: 'sideComed', t: 'neckHigh' },
+  { delante: 'flequillo', t: 'neckHigh' },
+  { d: 'sideComed', t: 'shoulderHigh' },
+  { delante: 'flequillo', t: 'shoulderHigh' },
+  { d: 'undercut', t: 'neckHigh' },
+  { d: 'spiky', t: 'shoulderHigh' },
+  { d: 'sideComed', t: 'longStraight' },
+  { delante: 'flequillo', t: 'longStraight' },
+  { d: 'sideComed', t: 'longWavy' },
+  { d: 'bun', t: 'longStraight' },
+  { d: 'bun', t: 'longWavy' },
+  { delante: 'flequillo', detras: 'coletas' },
+  { d: 'sideComed', detras: 'monos' },
+];
 const COLORES_PELO = ['2c1b18', '724133', 'a55728', 'b58143', 'd6b370', 'ecdcb4', 'b93a2e', '9a9a9e', 'f2f2f2', 'e86aa6', '4a6cf7'];
 const CEJAS = ['neutral', 'happy', 'raised', 'sad', 'angry'];
 const OJOS = ['happy', 'wide', 'humble', 'bow', 'wink'];
@@ -23,21 +49,21 @@ export const FONDOS = ['dfe3ff', 'ffe1d6', 'd8f3e4', 'fff2c7', 'f2dcff', 'd6eefc
 // Chica (0) o chico (1): punto de partida, como en Memoji y Mii. Luego todo se puede cambiar.
 export const GENEROS = ['Chica', 'Chico'];
 const PRESETS = [
-  { peinado: 4, melena: 3, barba: 0, ropa: 4, cejas: 1, pendientes: 1 },
-  { peinado: 1, melena: 0, ropa: 0, cejas: 0, pendientes: 0 },
+  { peinado: 17, barba: 0, ropa: 4, cejas: 1, pendientes: 1 },
+  { peinado: 2, ropa: 0, cejas: 0, pendientes: 0 },
 ];
 
 /** Partes y cuántas opciones tiene cada una (igual que AVATAR_OPCIONES en PHP). */
 export const AVATAR_OPCIONES = {
-  genero: GENEROS.length, fondo: FONDOS.length, piel: PIELES.length, peinado: PEINADOS.length,
-  melena: MELENAS.length, colorPelo: COLORES_PELO.length, cejas: CEJAS.length, ojos: OJOS.length,
+  genero: GENEROS.length, fondo: FONDOS.length, piel: PIELES.length, peinado: PELOS.length,
+  colorPelo: COLORES_PELO.length, cejas: CEJAS.length, ojos: OJOS.length,
   boca: BOCAS.length, barba: BARBAS.length, ropa: ROPAS.length, colorRopa: COLORES_ROPA.length,
   gafas: 5, gorro: 5, pendientes: 3, pecas: 2,
 };
 
 /** Un primer personaje para empezar a editar. */
 export const AVATAR_INICIAL = {
-  genero: 1, fondo: 0, piel: 1, peinado: 1, melena: 0, colorPelo: 1, cejas: 0, ojos: 0, boca: 0, barba: 0,
+  genero: 1, fondo: 0, piel: 1, peinado: 2, colorPelo: 1, cejas: 0, ojos: 0, boca: 0, barba: 0,
   ropa: 0, colorRopa: 0, gafas: 0, gorro: 0, pendientes: 0, pecas: 0,
 };
 
@@ -56,8 +82,7 @@ const conAlmohadilla = (lista) => lista.map((c) => `#${c}`);
 export const PESTANAS = [
   { parte: 'genero', titulo: 'Persona', nombres: GENEROS },
   { parte: 'piel', titulo: 'Piel', colores: conAlmohadilla(PIELES) },
-  { parte: 'peinado', titulo: 'Peinado', color: { parte: 'colorPelo', colores: conAlmohadilla(COLORES_PELO) }, encuadre: '84 0 600 600' },
-  { parte: 'melena', titulo: 'Pelo largo', color: { parte: 'colorPelo', colores: conAlmohadilla(COLORES_PELO) } },
+  { parte: 'peinado', titulo: 'Pelo', color: { parte: 'colorPelo', colores: conAlmohadilla(COLORES_PELO) } },
   { parte: 'cejas', titulo: 'Cejas', color: { parte: 'colorPelo', colores: conAlmohadilla(COLORES_PELO) }, encuadre: '200 230 368 260' },
   { parte: 'ojos', titulo: 'Ojos', encuadre: '200 270 368 260' },
   { parte: 'boca', titulo: 'Boca', encuadre: '230 380 308 220' },
@@ -76,18 +101,19 @@ let contador = 0;
 export function dibujarAvatar(a, viewBox = null) {
   contador += 1;
   const id = `av${contador}`;
-  const peinado = PEINADOS[a.peinado];
-  const melena = MELENAS[a.melena];
+  const pelo = PELOS[a.peinado];
+  const color = `#${COLORES_PELO[a.colorPelo]}`;
+  // La gorra y el gorro de lana tapan el pelo de arriba; auriculares y cinta, no.
+  const tapado = a.gorro === 1 || a.gorro === 2;
   const barba = a.genero === 1 ? BARBAS[a.barba] : null;
   const base = createAvatar(toonHead, {
     seed: 'studyspot',
     backgroundColor: [FONDOS[a.fondo]],
     skinColor: [PIELES[a.piel]],
-    // La gorra y el gorro de lana tapan el peinado de arriba; auriculares y cinta, no.
-    hair: [peinado ?? 'sideComed'],
-    hairProbability: peinado && a.gorro !== 1 && a.gorro !== 2 ? 100 : 0,
-    rearHair: [melena ?? 'neckHigh'],
-    rearHairProbability: melena ? 100 : 0,
+    hair: [pelo.d ?? 'sideComed'],
+    hairProbability: pelo.d && !tapado ? 100 : 0,
+    rearHair: [pelo.t ?? 'neckHigh'],
+    rearHairProbability: pelo.t ? 100 : 0,
     hairColor: [COLORES_PELO[a.colorPelo]],
     eyebrows: [CEJAS[a.cejas]],
     eyes: [OJOS[a.ojos]],
@@ -97,8 +123,12 @@ export function dibujarAvatar(a, viewBox = null) {
     clothes: [ROPAS[a.ropa]],
     clothesColor: [COLORES_ROPA[a.colorRopa]],
   }).toString();
-  const extras = pecas(a.pecas) + pendientes(a.pendientes) + gafas(a.gafas) + gorro(a.gorro, COLORES_PELO[a.colorPelo]) + volumen(id);
+  const delante = pelo.delante && !tapado ? PELO_DELANTE[pelo.delante](color) : '';
+  const extras = delante + pecas(a.pecas) + pendientes(a.pendientes) + gafas(a.gafas) + gorro(a.gorro, COLORES_PELO[a.colorPelo]) + volumen(id);
+  // Lo de detrás de la cabeza va justo después del fondo
+  const detras = pelo.detras ? PELO_DETRAS[pelo.detras](color) : '';
   const svg = base
+    .replace(/(<rect fill="#[0-9a-f]{6}" width="768" height="768" x="0" y="0" \/>)/, `$1${detras}`)
     .replace('<svg ', '<svg class="avatar-svg" aria-hidden="true" focusable="false" ')
     .replace(/<\/svg>\s*$/, `${extras}</svg>`);
   return viewBox ? svg.replace(/viewBox="[^"]*"/, `viewBox="${viewBox}"`) : svg;
@@ -117,6 +147,53 @@ export function pintarAvatar(contenedor, avatar, iniciales = '') {
 /* ---------- piezas propias, con el trazo de Toon Head (coordenadas de 768×768) ---------- */
 
 const TRAZO = '#1d1a1a';
+
+/** Nube de círculos con un solo contorno por fuera (primero los bordes, luego el relleno encima). */
+function nube(circulos, color, relleno = '') {
+  const bordes = circulos.map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${color}" stroke="${TRAZO}" stroke-width="5"/>`).join('');
+  const rellenos = circulos.map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r - 2.5}" fill="${color}"/>`).join('');
+  const interior = relleno ? `<path d="${relleno}" fill="${color}"/>` : '';
+  return `<g>${bordes}${interior}${rellenos}</g>`;
+}
+
+/** Círculos repartidos por un arco de elipse (ángulos en fracciones de π, 0 = izquierda). */
+function arco(cx, cy, rx, ry, desde, hasta, n, r) {
+  return Array.from({ length: n }, (_, i) => {
+    const t = Math.PI * (desde + ((hasta - desde) * i) / (n - 1));
+    return [Math.round(cx - rx * Math.cos(t)), Math.round(cy - ry * Math.sin(t)), r];
+  });
+}
+
+const sombraPelo = (d) => `<path d="${d}" fill="#000000" fill-opacity="0.12"/>`;
+
+const PELO_DELANTE = {
+  // Pelo muy corto: una capa pegada al cráneo
+  rapado: (color) => `<path d="M208 312 C202 178 272 132 384 130 C496 132 566 178 560 312 Q528 266 474 258 Q384 248 294 258 Q240 266 208 312 Z" fill="${color}" fill-opacity="0.92" stroke="${TRAZO}" stroke-width="3"/>
+    ${sombraPelo('M230 280 Q300 250 384 248 Q470 250 538 280 Q470 262 384 260 Q300 262 230 280 Z')}`,
+  // Rizos cortos: bolitas por todo el borde
+  rizos: (color) => nube([
+    ...arco(384, 300, 172, 168, 0.02, 0.98, 13, 44),
+    ...arco(384, 300, 120, 30, 0.15, 0.85, 6, 36),
+  ], color, 'M212 300 A172 168 0 0 1 556 300 Z'),
+  // Flequillo recto, con mechones a los lados
+  flequillo: (color) => `<path d="M196 430 C184 168 262 116 384 114 C506 116 584 168 572 430 L546 430 C546 368 544 330 538 304 Q384 288 230 304 C224 330 222 368 222 430 Z" fill="${color}" stroke="${TRAZO}" stroke-width="3"/>
+    ${sombraPelo('M232 304 Q384 290 536 304 L534 286 Q384 272 234 286 Z')}
+    <path d="M300 300 Q306 250 296 214 M384 296 Q388 240 380 196 M468 300 Q462 250 472 214" stroke="#000000" stroke-opacity="0.18" stroke-width="5" stroke-linecap="round" fill="none"/>`,
+};
+
+const PELO_DETRAS = {
+  // Afro: una gran nube detrás de la cabeza
+  afro: (color) => nube(arco(384, 330, 262, 250, -0.12, 1.12, 16, 78), color, 'M150 400 L122 330 A262 250 0 0 1 646 330 L618 400 Z'),
+  // Coletas a los lados, con su goma
+  coletas: (color) => [[176, 1], [592, -1]].map(([x, lado]) => `
+    <ellipse cx="${x - lado * 18}" cy="440" rx="66" ry="128" transform="rotate(${lado * 16} ${x} 440)" fill="${color}" stroke="${TRAZO}" stroke-width="4"/>
+    <path d="M${x - lado * 30} 360 Q${x - lado * 10} 470 ${x - lado * 40} 540" stroke="#000000" stroke-opacity="0.15" stroke-width="6" fill="none"/>
+    <circle cx="${x + lado * 22}" cy="318" r="20" fill="#e8505b" stroke="${TRAZO}" stroke-width="4"/>`).join(''),
+  // Dos moños arriba
+  monos: (color) => [250, 518].map((x) => `
+    <circle cx="${x}" cy="150" r="72" fill="${color}" stroke="${TRAZO}" stroke-width="4"/>
+    <path d="M${x - 40} 130 Q${x} 96 ${x + 40} 130" stroke="#000000" stroke-opacity="0.15" stroke-width="7" fill="none"/>`).join(''),
+};
 
 function pecas(tipo) {
   if (!tipo) return '';
