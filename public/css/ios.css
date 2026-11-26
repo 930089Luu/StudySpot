@@ -1082,3 +1082,17 @@ button.ios-row {
   font-size: var(--ios-subheadline);
   color: var(--ios-label-secondary);
 }
+
+/* Bolita del interruptor de iOS: 27 px, blanca con sombra, se desplaza 20 px (51 − 27 − 2 × 2) */
+.ios .switch__input::before {
+  top: 2px;
+  left: 2px;
+  width: 27px;
+  height: 27px;
+  background-color: #ffffff;
+  box-shadow: 0 3px 8px rgb(0 0 0 / 0.15), 0 3px 1px rgb(0 0 0 / 0.06);
+}
+
+.ios .switch__input:checked::before {
+  transform: translateX(20px);
+}
