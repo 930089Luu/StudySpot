@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="Sito te enseña a usar StudySpot en un momento.">
+  <meta name="theme-color" content="#f4f4f8" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#121316" media="(prefers-color-scheme: dark)">
+  <title>Bienvenida · StudySpot</title>
+  <link rel="icon" href="img/studyspot-simbolo-color.png" type="image/png">
+  <link rel="preload" href="img/mascota/saludando.png" as="image">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <script type="module" src="js/bienvenida.js"></script>
+</head>
+<body class="page">
+  <!--
+    Bienvenida (mejora de la experiencia, 23-11): Sito, la mascota, enseña la app en cinco pasos
+    y en cada uno pide hacer algo (elegir la biblioteca más tranquila, escanear un QR de prueba,
+    ver cómo suben los puntos). Solo sale la primera vez en cada navegador; se puede saltar.
+  -->
+  <main class="onboarding">
+    <header class="onboarding__top">
+      <a class="onboarding__skip" id="bienvenida-saltar" href="index.html">Omitir</a>
+    </header>
+
+    <!-- Sito, el texto y lo que se prueba, centrados en el espacio libre -->
+    <div class="onboarding__content">
+      <div class="onboarding__hero">
+        <img class="mascot" id="sito" src="img/mascota/saludando.png" alt="" width="512" height="512">
+      </div>
+
+      <!-- Lo que cuenta Sito: título grande y una frase, como la configuración inicial de iOS -->
+      <div class="onboarding__copy" id="sito-texto" aria-live="polite">
+        <h1 class="onboarding__title" id="sito-titulo"></h1>
+        <p class="onboarding__text" id="sito-dice"></p>
+      </div>
+
+      <!-- Lo que se puede tocar en cada paso (trozos reales de la app); lo rellena bienvenida.js -->
+      <section class="onboarding__play" id="bienvenida-juego" aria-label="Pruébalo"></section>
+    </div>
+
+    <footer class="onboarding__bottom">
+      <ol class="onboarding__dots" id="bienvenida-progreso" aria-label="Pasos de la bienvenida"></ol>
+      <div class="onboarding__actions" id="bienvenida-acciones"></div>
+    </footer>
+  </main>
+</body>
+</html>

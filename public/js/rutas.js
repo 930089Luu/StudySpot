@@ -4,6 +4,9 @@
 
 export const RUTA_LOGIN = 'index.html';
 export const RUTA_INICIO = 'inicio.html';
+export const RUTA_REGISTRO = 'registro.html';
+// Bienvenida con Sito: la primera vez que se abre la app en un navegador, antes del login.
+export const RUTA_BIENVENIDA = 'bienvenida.html';
 
 // Parámetro con el que otras pantallas piden al login que muestre un aviso.
 export const PARAM_AVISO = 'aviso';

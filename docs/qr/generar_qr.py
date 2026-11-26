@@ -20,6 +20,12 @@ import segno
 ZONAS = [
     (1, "4cabd192590ee77b3a1d915aac49d6a7", "zona-1-isla-gaia.png"),
     (2, "5ad62b2cd7e2258af79058aec5a298c8", "zona-2-kadora-campus-street.png"),
+    (3, "ef0fc335a1ebc721af42534b10227094", "zona-3-almeida-garrett.png"),
+    (4, "38bf4d7efb284d59829ac25060ea6482", "zona-4-publica-porto.png"),
+    (5, "6fcb8d5466c8c1f2cf67fc51898592a4", "zona-5-flup.png"),
+    (6, "2abf8c9dcc706bec66a2db14b77e213f", "zona-6-ffup-icbas.png"),
+    (7, "258bedf735dde9594254c217a77f694e", "zona-7-municipal-gaia.png"),
+    (8, "e1c577062cc855a707e9cfa9a4eaa1f8", "zona-8-ispgaya.png"),
 ]
 RUTA_CHECKIN = "/public/checkin.html"
 ESCALA_PNG = 12  # píxeles por módulo: unos 400 px, se imprime bien en A6
