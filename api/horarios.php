@@ -6,13 +6,15 @@
  *   "semana"          horario_semanal: los 7 días          → 200 · 400
  *   "especial"        fecha_inicio, fecha_fin, descripcion, cerrado, apertura, cierre → 201 · 400 · 409 (se solapa)
  *   "borrar_especial" especial_id                          → 200 · 404
- * 400 datos no válidos · 401 sin sesión · 403 no es administrador · 404 biblioteca no existe · 405 método no permitido
+ * 400 datos no válidos · 401 sin sesión · 403 no es administrador o no ha confirmado su contraseña
+ *   en esta sesión ({confirmar: true}) · 404 biblioteca no existe · 405 método no permitido
  */
 declare(strict_types=1);
 
 require_once __DIR__ . '/_http.php';
 require_once __DIR__ . '/../src/Database/conexion.php';
 require_once __DIR__ . '/../src/Horarios/horarios.php';
+require_once __DIR__ . '/../src/Usuarios/cuenta.php';
 
 const ACCION_SEMANA = 'semana';
 const ACCION_ESPECIAL = 'especial';
@@ -29,6 +31,10 @@ ejecutarEndpoint(function (): void {
     $pdo = getConexion();
     if (!esAdministrador($pdo, $usuarioId)) {
         responderJson(HTTP_FORBIDDEN, ['error' => 'Solo los administradores pueden gestionar horarios.']);
+    }
+    // Además del rol, hay que haber confirmado la contraseña en esta sesión (Ajustes → Administración).
+    if (!isAccesoAdminConfirmado()) {
+        responderJson(HTTP_FORBIDDEN, ['error' => 'Confirma tu contraseña para entrar en la administración.', 'confirmar' => true]);
     }
 
     $datos = $metodo === 'GET' ? $_GET : leerCuerpoJson();

@@ -31,6 +31,9 @@ const ALLOWED_EMAIL_DOMAINS = [
 
 const EMAIL_MAX_LENGTH = 254;
 const NOMBRE_MAX_LENGTH = 100;
+// Idiomas de la app (Ajustes): español, inglés y portugués.
+const IDIOMAS_DISPONIBLES = ['es', 'en', 'pt'];
+
 const PASSWORD_MIN_LENGTH = 8;
 // bcrypt (PASSWORD_DEFAULT) ignora todo lo que pase de 72 bytes: se rechaza en vez de truncar en silencio.
 const PASSWORD_MAX_LENGTH = 72;

@@ -20,6 +20,7 @@ const ARCHIVOS_DE_TESTS = [
     'us08_horarios.php',
     'biblioteca_favorita.php',
     'biblioteca_abierta.php',
+    'ajustes_cuenta.php',
 ];
 
 function ejecutarArchivo(PDO $pdo, string $archivo): array
@@ -34,6 +35,12 @@ function ejecutarArchivo(PDO $pdo, string $archivo): array
 
 function main(): int
 {
+    // Algunos tests usan la sesión PHP (administración en Ajustes): se abre antes de escribir nada,
+    // y sin cookie porque aquí no hay navegador.
+    if (session_status() === PHP_SESSION_NONE) {
+        ini_set('session.use_cookies', '0');
+        session_start();
+    }
     $pdo = getConexion();
     $resultados = [];
     try {
