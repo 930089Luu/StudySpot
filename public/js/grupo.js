@@ -5,6 +5,7 @@
  * Quien decide es el servidor: api/grupos.php comprueba el rol en cada acción.
  */
 import { accionGrupo, enviarSolicitudAmistad, getAmigos, getGrupo, getRanking } from './api.js';
+import { confirmar } from './confirmar.js';
 import { MENSAJE_ERROR_GENERICO, enviarFormulario, mostrarAlerta, mostrarErrorRespuesta } from './formulario.js';
 import { getIniciales } from './iniciales.js';
 import { PARAM_GRUPO, RUTA_LOGIN } from './rutas.js';
@@ -131,15 +132,19 @@ function mostrarObjetivo(personas, total, objetivo, porcentaje) {
 /* ---------- personas ---------- */
 
 function mostrarPersonas({ miembros, es_admin: soyAdmin }) {
-  document.getElementById('miembros-lista').replaceChildren(...miembros.map((m) => crearFilaPersona(m, soyAdmin)));
+  // Puedes dejar tú la administración solo si queda alguien más con el cargo.
+  const hayOtraAdmin = miembros.some(({ es_admin: esAdmin, es_yo: esYo, invitado }) => esAdmin && !esYo && !invitado);
+  document.getElementById('miembros-lista').replaceChildren(
+    ...miembros.map((m) => crearFilaPersona(m, soyAdmin, hayOtraAdmin)),
+  );
   document.getElementById('miembros-ayuda').textContent = soyAdmin
     ? 'Toca a una persona para hacerla administradora o quitarla del grupo.'
     : 'Solo la administración del grupo puede añadir o quitar personas.';
 }
 
-function crearFilaPersona(miembro, soyAdmin) {
+function crearFilaPersona(miembro, soyAdmin, hayOtraAdmin) {
   const { usuario_id: usuarioId, nombre, es_admin: esAdmin, invitado, es_yo: esYo } = miembro;
-  const gestionable = soyAdmin && !esYo;
+  const gestionable = soyAdmin && (!esYo || hayOtraAdmin);
   const fila = crearElemento(gestionable ? 'button' : 'div', 'ios-row');
   if (gestionable) {
     fila.type = 'button';
@@ -171,9 +176,17 @@ function abrirHojaPersona(miembro) {
   document.getElementById('titulo-hoja-persona').textContent = miembro.nombre;
   const botonAdmin = document.getElementById('accion-admin');
   botonAdmin.hidden = miembro.invitado;
-  botonAdmin.textContent = miembro.es_admin ? 'Quitar de la administración' : 'Hacer administrador/a';
-  document.getElementById('accion-quitar').textContent = miembro.invitado ? 'Anular la invitación' : 'Quitar del grupo';
+  botonAdmin.textContent = getTextoAccionAdmin(miembro);
+  // A ti misma no te puedes quitar del grupo desde aquí: para eso está "Salir del grupo".
+  const botonQuitar = document.getElementById('accion-quitar');
+  botonQuitar.hidden = miembro.es_yo;
+  botonQuitar.textContent = miembro.invitado ? 'Anular la invitación' : 'Quitar del grupo';
   document.getElementById('hoja-persona').showModal();
+}
+
+function getTextoAccionAdmin({ es_admin: esAdmin, es_yo: esYo }) {
+  if (esYo) return 'Dejar la administración';
+  return esAdmin ? 'Quitar de la administración' : 'Hacer administrador/a';
 }
 
 async function accionSobrePersona(accion) {
@@ -273,7 +286,13 @@ async function guardarAjustes() {
 /* ---------- salir ---------- */
 
 async function handleSalir() {
-  if (!window.confirm('¿Salir del grupo? Para volver te tendrán que invitar otra vez.')) return;
+  const confirmado = await confirmar({
+    titulo: `¿Salir de ${datosGrupo.nombre}?`,
+    texto: 'Para volver te tendrán que invitar otra vez.',
+    accion: 'Salir',
+    destructiva: true,
+  });
+  if (!confirmado) return;
   const ok = await ejecutar(() => accionGrupo('salir', { grupo: grupoId }), false);
   if (ok) window.location.assign(RUTA_SOCIAL);
 }
