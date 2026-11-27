@@ -422,11 +422,13 @@
     'Avatar no válido.': ['Invalid avatar.', 'Avatar inválido.'],
 
     // ---------- modo estudio (sesión activa) ----------
-    'Estudiando en': ['Studying at', 'A estudar em'],
     'Terminar sesión': ['End session', 'Terminar sessão'],
-    '1 punto cada 15 minutos, hasta 16. Se cierra sola a las 4 horas.': ['1 point every 15 minutes, up to 16. It closes by itself after 4 hours.', '1 ponto a cada 15 minutos, até 16. Fecha sozinha às 4 horas.'],
+    '1 punto cada 15 minutos, hasta 16. La sesión se cierra sola a las 4 horas.': ['1 point every 15 minutes, up to 16. The session closes by itself after 4 hours.', '1 ponto a cada 15 minutos, até 16. A sessão fecha sozinha às 4 horas.'],
     'de 16 puntos': ['of 16 points', 'de 16 pontos'],
-    ' · ¡Máximo conseguido!': [' · Maximum reached!', ' · Máximo alcançado!'],
+    'Sala': ['Room', 'Sala'],
+    'Desde': ['Since', 'Desde'],
+    'Próximo punto': ['Next point', 'Próximo ponto'],
+    'Máximo conseguido': ['Maximum reached', 'Máximo alcançado'],
 
     // ---------- bienvenida con Sito ----------
     'Hola, soy': ["Hi, I'm", 'Olá, sou o'],
@@ -540,8 +542,7 @@
     [/^¿Borrar «(.+)»\?$/, ['Delete "$1"?', 'Apagar «$1»?']],
     [/^(.+) dejará de ser tu favorita\. Solo puedes tener una\.$/, ['$1 will no longer be your favourite. You can only have one.', '$1 deixará de ser a tua favorita. Só podes ter uma.']],
     [/^(.+) · Check-in a las (.+)$/, ['$1 · Checked in at $2', '$1 · Check-in às $2']],
-    [/^(.+) · Desde las (.+)$/, ['$1 · Since $2', '$1 · Desde as $2']],
-    [/^ · Próximo en (.+)$/, [' · Next in $1', ' · Próximo em $1']],
+    [/^en (\d+:\d\d)$/, ['in $1', 'em $1']],
     [/^Acércate a (.+) y vuelve a intentarlo\.$/, ['Get closer to $1 and try again.', 'Aproxima-te de $1 e tenta de novo.']],
     [/^Has estudiado (.+) y has ganado (.+)\.$/, ['You studied for $1 and earned $2.', 'Estudaste $1 e ganhaste $2.']],
     [/^(\d+) h (\d+) min$/, ['$1 h $2 min', '$1 h $2 min']],

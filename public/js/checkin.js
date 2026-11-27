@@ -72,8 +72,6 @@ function extraerQrDeUrl() {
 /** Muestra solo la sección pedida. La cámara se apaga siempre que se sale del escáner. */
 function mostrarEstado(nombre) {
   if (nombre !== 'escanear') detenerEscaner();
-  // Modo estudio: toda la pantalla en oscuro mientras la sesión está abierta.
-  document.body.classList.toggle('modo-estudio', nombre === 'activa');
   for (const estado of ESTADOS) {
     document.getElementById(`estado-${estado}`).hidden = estado !== nombre;
   }
@@ -267,7 +265,8 @@ async function enviarCheckin({ latitude, longitude }) {
 
 function mostrarSesionActiva(sesion) {
   document.getElementById('sesion-biblioteca').textContent = sesion.biblioteca;
-  document.getElementById('sesion-detalle').textContent = `${sesion.zona} · Desde las ${sesion.hora_inicio}`;
+  document.getElementById('sesion-zona').textContent = sesion.zona;
+  document.getElementById('sesion-desde').textContent = sesion.hora_inicio;
   mostrarAlerta(document.getElementById('alerta-checkout'), '');
   iniciarCronometro(sesion.segundos);
   mostrarEstado('activa');
@@ -291,8 +290,8 @@ function iniciarCronometro(segundosIniciales) {
     const ganados = Math.min(PUNTOS_MAXIMOS, Math.floor(segundos / SEGUNDOS_POR_PUNTO));
     puntos.textContent = String(ganados);
     siguiente.textContent = ganados < PUNTOS_MAXIMOS
-      ? ` · Próximo en ${formatearCuentaAtras(SEGUNDOS_POR_PUNTO - (segundos % SEGUNDOS_POR_PUNTO))}`
-      : ' · ¡Máximo conseguido!';
+      ? `en ${formatearCuentaAtras(SEGUNDOS_POR_PUNTO - (segundos % SEGUNDOS_POR_PUNTO))}`
+      : 'Máximo conseguido';
     anillo.style.setProperty('--progreso', String(Math.min(100, (segundos / SEGUNDOS_MAXIMOS) * 100)));
   };
   actualizar();
@@ -310,11 +309,12 @@ function formatearCuentaAtras(segundos) {
   return `${minutos}:${String(segundos % SEGUNDOS_POR_MINUTO).padStart(2, '0')}`;
 }
 
+/** Como el temporizador de Reloj: "43:07" y, a partir de una hora, "1:43:07". */
 function formatearCronometro(segundos) {
   const horas = Math.floor(segundos / SEGUNDOS_POR_HORA);
   const minutos = Math.floor((segundos % SEGUNDOS_POR_HORA) / SEGUNDOS_POR_MINUTO);
-  const resto = segundos % SEGUNDOS_POR_MINUTO;
-  return [horas, minutos, resto].map((valor) => String(valor).padStart(2, '0')).join(':');
+  const resto = String(segundos % SEGUNDOS_POR_MINUTO).padStart(2, '0');
+  return horas > 0 ? `${horas}:${String(minutos).padStart(2, '0')}:${resto}` : `${minutos}:${resto}`;
 }
 
 async function handleCheckout(evento) {

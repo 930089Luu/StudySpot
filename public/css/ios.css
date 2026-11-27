@@ -1386,61 +1386,23 @@ button.ios-row {
   filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.15));
 }
 
-/* ---------- Sesión activa: modo estudio, como el modo concentración del iPhone ---------- */
-body.modo-estudio {
-  background: radial-gradient(120% 70% at 50% 30%, #2c2f4a 0%, #171827 60%, #0e0f19 100%);
-  color: #ffffff;
-}
-
-body.modo-estudio .back-link {
-  color: rgb(255 255 255 / 0.85);
-}
-
+/* ---------- Sesión activa, como el temporizador de la app Reloj ---------- */
 .estudio {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: var(--space-2);
-  min-height: calc(100dvh - 7rem);
-  text-align: center;
+  gap: var(--space-4);
 }
 
-.estudio__lugar {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  max-width: 100%;
-  padding: 6px 14px;
-  border-radius: var(--radius-full);
-  background-color: rgb(255 255 255 / 0.1);
-  font-size: var(--ios-subheadline);
-  color: rgb(255 255 255 / 0.85);
-}
-
-/* Punto verde que late: la sesión está en marcha */
-.estudio__punto {
-  flex-shrink: 0;
-  width: 8px;
-  height: 8px;
-  border-radius: var(--radius-full);
-  background-color: #30d158;
-  box-shadow: 0 0 0 0 rgb(48 209 88 / 0.6);
-  animation: estudio-late 2s ease-out infinite;
-}
-
-@keyframes estudio-late {
-  0% { box-shadow: 0 0 0 0 rgb(48 209 88 / 0.6); }
-  100% { box-shadow: 0 0 0 10px rgb(48 209 88 / 0); }
-}
-
-/* Sito dentro del anillo de puntos (se llena hasta los 16, como un anillo de Fitness) */
+/* Anillo fino con el tiempo dentro; se llena hasta las 4 horas (16 puntos) */
 .estudio__anillo {
   position: relative;
-  display: grid;
-  place-items: center;
-  width: min(68vw, 16rem);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: min(78vw, 18rem);
   aspect-ratio: 1;
-  margin-block: var(--space-4) var(--space-2);
+  margin: var(--space-2) auto var(--space-3);
 }
 
 .estudio__anillo svg {
@@ -1452,34 +1414,24 @@ body.modo-estudio .back-link {
 .estudio__pista,
 .estudio__progreso {
   fill: none;
-  stroke-width: 9;
+  stroke-width: 7;
 }
 
 .estudio__pista {
-  stroke: rgb(255 255 255 / 0.1);
+  stroke: var(--ios-fill, rgb(120 120 128 / 0.16));
 }
 
 .estudio__progreso {
-  stroke: #30d158;
+  stroke: var(--color-accent);
   stroke-linecap: round;
   stroke-dasharray: var(--progreso, 0) 100;
-  filter: drop-shadow(0 0 6px rgb(48 209 88 / 0.45));
   transition: stroke-dasharray 600ms var(--easing-standard);
 }
 
-.estudio__sito {
-  width: 66%;
-  height: auto;
-  animation: estudio-respira 4s ease-in-out infinite;
-}
-
-@keyframes estudio-respira {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
-}
-
+/* Cifras finas y de ancho fijo, como las de Reloj */
 .estudio__tiempo {
-  font-size: 3.5rem;
+  position: relative;
+  font-size: 4.25rem;
   font-weight: 200;
   line-height: 1;
   letter-spacing: -0.02em;
@@ -1487,45 +1439,15 @@ body.modo-estudio .back-link {
 }
 
 .estudio__puntos {
-  font-size: var(--ios-body);
-  color: rgb(255 255 255 / 0.75);
+  position: relative;
+  margin-block-start: var(--space-2);
+  font-size: var(--ios-subheadline);
+  color: var(--ios-label-secondary);
   font-variant-numeric: tabular-nums;
 }
 
-.estudio__puntos strong {
-  color: #30d158;
-}
-
-.estudio__detalle {
-  font-size: var(--ios-subheadline);
-  color: rgb(255 255 255 / 0.5);
-}
-
-.estudio__abajo {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  width: 100%;
-  margin-block-start: auto;
-  padding-block-start: var(--space-5);
-}
-
-/* Botón claro sobre el fondo oscuro, como los de las pantallas a oscuras de iOS */
-.estudio__terminar {
-  background-color: rgb(255 255 255 / 0.92);
-  color: #16154a;
-}
-
-.estudio__nota {
-  font-size: var(--ios-footnote);
-  color: rgb(255 255 255 / 0.45);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .estudio__punto,
-  .estudio__sito {
-    animation: none;
-  }
+.estudio__cuenta {
+  font-variant-numeric: tabular-nums;
 }
 
 /* =====================================================================================

@@ -86,31 +86,46 @@
 
     <!-- Sesión activa, como una Actividad en directo: tarjeta oscura, cronómetro grande y el anillo
          que se llena hasta las 4 h (máximo de una sesión), con los puntos que llevas -->
-    <!-- Sesión activa (27-11): "modo estudio", como el modo concentración del iPhone. Pantalla en
-         gris azulado oscuro, Sito estudiando dentro del anillo de puntos (como Fitness), el
-         cronómetro grande y cuándo cae el siguiente punto. -->
+    <!-- Sesión activa (27-11), como el temporizador de la app Reloj: anillo fino con el tiempo
+         grande dentro y debajo los datos en una lista, como en Ajustes. -->
     <section class="estudio" id="estado-activa" aria-labelledby="titulo-sesion" hidden>
-      <h1 class="visually-hidden" id="titulo-sesion">Sesión de estudio</h1>
-      <p class="estudio__lugar">
-        <span class="estudio__punto" aria-hidden="true"></span>
-        <span>Estudiando en <strong id="sesion-biblioteca"></strong></span>
-      </p>
-      <div class="estudio__anillo" id="sesion-anillo" aria-hidden="true">
-        <svg viewBox="0 0 120 120">
-          <circle class="estudio__pista" cx="60" cy="60" r="54"/>
-          <circle class="estudio__progreso" cx="60" cy="60" r="54" pathLength="100"/>
+      <h1 class="ios-large-title" id="titulo-sesion">Sesión de estudio</h1>
+      <div class="estudio__anillo" id="sesion-anillo">
+        <svg viewBox="0 0 200 200" aria-hidden="true">
+          <circle class="estudio__pista" cx="100" cy="100" r="94"/>
+          <circle class="estudio__progreso" cx="100" cy="100" r="94" pathLength="100"/>
         </svg>
-        <img class="estudio__sito" src="img/mascota/pensando.png" alt="" width="512" height="512">
+        <p class="estudio__tiempo" id="sesion-tiempo" aria-label="Tiempo de estudio">0:00</p>
+        <p class="estudio__puntos"><span id="sesion-puntos">0</span> de 16 puntos</p>
       </div>
-      <p class="estudio__tiempo" id="sesion-tiempo" aria-label="Tiempo de estudio">00:00:00</p>
-      <p class="estudio__puntos">
-        <strong id="sesion-puntos">0</strong> de 16 puntos<span id="sesion-siguiente"></span>
-      </p>
-      <p class="estudio__detalle" id="sesion-detalle"></p>
-      <div class="estudio__abajo">
-        <p class="alert alert--error" id="alerta-checkout" role="alert" hidden></p>
-        <button class="button button--ios estudio__terminar" id="boton-checkout" type="button">Terminar sesión</button>
-        <p class="estudio__nota">1 punto cada 15 minutos, hasta 16. Se cierra sola a las 4 horas.</p>
+
+      <div class="ios-list">
+        <div class="ios-row">
+          <span class="ios-row__label">Biblioteca</span>
+          <span class="ios-row__body"></span>
+          <span class="ios-row__value ios-row__value--truncate" id="sesion-biblioteca"></span>
+        </div>
+        <div class="ios-row">
+          <span class="ios-row__label">Sala</span>
+          <span class="ios-row__body"></span>
+          <span class="ios-row__value" id="sesion-zona"></span>
+        </div>
+        <div class="ios-row">
+          <span class="ios-row__label">Desde</span>
+          <span class="ios-row__body"></span>
+          <span class="ios-row__value" id="sesion-desde"></span>
+        </div>
+        <div class="ios-row">
+          <span class="ios-row__label">Próximo punto</span>
+          <span class="ios-row__body"></span>
+          <span class="ios-row__value estudio__cuenta" id="sesion-siguiente"></span>
+        </div>
+      </div>
+      <p class="ios-section__footer">1 punto cada 15 minutos, hasta 16. La sesión se cierra sola a las 4 horas.</p>
+
+      <p class="alert alert--error" id="alerta-checkout" role="alert" hidden></p>
+      <div class="ios-list">
+        <button class="ios-row ios-row--action ios-row--destructive" id="boton-checkout" type="button">Terminar sesión</button>
       </div>
     </section>
 
