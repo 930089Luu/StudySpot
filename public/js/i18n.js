@@ -428,6 +428,7 @@
     'Sala': ['Room', 'Sala'],
     'Desde': ['Since', 'Desde'],
     'Próximo punto': ['Next point', 'Próximo ponto'],
+    'Estudiando contigo': ['Studying with you', 'A estudar contigo'],
     'Máximo conseguido': ['Maximum reached', 'Máximo alcançado'],
 
     // ---------- bienvenida con Sito ----------

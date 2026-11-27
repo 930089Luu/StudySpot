@@ -1414,18 +1414,57 @@ button.ios-row {
 .estudio__pista,
 .estudio__progreso {
   fill: none;
-  stroke-width: 7;
+  stroke-width: 11;
 }
 
 .estudio__pista {
   stroke: var(--ios-fill, rgb(120 120 128 / 0.16));
 }
 
-.estudio__progreso {
-  stroke: var(--color-accent);
+.estudio__pista {
   stroke-linecap: round;
-  stroke-dasharray: var(--progreso, 0) 100;
-  transition: stroke-dasharray 600ms var(--easing-standard);
+}
+
+/* El trozo que se está llenando, más claro; los de puntos ya ganados, del color de la app */
+.estudio__progreso {
+  stroke: color-mix(in srgb, var(--color-accent) 55%, var(--ios-bg));
+  stroke-linecap: round;
+  transition: stroke-dasharray 900ms linear, stroke 400ms;
+}
+
+.estudio__progreso--lleno {
+  stroke: var(--color-accent);
+}
+
+/* Fila "Estudiando contigo": caras pequeñas superpuestas, como en Mensajes */
+.estudio__amigos {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.estudio__amigo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 2px solid var(--ios-cell);
+  border-radius: var(--radius-full);
+  background-color: var(--color-accent);
+  color: #ffffff;
+  font-size: 0.625rem;
+  font-weight: var(--font-weight-bold);
+}
+
+.estudio__amigo + .estudio__amigo {
+  margin-inline-start: -0.5rem;
+}
+
+.estudio__amigos-texto {
+  margin-inline-start: var(--space-2);
+  font-size: var(--ios-body);
+  color: var(--ios-label-secondary);
 }
 
 /* Sito, pequeño y quieto encima del tiempo: acompaña sin distraer */
