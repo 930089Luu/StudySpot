@@ -1428,6 +1428,14 @@ button.ios-row {
   transition: stroke-dasharray 600ms var(--easing-standard);
 }
 
+/* Sito, pequeño y quieto encima del tiempo: acompaña sin distraer */
+.estudio__sito {
+  position: relative;
+  width: 4.75rem;
+  height: auto;
+  margin-block-end: var(--space-2);
+}
+
 /* Cifras finas y de ancho fijo, como las de Reloj */
 .estudio__tiempo {
   position: relative;
