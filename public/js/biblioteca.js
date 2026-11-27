@@ -8,9 +8,12 @@ import { confirmar } from './dialogo.js';
 import { MENSAJE_ERROR_GENERICO, mostrarAlerta } from './formulario.js';
 import {
   CLASES_NIVEL,
+  CLASE_CERRADA,
   getNivelOcupacion,
   getTextoActualizado,
+  getTextoApertura,
   getTextoFiabilidad,
+  isCerrada,
   pintarApertura,
 } from './ocupacion.js';
 import { PARAM_BIBLIOTECA, RUTA_LOGIN } from './rutas.js';
@@ -71,7 +74,9 @@ function mostrarDetalle(biblioteca) {
   // El mismo texto que la tarjeta del mapa: "Abierta · Cierra a las 21:00".
   pintarApertura(document.getElementById('biblioteca-horario'), biblioteca.horario_hoy, biblioteca.estado_apertura);
   mostrarFoto(biblioteca.foto_url);
-  mostrarOcupacion(biblioteca.ocupacion);
+  // Cerrada (US08): sin ocupación; la cabecera en gris dice cuándo abre.
+  if (isCerrada(biblioteca.estado_apertura)) mostrarCerrada(biblioteca.horario_hoy, biblioteca.estado_apertura);
+  else mostrarOcupacion(biblioteca.ocupacion);
   mostrarFiabilidad(biblioteca.fiabilidad, biblioteca.usuarios_activos);
   marcarFavorita(biblioteca.es_favorita);
   mostrarAlerta(document.getElementById('biblioteca-alerta'), '');
@@ -90,6 +95,7 @@ function mostrarOcupacion(porcentaje) {
   const tarjeta = document.getElementById('ocupacion-tarjeta');
   tarjeta.classList.remove(...CLASES_NIVEL);
   tarjeta.classList.add(nivel.clase);
+  mostrarPartesOcupacion(true);
   document.getElementById('ocupacion-valor').textContent = `${porcentaje} %`;
   document.getElementById('ocupacion-nivel').textContent = nivel.texto;
   const relleno = document.createElement('span');
@@ -97,6 +103,29 @@ function mostrarOcupacion(porcentaje) {
   relleno.style.setProperty('--valor', `${porcentaje}%`);
   document.getElementById('ocupacion-barra').replaceChildren(relleno);
   document.getElementById('ocupacion-actualizado').textContent = getTextoActualizado(Date.now());
+}
+
+/**
+ * Biblioteca cerrada: en lugar del % grande, "Cerrada" (o "Cerrada hoy") en gris y debajo cuándo
+ * abre ("Abre a las 18:00", "Hoy de 09:00 a 20:00" o el motivo). Sin barra ni "Actualizado".
+ */
+function mostrarCerrada(horario, estadoApertura) {
+  const { estado, detalle } = getTextoApertura(horario, estadoApertura);
+  const tarjeta = document.getElementById('ocupacion-tarjeta');
+  tarjeta.classList.remove(...CLASES_NIVEL);
+  tarjeta.classList.add(CLASE_CERRADA);
+  mostrarPartesOcupacion(false);
+  document.getElementById('ocupacion-valor').textContent = estado || 'Cerrada';
+  document.getElementById('ocupacion-nivel').textContent = detalle;
+}
+
+/** Lo que solo tiene sentido con la biblioteca abierta: barra, "Actualizado" y la línea de horario. */
+function mostrarPartesOcupacion(abierta) {
+  document.getElementById('ocupacion-valor').classList.toggle('biblio__valor--cerrada', !abierta);
+  document.getElementById('ocupacion-barra').hidden = !abierta;
+  document.getElementById('ocupacion-actualizado').hidden = !abierta;
+  // Cerrada, el horario ya lo dice la línea de debajo de "Cerrada"
+  document.getElementById('biblioteca-horario').hidden = !abierta;
 }
 
 function mostrarFiabilidad(fiabilidad, usuariosActivos) {

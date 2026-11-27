@@ -1516,6 +1516,21 @@ button.ios-row {
   font-variant-numeric: tabular-nums;
 }
 
+/* Cerrada: la palabra en lugar del número, igual de fina pero más pequeña, y todo en gris */
+.biblio__valor--cerrada {
+  padding-block: var(--space-3) var(--space-1);
+  font-size: 3.25rem;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  color: var(--ios-label-secondary);
+}
+
+.nivel--cerrada .biblio__nivel {
+  font-size: var(--ios-body);
+  font-weight: var(--font-weight-regular);
+  color: var(--ios-label-secondary);
+}
+
 .biblio__nivel {
   font-size: var(--ios-title-2);
   font-weight: var(--font-weight-semibold);
