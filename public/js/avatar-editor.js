@@ -179,13 +179,15 @@ async function guardar(evento) {
 }
 
 async function quitar(evento) {
+  // El botón se guarda antes de esperar: después del await, evento.currentTarget ya es null.
+  const boton = evento.currentTarget;
   const seguro = await confirmar({
     titulo: '¿Quitar tu avatar?',
     texto: 'Volverán a verse tus iniciales.',
     accion: 'Quitar',
     destructiva: true,
   });
-  if (seguro) await enviar(evento.currentTarget, null);
+  if (seguro) await enviar(boton, null);
 }
 
 async function enviar(boton, valor) {
