@@ -6,6 +6,7 @@
  */
 declare(strict_types=1);
 
+require_once __DIR__ . '/../Usuarios/avatar.php';
 require_once __DIR__ . '/../Database/conexion.php';
 require_once __DIR__ . '/../Usuarios/usuarios.php';
 require_once __DIR__ . '/../Gamificacion/puntuaciones.php';
@@ -35,6 +36,7 @@ function getPerfilContacto(PDO $pdo, int $usuarioId, int $otroId): ?array
     return [
         'usuario_id' => $otroId,
         'nombre' => $otro['nombre'],
+        'avatar' => leerAvatar($otro['avatar']),
         'puntos_totales' => sumPuntosUsuario($pdo, $otroId),
         'relacion' => $relacion,
     ];

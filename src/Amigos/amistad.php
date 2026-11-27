@@ -6,6 +6,7 @@
  */
 declare(strict_types=1);
 
+require_once __DIR__ . '/../Usuarios/avatar.php';
 require_once __DIR__ . '/../constantes.php';
 require_once __DIR__ . '/../Database/conexion.php';
 require_once __DIR__ . '/bloqueo.php';
@@ -144,14 +145,15 @@ function actualizarEstadoAmistad(PDO $pdo, int $solicitudId, string $estado): vo
 }
 
 /**
- * Amigos aceptados del usuario, con dónde estudian.
+ * Amigos aceptados del usuario, con dónde estudian (nombre e id de la biblioteca: el id sirve
+ * para ponerlos en su globo del mapa).
  * Privacidad (NF04): la biblioteca solo se muestra si el amigo ha activado compartir
  * ubicación. Una sesión activa de más de 4 h ya no cuenta como estudio.
  */
 function findAmigos(PDO $pdo, int $usuarioId): array
 {
     $consulta = $pdo->prepare(
-        'SELECT u.id, u.nombre, u.comparte_ubicacion, b.nombre AS biblioteca
+        'SELECT u.id, u.nombre, u.avatar, u.comparte_ubicacion, b.nombre AS biblioteca, b.id AS biblioteca_id
          FROM amistad a
          JOIN usuario u
            ON u.id = CASE WHEN a.solicitante_id = :yo1 THEN a.destinatario_id ELSE a.solicitante_id END
@@ -176,10 +178,13 @@ function findAmigos(PDO $pdo, int $usuarioId): array
 
     $amigos = [];
     foreach ($consulta->fetchAll() as $fila) {
+        $comparte = (int) $fila['comparte_ubicacion'] === 1 && $fila['biblioteca_id'] !== null;
         $amigos[] = [
             'usuario_id' => (int) $fila['id'],
             'nombre' => $fila['nombre'],
-            'biblioteca' => (int) $fila['comparte_ubicacion'] === 1 ? $fila['biblioteca'] : null,
+            'avatar' => leerAvatar($fila['avatar']),
+            'biblioteca' => $comparte ? $fila['biblioteca'] : null,
+            'biblioteca_id' => $comparte ? (int) $fila['biblioteca_id'] : null,
         ];
     }
     return $amigos;

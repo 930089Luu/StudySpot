@@ -12,6 +12,7 @@ require_once __DIR__ . '/../Database/conexion.php';
 require_once __DIR__ . '/sesion.php';
 require_once __DIR__ . '/usuarios.php';
 require_once __DIR__ . '/validacion.php';
+require_once __DIR__ . '/avatar.php';
 require_once __DIR__ . '/../Grupos/grupos.php';
 
 const CUENTA_OK = 'ok';
@@ -26,7 +27,7 @@ const SESION_ADMIN_CONFIRMADO = 'admin_confirmado';
 /** Datos que enseña Ajustes. Nunca el hash. */
 function getCuenta(PDO $pdo, int $usuarioId): ?array
 {
-    $consulta = $pdo->prepare('SELECT nombre, email, rol, idioma FROM usuario WHERE id = :id');
+    $consulta = $pdo->prepare('SELECT nombre, email, rol, idioma, avatar FROM usuario WHERE id = :id');
     $consulta->execute(['id' => $usuarioId]);
     $fila = $consulta->fetch();
     if ($fila === false) {
@@ -36,6 +37,7 @@ function getCuenta(PDO $pdo, int $usuarioId): ?array
         'nombre' => $fila['nombre'],
         'email' => $fila['email'],
         'idioma' => $fila['idioma'],
+        'avatar' => leerAvatar($fila['avatar']),
         'es_admin' => $fila['rol'] === ROL_ADMINISTRADOR,
         'admin_confirmado' => isAccesoAdminConfirmado(),
     ];
@@ -141,7 +143,7 @@ function exportarDatos(PDO $pdo, int $usuarioId): array
         return $consulta->fetchAll(PDO::FETCH_ASSOC);
     };
     $cuenta = $consultar(
-        'SELECT u.nombre, u.email, u.rol, u.idioma, u.comparte_ubicacion, u.fecha_registro,
+        'SELECT u.nombre, u.email, u.rol, u.idioma, u.avatar, u.comparte_ubicacion, u.fecha_registro,
                 b.nombre AS biblioteca_favorita
          FROM usuario u LEFT JOIN biblioteca b ON b.id = u.biblioteca_favorita_id WHERE u.id = :id'
     )[0] ?? [];

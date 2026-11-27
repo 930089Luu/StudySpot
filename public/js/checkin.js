@@ -4,9 +4,11 @@
  * (escaner.js) o se abre directamente con la cámara del móvil.
  * La ubicación se pide en el navegador, pero el token y la distancia los comprueba el servidor.
  */
-import { getSesionActiva, hacerCheckin, hacerCheckout } from './api.js';
+import { getAmigos, getSesionActiva, hacerCheckin, hacerCheckout } from './api.js';
+import { pintarAvatar } from './avatar.js';
 import { iniciarEscaner, isCamaraDisponible } from './escaner.js';
 import { MENSAJE_ERROR_GENERICO, mostrarAlerta } from './formulario.js';
+import { getIniciales } from './iniciales.js';
 import { PARAM_TOKEN, PARAM_ZONA, RUTA_LOGIN, leerZonaDeTexto, leerZonaDeUrl } from './rutas.js';
 
 const HTTP_OK = 200;
@@ -19,6 +21,13 @@ const HTTP_CONFLICT = 409;
 const SEGUNDOS_POR_PUNTO = 15 * 60;
 const PUNTOS_MAXIMOS = 16;
 const SEGUNDOS_MAXIMOS = 4 * 60 * 60;
+// Anillo de 16 trozos (uno por punto). Medidas en unidades de pathLength = 100 del círculo.
+const LARGO_TROZO = 100 / 16;
+const HUECO_TROZO = 2.6; // incluye lo que ocupan los extremos redondeados del trazo
+const ANILLO_RADIO = 94;
+const NS_SVG = 'http://www.w3.org/2000/svg';
+// Caras de amigos en la fila "Estudiando contigo"
+const AMIGOS_MAX_CARAS = 3;
 const ESTADOS = ['cargando', 'escanear', 'permiso', 'error', 'activa', 'terminada'];
 const SEGUNDOS_POR_MINUTO = 60;
 const SEGUNDOS_POR_HORA = 3600;
@@ -265,10 +274,80 @@ async function enviarCheckin({ latitude, longitude }) {
 
 function mostrarSesionActiva(sesion) {
   document.getElementById('sesion-biblioteca').textContent = sesion.biblioteca;
-  document.getElementById('sesion-detalle').textContent = `${sesion.zona} · Check-in a las ${sesion.hora_inicio}`;
+  document.getElementById('sesion-zona').textContent = sesion.zona;
+  document.getElementById('sesion-desde').textContent = sesion.hora_inicio;
   mostrarAlerta(document.getElementById('alerta-checkout'), '');
+  crearSegmentos();
   iniciarCronometro(sesion.segundos);
   mostrarEstado('activa');
+  mostrarAmigosAqui(sesion.biblioteca);
+}
+
+/** 16 trozos de pista gris y 16 de progreso encima (uno por punto, con un hueco entre ellos). */
+function crearSegmentos() {
+  const svg = document.getElementById('sesion-segmentos');
+  if (svg.childElementCount > 0) return;
+  const crear = (clase, indice) => {
+    const trozo = document.createElementNS(NS_SVG, 'circle');
+    trozo.setAttribute('class', clase);
+    trozo.setAttribute('cx', '100');
+    trozo.setAttribute('cy', '100');
+    trozo.setAttribute('r', String(ANILLO_RADIO));
+    trozo.setAttribute('pathLength', '100');
+    // El hueco queda centrado entre trozo y trozo (el primero empieza arriba).
+    trozo.setAttribute('stroke-dashoffset', String(-(indice * LARGO_TROZO + HUECO_TROZO / 2)));
+    return trozo;
+  };
+  for (let indice = 0; indice < PUNTOS_MAXIMOS; indice += 1) {
+    const pista = crear('estudio__pista', indice);
+    pista.setAttribute('stroke-dasharray', `${LARGO_TROZO - HUECO_TROZO} 100`);
+    svg.append(pista);
+  }
+  for (let indice = 0; indice < PUNTOS_MAXIMOS; indice += 1) svg.append(crear('estudio__progreso', indice));
+}
+
+/** Llena los trozos: los de los puntos ganados enteros y el actual según lo que lleva. */
+function llenarSegmentos(segundos) {
+  const trozos = document.querySelectorAll('#sesion-segmentos .estudio__progreso');
+  trozos.forEach((trozo, indice) => {
+    const parte = Math.max(0, Math.min(1, (segundos - indice * SEGUNDOS_POR_PUNTO) / SEGUNDOS_POR_PUNTO));
+    const largo = parte * (LARGO_TROZO - HUECO_TROZO);
+    trozo.setAttribute('stroke-dasharray', `${largo.toFixed(3)} 100`);
+    // Sin nada que enseñar se oculta: el extremo redondeado dibujaría un punto.
+    trozo.style.opacity = parte > 0 ? '1' : '0';
+    trozo.classList.toggle('estudio__progreso--lleno', parte >= 1);
+  });
+}
+
+/**
+ * Amigos que comparten su ubicación y estudian ahora en esta misma biblioteca (los mismos que se
+ * ven en el mapa). Si no hay ninguno, o falla, la fila no sale.
+ */
+async function mostrarAmigosAqui(biblioteca) {
+  const fila = document.getElementById('fila-amigos');
+  try {
+    const respuesta = await getAmigos();
+    const aqui = respuesta.estado === HTTP_OK
+      ? respuesta.cuerpo.amigos.filter((amigo) => amigo.biblioteca === biblioteca)
+      : [];
+    fila.hidden = aqui.length === 0;
+    if (aqui.length === 0) return;
+    const caras = aqui.slice(0, AMIGOS_MAX_CARAS).map((amigo) => {
+      const cara = document.createElement('span');
+      cara.className = 'estudio__amigo';
+      pintarAvatar(cara, amigo.avatar, getIniciales(amigo.nombre));
+      return cara;
+    });
+    const nombres = document.createElement('span');
+    nombres.className = 'estudio__amigos-texto';
+    nombres.textContent = aqui.length === 1 ? aqui[0].nombre.split(' ')[0] : `${aqui.length}`;
+    const contenedor = document.getElementById('sesion-amigos');
+    contenedor.replaceChildren(...caras, nombres);
+    contenedor.setAttribute('aria-label', aqui.map((amigo) => amigo.nombre).join(', '));
+  } catch (error) {
+    console.error(error);
+    fila.hidden = true;
+  }
 }
 
 /**
@@ -280,13 +359,19 @@ function iniciarCronometro(segundosIniciales) {
   const elemento = document.getElementById('sesion-tiempo');
   const puntos = document.getElementById('sesion-puntos');
   const anillo = document.getElementById('sesion-anillo');
+  const siguiente = document.getElementById('sesion-siguiente');
   const inicio = performance.now();
   const actualizar = () => {
     const segundos = segundosIniciales + Math.floor((performance.now() - inicio) / MS_POR_SEGUNDO);
     elemento.textContent = formatearCronometro(segundos);
     // Lo mismo que calcula el servidor al hacer check-out: 1 punto cada 15 min, hasta 16 (4 h).
-    puntos.textContent = String(Math.min(PUNTOS_MAXIMOS, Math.floor(segundos / SEGUNDOS_POR_PUNTO)));
+    const ganados = Math.min(PUNTOS_MAXIMOS, Math.floor(segundos / SEGUNDOS_POR_PUNTO));
+    puntos.textContent = String(ganados);
+    siguiente.textContent = ganados < PUNTOS_MAXIMOS
+      ? `en ${formatearCuentaAtras(SEGUNDOS_POR_PUNTO - (segundos % SEGUNDOS_POR_PUNTO))}`
+      : 'Máximo conseguido';
     anillo.style.setProperty('--progreso', String(Math.min(100, (segundos / SEGUNDOS_MAXIMOS) * 100)));
+    llenarSegmentos(segundos);
   };
   actualizar();
   cronometro = setInterval(actualizar, MS_POR_SEGUNDO);
@@ -297,11 +382,18 @@ function detenerCronometro() {
   cronometro = null;
 }
 
+/** "12:05" (minutos y segundos) hasta el siguiente punto. */
+function formatearCuentaAtras(segundos) {
+  const minutos = Math.floor(segundos / SEGUNDOS_POR_MINUTO);
+  return `${minutos}:${String(segundos % SEGUNDOS_POR_MINUTO).padStart(2, '0')}`;
+}
+
+/** Como el temporizador de Reloj: "43:07" y, a partir de una hora, "1:43:07". */
 function formatearCronometro(segundos) {
   const horas = Math.floor(segundos / SEGUNDOS_POR_HORA);
   const minutos = Math.floor((segundos % SEGUNDOS_POR_HORA) / SEGUNDOS_POR_MINUTO);
-  const resto = segundos % SEGUNDOS_POR_MINUTO;
-  return [horas, minutos, resto].map((valor) => String(valor).padStart(2, '0')).join(':');
+  const resto = String(segundos % SEGUNDOS_POR_MINUTO).padStart(2, '0');
+  return horas > 0 ? `${horas}:${String(minutos).padStart(2, '0')}:${resto}` : `${minutos}:${resto}`;
 }
 
 async function handleCheckout(evento) {

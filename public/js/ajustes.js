@@ -3,6 +3,7 @@
  * información legal, ayuda y, para cuentas de administración, la entrada a los horarios
  * (con tu contraseña, una vez por sesión). Las reglas las comprueba el servidor (api/cuenta.php).
  */
+import { pintarAvatar } from './avatar.js';
 import { accionCuenta, cerrarSesion, getCuenta, getVisibilidad, guardarVisibilidad } from './api.js';
 import { confirmar } from './confirmar.js';
 import { MENSAJE_ERROR_GENERICO, activarValidacionEnVivo, enviarFormulario, mostrarAlerta, mostrarErrorRespuesta, mostrarErroresServidor } from './formulario.js';
@@ -59,7 +60,7 @@ async function cargar() {
 }
 
 function pintarCuenta() {
-  document.getElementById('cuenta-iniciales').textContent = getIniciales(cuenta.nombre);
+  pintarAvatar(document.getElementById('cuenta-iniciales'), cuenta.avatar, getIniciales(cuenta.nombre));
   document.getElementById('cuenta-nombre-titulo').textContent = cuenta.nombre;
   document.getElementById('cuenta-email-titulo').textContent = cuenta.email;
   document.getElementById('cuenta-nombre').value = cuenta.nombre;

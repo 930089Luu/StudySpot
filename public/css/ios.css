@@ -1303,8 +1303,7 @@ button.ios-row {
 /* =====================================================================================
  * Check-in (como Wallet al escanear) y sesión activa (como una Actividad en directo)
  * ===================================================================================== */
-.checkin__escanear,
-.checkin__sesion {
+.checkin__escanear {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
@@ -1334,143 +1333,168 @@ button.ios-row {
   font-weight: var(--font-weight-semibold);
 }
 
-/* Icono del permiso: glifo de ubicación sobre un círculo azul, como los permisos de iOS */
+/* Icono de app con la flecha de ubicación y dos ondas que salen, como al buscar la posición */
 .checkin__permiso-icono {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 88px;
   height: 88px;
+  margin-block: var(--space-4);
   border-radius: 22px;
-  background: linear-gradient(180deg, #4a7dff, var(--color-accent));
+  background: linear-gradient(160deg, #5b8cff 0%, var(--color-accent) 70%);
   color: #ffffff;
-  box-shadow: 0 10px 24px color-mix(in srgb, var(--color-accent) 35%, transparent);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.35),
+    0 10px 24px color-mix(in srgb, var(--color-accent) 35%, transparent);
+}
+
+.checkin__permiso-icono::before,
+.checkin__permiso-icono::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: 26px;
+  background-color: color-mix(in srgb, var(--color-accent) 22%, transparent);
+  animation: permiso-onda 2.4s ease-out infinite;
+}
+
+.checkin__permiso-icono::after {
+  animation-delay: 1.2s;
+}
+
+@keyframes permiso-onda {
+  0% { transform: scale(1); opacity: 0.9; }
+  100% { transform: scale(1.7); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .checkin__permiso-icono::before,
+  .checkin__permiso-icono::after {
+    animation: none;
+    opacity: 0;
+  }
 }
 
 .checkin__permiso-icono svg {
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
+  /* Un poco hacia abajo a la izquierda: la flecha apunta arriba a la derecha y así queda centrada */
+  transform: translate(-1px, 1px);
+  filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.15));
 }
 
-/* ---------- Actividad en directo ---------- */
-.live {
+/* ---------- Sesión activa, como el temporizador de la app Reloj ---------- */
+.estudio {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
-  padding: var(--space-4);
-  border-radius: 24px;
-  background: linear-gradient(160deg, #1c1c2e, #0b0b14);
-  color: #ffffff;
-  box-shadow: 0 16px 40px rgb(10 10 30 / 0.3);
-}
-
-.live__header {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  font-size: var(--ios-footnote);
-}
-
-.live__icono {
-  width: 22px;
-  height: 22px;
-  border-radius: 6px;
-  background-color: #ffffff;
-}
-
-.live__app {
-  font-weight: var(--font-weight-semibold);
-  color: rgb(255 255 255 / 0.85);
-}
-
-.live__estado {
-  margin-inline-start: auto;
-  padding: 2px 10px;
-  border-radius: var(--radius-full);
-  background-color: rgb(48 209 88 / 0.2);
-  color: #30d158;
-  font-weight: var(--font-weight-semibold);
-}
-
-.live__cuerpo {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   gap: var(--space-4);
 }
 
-.live__texto {
-  min-width: 0;
-}
-
-.live__lugar {
-  font-size: var(--ios-body);
-  font-weight: var(--font-weight-semibold);
-  overflow-wrap: anywhere;
-}
-
-.live__detalle {
-  font-size: var(--ios-footnote);
-  color: rgb(255 255 255 / 0.6);
-}
-
-.live__tiempo {
-  margin-block-start: var(--space-2);
-  font-size: 2.75rem;
-  font-weight: var(--font-weight-semibold);
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.02em;
-  line-height: 1;
-}
-
-.live__anillo {
+/* Anillo fino con el tiempo dentro; se llena hasta las 4 horas (16 puntos) */
+.estudio__anillo {
   position: relative;
-  flex-shrink: 0;
-  width: 92px;
-  height: 92px;
-}
-
-.live__anillo svg {
-  width: 100%;
-  height: 100%;
-  transform: rotate(-90deg);
-}
-
-.live__pista,
-.live__progreso {
-  fill: none;
-  stroke-width: 4.5;
-}
-
-.live__pista {
-  stroke: rgb(48 209 88 / 0.2);
-}
-
-.live__progreso {
-  stroke: #30d158;
-  stroke-linecap: round;
-  stroke-dasharray: calc(var(--progreso, 0) * 1) 100;
-  transition: stroke-dasharray 600ms var(--easing-standard);
-}
-
-.live__puntos {
-  position: absolute;
-  inset: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  line-height: 1.05;
+  width: min(78vw, 18rem);
+  aspect-ratio: 1;
+  margin: var(--space-2) auto var(--space-3);
 }
 
-.live__puntos strong {
-  font-size: 1.5rem;
+.estudio__anillo svg {
+  position: absolute;
+  inset: 0;
+  transform: rotate(-90deg);
+}
+
+.estudio__pista,
+.estudio__progreso {
+  fill: none;
+  stroke-width: 11;
+}
+
+.estudio__pista {
+  stroke: var(--ios-fill, rgb(120 120 128 / 0.16));
+}
+
+.estudio__pista {
+  stroke-linecap: round;
+}
+
+/* El trozo que se está llenando, más claro; los de puntos ya ganados, del color de la app */
+.estudio__progreso {
+  stroke: color-mix(in srgb, var(--color-accent) 55%, var(--ios-bg));
+  stroke-linecap: round;
+  transition: stroke-dasharray 900ms linear, stroke 400ms;
+}
+
+.estudio__progreso--lleno {
+  stroke: var(--color-accent);
+}
+
+/* Fila "Estudiando contigo": caras pequeñas superpuestas, como en Mensajes */
+.estudio__amigos {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.estudio__amigo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 2px solid var(--ios-cell);
+  border-radius: var(--radius-full);
+  background-color: var(--color-accent);
+  color: #ffffff;
+  font-size: 0.625rem;
+  font-weight: var(--font-weight-bold);
+}
+
+.estudio__amigo + .estudio__amigo {
+  margin-inline-start: -0.5rem;
+}
+
+.estudio__amigos-texto {
+  margin-inline-start: var(--space-2);
+  font-size: var(--ios-body);
+  color: var(--ios-label-secondary);
+}
+
+/* Sito, pequeño y quieto encima del tiempo: acompaña sin distraer */
+.estudio__sito {
+  position: relative;
+  width: 4.75rem;
+  height: auto;
+  margin-block-end: var(--space-2);
+}
+
+/* Cifras finas y de ancho fijo, como las de Reloj */
+.estudio__tiempo {
+  position: relative;
+  font-size: 4.25rem;
+  font-weight: 200;
+  line-height: 1;
+  letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
 }
 
-.live__puntos span {
-  font-size: var(--ios-footnote);
-  color: rgb(255 255 255 / 0.6);
+.estudio__puntos {
+  position: relative;
+  margin-block-start: var(--space-2);
+  font-size: var(--ios-subheadline);
+  color: var(--ios-label-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.estudio__cuenta {
+  font-variant-numeric: tabular-nums;
 }
 
 /* =====================================================================================
@@ -1514,6 +1538,21 @@ button.ios-row {
   line-height: 1;
   letter-spacing: -0.04em;
   font-variant-numeric: tabular-nums;
+}
+
+/* Cerrada: la palabra en lugar del número, igual de fina pero más pequeña, y todo en gris */
+.biblio__valor--cerrada {
+  padding-block: var(--space-3) var(--space-1);
+  font-size: 3.25rem;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  color: var(--ios-label-secondary);
+}
+
+.nivel--cerrada .biblio__nivel {
+  font-size: var(--ios-body);
+  font-weight: var(--font-weight-regular);
+  color: var(--ios-label-secondary);
 }
 
 .biblio__nivel {
@@ -1635,4 +1674,179 @@ button.ios-row {
 .biblio .favorite-button__icon {
   width: 24px;
   height: 24px;
+}
+
+/* =====================================================================================
+ * Editor del avatar (como crear un Memoji): vista grande, categorías deslizables, colores y
+ * miniaturas. Los dibujos (js/avatar.js) son SVG que llenan su contenedor redondo.
+ * ===================================================================================== */
+.editor-avatar {
+  gap: var(--space-4);
+}
+
+/* Escena con perspectiva: el personaje se inclina en 3D hacia el dedo (avatar-editor.js) */
+.editor-avatar__escena {
+  padding-block: var(--space-2) var(--space-4);
+  perspective: 700px;
+  touch-action: pan-y;
+}
+
+.editor-avatar__vista {
+  position: relative;
+  width: 184px;
+  height: 184px;
+  margin-inline: auto;
+  overflow: hidden;
+  border-radius: var(--radius-full);
+  /* Borde de luz y sombra de contacto: da volumen de objeto */
+  box-shadow:
+    inset 0 2px 0 rgb(255 255 255 / 0.6),
+    inset 0 -6px 14px rgb(0 0 0 / 0.1),
+    0 18px 34px -10px rgb(30 30 80 / 0.35),
+    0 4px 10px rgb(0 0 0 / 0.08);
+  transform: rotateX(var(--giro-x, 0deg)) rotateY(var(--giro-y, 0deg));
+  transition: transform 450ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Brillo de cristal que sigue a la inclinación */
+.editor-avatar__vista::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(circle at var(--brillo-x, 34%) var(--brillo-y, 22%), rgb(255 255 255 / 0.38), rgb(255 255 255 / 0) 55%);
+  pointer-events: none;
+}
+
+.editor-avatar__vista--reposo {
+  animation: editor-avatar-balanceo 6s ease-in-out infinite;
+}
+
+@keyframes editor-avatar-balanceo {
+  0%, 100% { transform: rotateX(2deg) rotateY(-7deg); }
+  50% { transform: rotateX(-2deg) rotateY(7deg); }
+}
+
+.editor-avatar__vista--salta {
+  animation: editor-avatar-salta 320ms var(--easing-standard);
+}
+
+@keyframes editor-avatar-salta {
+  40% { scale: 1.06; }
+}
+
+.editor-avatar__categorias {
+  display: flex;
+  gap: var(--space-1);
+  margin-inline: calc(var(--ios-row-padding-inline) * -1);
+  padding: 2px var(--ios-row-padding-inline);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.editor-avatar__categoria {
+  flex-shrink: 0;
+  min-height: 34px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: none;
+  color: var(--ios-label-secondary);
+  font-size: var(--ios-subheadline);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+}
+
+.editor-avatar__categoria[aria-selected="true"] {
+  background-color: var(--ios-cell);
+  color: var(--color-text);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.08);
+}
+
+.editor-avatar__panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  border-radius: 18px;
+  background-color: var(--ios-cell);
+}
+
+.editor-avatar__colores {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.editor-avatar__muestra {
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: var(--radius-full);
+  background-color: var(--muestra);
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.12);
+  cursor: pointer;
+}
+
+.editor-avatar__muestra[aria-checked="true"] {
+  box-shadow: 0 0 0 3px var(--ios-cell), 0 0 0 5px var(--color-accent);
+}
+
+.editor-avatar__opciones {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-3);
+}
+
+.editor-avatar__miniatura {
+  aspect-ratio: 1;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 16px;
+  background-color: var(--ios-bg);
+  cursor: pointer;
+}
+
+.editor-avatar__opciones--dos {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+/* Chica / Chico: el personaje con su nombre debajo */
+.editor-avatar__miniatura--nombre {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  aspect-ratio: auto;
+  padding-bottom: var(--space-2);
+  color: var(--color-text);
+  font-size: var(--ios-subheadline);
+  font-weight: var(--font-weight-semibold);
+}
+
+.editor-avatar__miniatura--nombre .avatar-svg {
+  width: 100%;
+  aspect-ratio: 1;
+}
+
+.editor-avatar__miniatura[aria-checked="true"] {
+  box-shadow: 0 0 0 3px var(--color-accent);
+}
+
+.editor-avatar__miniatura:active,
+.editor-avatar__muestra:active {
+  transform: scale(0.95);
+}
+
+/* Enlace "Editar" bajo el avatar del perfil, como en Contactos */
+.ios-contact__editar {
+  font-size: var(--ios-subheadline);
+  color: var(--color-accent-text);
+  text-decoration: none;
+}
+
+/* Los botones de la barra que son enlaces (Cancelar del editor de avatar) no van subrayados */
+a.ios-sheet__bar-button {
+  text-decoration: none;
 }

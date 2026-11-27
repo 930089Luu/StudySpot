@@ -83,8 +83,10 @@ function crearZonaPrueba(PDO $pdo): array
     ]);
     $token = bin2hex(random_bytes(16));
     $zona = $pdo->prepare('INSERT INTO zona (biblioteca_id, nombre, token_qr) VALUES (:biblioteca_id, :nombre, :token)');
-    $zona->execute(['biblioteca_id' => $pdo->lastInsertId(), 'nombre' => 'Zona de prueba', 'token' => $token]);
-    return ['id' => (int) $pdo->lastInsertId(), 'token' => $token, 'latitud' => TEST_LATITUD, 'longitud' => TEST_LONGITUD];
+    $bibliotecaId = (int) $pdo->lastInsertId();
+    $zona->execute(['biblioteca_id' => $bibliotecaId, 'nombre' => 'Zona de prueba', 'token' => $token]);
+    return ['id' => (int) $pdo->lastInsertId(), 'token' => $token, 'latitud' => TEST_LATITUD, 'longitud' => TEST_LONGITUD,
+        'biblioteca_id' => $bibliotecaId];
 }
 
 /** Borra las bibliotecas de prueba (sus zonas y sesiones se borran en cascada). */

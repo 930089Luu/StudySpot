@@ -1,10 +1,12 @@
 /*
- * Bienvenida con Sito (mejora de la experiencia, 23-11). Cinco pasos; en los del medio hay que
+ * Bienvenida con Sito (mejora de la experiencia, 23-11). Seis pasos; en los del medio hay que
  * hacer algo para seguir, sobre trozos reales de la interfaz: elegir en la lista la biblioteca más
- * tranquila, escanear un QR en el visor y ver cómo se cierra el anillo de puntos.
+ * tranquila, escanear un QR en el visor, ver cómo se cierra el anillo de puntos y (27-11) añadir a
+ * una amiga, que aparece en el globo del mapa y en el ranking del grupo.
  * Todo es de prueba: no se llama a la API.
  * Al terminar o al omitirla, se recuerda en el navegador y no vuelve a salir.
  */
+import { AVATAR_INICIAL, aplicarGenero, dibujarAvatar } from './avatar.js';
 import { crearAnilloOcupacion, crearElementoSvg, getNivelOcupacion } from './ocupacion.js';
 import { marcarBienvenidaVista } from './primera-vez.js';
 import { RUTA_LOGIN, RUTA_REGISTRO } from './rutas.js';
@@ -33,6 +35,21 @@ const BIBLIOTECAS_PRUEBA = [
   { nombre: 'Letras', ocupacion: 47 },
   { nombre: 'Gaia', ocupacion: 13 },
 ];
+// Paso social: amigos de prueba con su avatar (mismas piezas que el creador de avatar).
+const CHICA = aplicarGenero(AVATAR_INICIAL, 0);
+const CHICO = aplicarGenero(AVATAR_INICIAL, 1);
+const AMIGOS_PRUEBA = {
+  ana: { nombre: 'Ana', avatar: { ...CHICA, colorPelo: 4, gafas: 1, colorOjos: 3, fondo: 1 } },
+  pablo: { nombre: 'Pablo', avatar: { ...CHICO, piel: 3, peinado: 3, colorPelo: 0, barba: 4, fondo: 2 } },
+  marta: { nombre: 'Marta', avatar: { ...CHICA, piel: 6, peinado: 6, colorPelo: 0, fondo: 3, pendientes: 2 } },
+};
+// Ranking de prueba que sale al añadir a Marta (puntos de la semana).
+const RANKING_PRUEBA = [
+  { ...AMIGOS_PRUEBA.ana, puntos: 40 },
+  { nombre: 'Tú', avatar: { ...AVATAR_INICIAL, fondo: 4 }, puntos: 26 },
+  { ...AMIGOS_PRUEBA.marta, puntos: 20 },
+];
+const OCUPACION_PRUEBA_SOCIAL = 42;
 const QR_PRUEBA = 'M2 2h7v7H2zM4 4v3h3V4zM15 2h7v7h-7zM17 4v3h3V4zM2 15h7v7H2zM4 17v3h3v-3zM11 2h2v2h-2zM11 6h2v4h-2zM11 12h4v2h-4zM17 11h2v2h-2zM20 13h2v4h-2zM15 16h3v2h-3zM12 15h2v3h-2zM11 20h3v2h-3zM16 20h6v2h-6z';
 const CHECK = 'M7 12.5l3.2 3.2L17 9';
 // Iconos del resumen final: Framework7 Icons (licencia MIT), dibujados al estilo de los iconos de
@@ -40,11 +57,14 @@ const CHECK = 'M7 12.5l3.2 3.2L17 9';
 const ICONO_MAPA = 'M34.188 51.414v-39.21l-11.579-7.08c-.398-.258-.867-.422-1.312-.54v39.751l11.812 6.61a6 6 0 0 0 1.079.468M6.273 50.71c.61 0 1.196-.187 1.97-.61l9.843-5.296V5.008c-.422.21-.867.445-1.312.703l-11.11 6.352c-1.406.796-2.062 1.921-2.062 3.492v32.46c0 1.735 1.007 2.696 2.672 2.696m31.126.656c.234-.07.468-.164.703-.328l12.257-6.96c1.383-.774 2.04-1.9 2.04-3.47V8.102c0-1.735-.985-2.672-2.672-2.672c-.586 0-1.195.164-1.946.586L37.4 11.78Z';
 const ICONO_QR = 'M8.383 21.402c1.219 0 1.875-.68 1.875-1.922v-5.53c0-2.438 1.312-3.68 3.656-3.68h5.672c1.219 0 1.898-.68 1.898-1.899c0-1.195-.68-1.875-1.898-1.875h-5.742c-4.875 0-7.36 2.414-7.36 7.242v5.743c0 1.242.68 1.921 1.899 1.921m39.234 0c1.242 0 1.899-.68 1.899-1.922v-5.742c0-4.828-2.438-7.242-7.36-7.242h-5.719c-1.242 0-1.921.68-1.921 1.875c0 1.219.68 1.899 1.921 1.899h5.672c2.297 0 3.633 1.242 3.633 3.68v5.53c0 1.243.68 1.922 1.875 1.922m-20.625 4.57v-8.179c0-.562-.445-1.031-1.031-1.031h-8.156c-.586 0-1.032.468-1.032 1.031v8.18c0 .562.446 1.008 1.032 1.008h8.156c.586 0 1.031-.446 1.031-1.008m4.055-7.171h6.14v6.14h-6.14Zm4.36 4.36v-2.556h-2.555v2.555Zm-12.235 0v-2.556h-2.578v2.555Zm-4.36 7.898h6.141v6.14h-6.14Zm20.11.796v-2.554h-2.555v2.555Zm-7.055 0v-2.554h-2.555v2.555Zm-8.695 3.54V32.84h-2.578v2.554Zm12.234 0V32.84h-2.578v2.554Zm1.031 14.109h5.72c4.921 0 7.359-2.438 7.359-7.266V36.52c0-1.243-.68-1.922-1.899-1.922s-1.875.68-1.875 1.922v5.53c0 2.438-1.336 3.68-3.633 3.68h-5.672c-1.242 0-1.921.68-1.921 1.899c0 1.195.68 1.875 1.921 1.875m-22.593 0h5.742c1.219 0 1.898-.68 1.898-1.875c0-1.219-.68-1.898-1.898-1.898h-5.672c-2.344 0-3.656-1.243-3.656-3.68V36.52c0-1.243-.68-1.922-1.875-1.922c-1.242 0-1.899.68-1.899 1.922v5.718c0 4.852 2.485 7.266 7.36 7.266m18.023-10.57v-2.555h-2.555v2.555Zm7.055 0v-2.555h-2.555v2.555Zm.305-12.961v-8.18c0-.562-.446-1.031-1.032-1.031H30.04c-.586 0-1.031.468-1.031 1.031v8.18c0 .562.445 1.008 1.03 1.008h8.157c.586 0 1.032-.446 1.032-1.008M18.812 18.8h6.141v6.14h-6.14Zm8.18 19.406v-8.18c0-.562-.445-1.007-1.031-1.007h-8.156c-.586 0-1.032.445-1.032 1.007v8.18c0 .563.446 1.031 1.032 1.031h8.156c.586 0 1.031-.468 1.031-1.031';
 const ICONO_ESTRELLA = 'M11.969 52.293c.96.727 2.18.469 3.633-.586L28 42.613l12.422 9.094c1.453 1.055 2.648 1.313 3.633.586c.96-.727 1.172-1.922.586-3.633l-4.899-14.578l12.516-9c1.453-1.031 2.039-2.11 1.664-3.281c-.375-1.125-1.477-1.688-3.281-1.664l-15.352.093l-4.664-14.648C30.063 3.848 29.22 2.981 28 2.981c-1.195 0-2.039.867-2.602 2.601L20.734 20.23l-15.351-.093c-1.805-.024-2.906.539-3.281 1.664c-.399 1.172.21 2.25 1.664 3.281l12.515 9l-4.898 14.578c-.586 1.711-.375 2.906.586 3.633';
+// Dos personas (dibujado aquí, en la misma cuadrícula de 56 que los otros iconos).
+const ICONO_AMIGOS = 'M21 10a8 8 0 1 1 0 16a8 8 0 1 1 0-16ZM5 46c0-9.5 7-15 16-15s16 5.5 16 15v2H5ZM38 12a6.5 6.5 0 1 1 0 13a6.5 6.5 0 1 1 0-13ZM36.5 29.2C44.6 28.6 51 33 51 41v2H40.6c-.5-5.6-2.9-10.4-6.9-13.4c.9-.2 1.8-.4 2.8-.4Z';
 // Resumen del último paso, como la pantalla de "Novedades" de las apps de Apple.
 const RESUMEN = [
   { icono: ICONO_MAPA, titulo: 'Mira cuánta gente hay', texto: 'Elige la biblioteca con más sitio libre.' },
   { icono: ICONO_QR, titulo: 'Escanea al llegar', texto: 'El QR de tu sala hace el check-in.' },
   { icono: ICONO_ESTRELLA, titulo: 'Suma puntos', texto: 'Uno cada 15 minutos de estudio.' },
+  { icono: ICONO_AMIGOS, titulo: 'Estudia con amigos', texto: 'Mira dónde están y competid en grupo.' },
 ];
 
 const PASOS = [
@@ -75,6 +95,12 @@ const PASOS = [
     titulo: 'Suma puntos',
     texto: 'Ganas 1 punto cada 15 minutos de estudio, hasta 16 por sesión.',
     crearJuego: crearJuegoPuntos,
+  },
+  {
+    pose: POSE.senalando,
+    titulo: 'Estudia con amigos',
+    texto: 'Verás en qué biblioteca están tus amigos y competiréis en grupo cada semana.',
+    crearJuego: crearJuegoAmigos,
   },
   {
     pose: POSE.celebrando,
@@ -313,7 +339,55 @@ function contarPuntos({ anillo, numero, minutos }, alLograr) {
   window.requestAnimationFrame(avanzar);
 }
 
-// ---------- Paso 5: resumen, como la pantalla de "Novedades" ----------
+// ---------- Paso 5: amigos en el mapa y ranking del grupo ----------
+
+function crearJuegoAmigos(alLograr) {
+  // Un trozo de mapa con el globo de una biblioteca y las caras de quien estudia allí
+  const globo = crearTexto('span', `map-pin ${getNivelOcupacion(OCUPACION_PRUEBA_SOCIAL).clase}`, '');
+  globo.style.setProperty('--ocupacion', OCUPACION_PRUEBA_SOCIAL);
+  const caras = crearTexto('span', 'map-pin__amigos', '');
+  caras.append(crearCara(AMIGOS_PRUEBA.ana, 'map-pin__amigo'), crearCara(AMIGOS_PRUEBA.pablo, 'map-pin__amigo'));
+  globo.append(crearAnilloOcupacion(), crearTexto('span', 'map-pin__numero', `${OCUPACION_PRUEBA_SOCIAL}`), caras);
+  const mapa = crearTexto('div', 'demo-mapa', '');
+  mapa.append(globo);
+
+  const ranking = crearTexto('ol', 'demo-ranking', '');
+  ranking.hidden = true;
+  const boton = crearBoton('button button--tinted button--small', `Añadir a ${AMIGOS_PRUEBA.marta.nombre}`, () => {
+    boton.disabled = true;
+    const marta = crearCara(AMIGOS_PRUEBA.marta, 'map-pin__amigo demo-mapa__nueva');
+    caras.append(marta);
+    boton.textContent = 'Amiga añadida';
+    ranking.replaceChildren(...RANKING_PRUEBA.map(crearFilaRanking));
+    ranking.hidden = false;
+    reiniciarAnimacion(ranking, 'onboarding__entra');
+    celebrar('¡Ya sois un grupo!', 'Marta está estudiando contigo. Cada lunes empieza un ranking nuevo.');
+    alLograr();
+  });
+  const juego = crearTexto('div', 'demo-play', '');
+  juego.append(mapa, boton, ranking);
+  return juego;
+}
+
+function crearCara({ nombre, avatar }, clase) {
+  const cara = crearTexto('span', `${clase} con-avatar`, '');
+  cara.innerHTML = dibujarAvatar(avatar);
+  cara.setAttribute('title', nombre);
+  return cara;
+}
+
+function crearFilaRanking({ nombre, avatar, puntos }, indice) {
+  const fila = crearTexto('li', 'demo-ranking__fila', '');
+  fila.append(
+    crearTexto('span', 'demo-ranking__posicion', `${indice + 1}`),
+    crearCara({ nombre, avatar }, 'demo-ranking__cara'),
+    crearTexto('span', 'demo-ranking__nombre', nombre),
+    crearTexto('span', 'demo-ranking__puntos', `${puntos} pts`),
+  );
+  return fila;
+}
+
+// ---------- Paso 6: resumen, como la pantalla de "Novedades" ----------
 
 function crearResumen() {
   const lista = crearTexto('ul', 'feature-list', '');

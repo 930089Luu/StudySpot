@@ -80,12 +80,12 @@ return function (PDO $pdo): array {
                 && calcularPorcentajeObjetivo(10, 40) === 25
                 && calcularPorcentajeObjetivo(40, 40) === 100
                 && calcularPorcentajeObjetivo(500, 40) === 100],
-        ['T84', 'Privacidad: cada persona trae solo nombre, iniciales, puntos, posición, color y «es_yo» (nunca correo, id ni ubicación)',
+        ['T84', 'Privacidad: cada persona trae solo nombre, iniciales, avatar, puntos, posición, color y «es_yo» (nunca correo, id ni ubicación)',
             function () use ($pdo, $ranking): bool {
                 [$yo, $luis] = crearPersonasPrueba($pdo, ['Ana', 'Luis']);
                 $personas = $ranking(crearGrupoConPersonas($pdo, [$yo, $luis]), $yo)['personas'];
                 foreach ($personas as $fila) {
-                    if (array_keys($fila) !== ['nombre', 'iniciales', 'puntos', 'posicion', 'color', 'es_yo']) {
+                    if (array_keys($fila) !== ['nombre', 'iniciales', 'avatar', 'puntos', 'posicion', 'color', 'es_yo']) {
                         return false;
                     }
                 }

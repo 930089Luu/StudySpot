@@ -401,6 +401,36 @@
     'Apertura del sábado': ['Saturday opening', 'Abertura de sábado'], 'Cierre del sábado': ['Saturday closing', 'Fecho de sábado'],
     'Apertura del domingo': ['Sunday opening', 'Abertura de domingo'], 'Cierre del domingo': ['Sunday closing', 'Fecho de domingo'],
 
+    // ---------- avatar ----------
+    'Avatar · StudySpot': ['Avatar · StudySpot', 'Avatar · StudySpot'],
+    'Avatar': ['Avatar', 'Avatar'],
+    'Crear avatar': ['Create avatar', 'Criar avatar'],
+    'Editar avatar': ['Edit avatar', 'Editar avatar'],
+    'Vista previa de tu avatar': ['Preview of your avatar', 'Pré-visualização do teu avatar'],
+    'Partes del avatar': ['Avatar parts', 'Partes do avatar'],
+    'Piel': ['Skin', 'Pele'], 'Peinado': ['Hairstyle', 'Penteado'], 'Cejas': ['Brows', 'Sobrancelhas'],
+    'Ojos': ['Eyes', 'Olhos'], 'Cabeza': ['Head', 'Cabeça'], 'Nariz': ['Nose', 'Nariz'], 'Boca': ['Mouth', 'Boca'],
+    'Orejas': ['Ears', 'Orelhas'], 'Vello facial': ['Facial hair', 'Pelos faciais'], 'Gafas': ['Glasses', 'Óculos'],
+    'Gorros': ['Headwear', 'Chapéus'], 'Fondo': ['Background', 'Fundo'],
+    'Pelo largo': ['Long hair', 'Cabelo comprido'], 'Barba': ['Beard', 'Barba'], 'Ropa': ['Clothes', 'Roupa'],
+    'Pelo': ['Hair', 'Cabelo'], 'Persona': ['Person', 'Pessoa'], 'Chica': ['Girl', 'Rapariga'], 'Chico': ['Boy', 'Rapaz'], 'Pecas': ['Freckles', 'Sardas'], 'Pendientes': ['Earrings', 'Brincos'],
+    'Quitar avatar y usar mis iniciales': ['Remove avatar and use my initials', 'Remover avatar e usar as minhas iniciais'],
+    '¿Quitar tu avatar?': ['Remove your avatar?', 'Remover o teu avatar?'],
+    'Volverán a verse tus iniciales.': ['Your initials will show again.', 'Voltam a ver-se as tuas iniciais.'],
+    'Quitar': ['Remove', 'Remover'],
+    'Avatar guardado.': ['Avatar saved.', 'Avatar guardado.'],
+    'Avatar no válido.': ['Invalid avatar.', 'Avatar inválido.'],
+
+    // ---------- modo estudio (sesión activa) ----------
+    'Terminar sesión': ['End session', 'Terminar sessão'],
+    '1 punto cada 15 minutos, hasta 16. La sesión se cierra sola a las 4 horas.': ['1 point every 15 minutes, up to 16. The session closes by itself after 4 hours.', '1 ponto a cada 15 minutos, até 16. A sessão fecha sozinha às 4 horas.'],
+    'de 16 puntos': ['of 16 points', 'de 16 pontos'],
+    'Sala': ['Room', 'Sala'],
+    'Desde': ['Since', 'Desde'],
+    'Próximo punto': ['Next point', 'Próximo ponto'],
+    'Estudiando contigo': ['Studying with you', 'A estudar contigo'],
+    'Máximo conseguido': ['Maximum reached', 'Máximo alcançado'],
+
     // ---------- bienvenida con Sito ----------
     'Hola, soy': ["Hi, I'm", 'Olá, sou o'],
     'Te enseño StudySpot en menos de un minuto.': ["I'll show you StudySpot in under a minute.", 'Mostro-te o StudySpot em menos de um minuto.'],
@@ -410,6 +440,13 @@
     'En cada sala hay un código QR. Escanéalo al sentarte para hacer check-in.': ['Every room has a QR code. Scan it when you sit down to check in.', 'Em cada sala há um código QR. Lê-o ao sentares-te para fazer check-in.'],
     'Suma puntos': ['Earn points', 'Soma pontos'],
     'Ganas 1 punto cada 15 minutos de estudio, hasta 16 por sesión.': ['You earn 1 point every 15 minutes of study, up to 16 per session.', 'Ganhas 1 ponto a cada 15 minutos de estudo, até 16 por sessão.'],
+    'Estudia con amigos': ['Study with friends', 'Estuda com amigos'],
+    'Verás en qué biblioteca están tus amigos y competiréis en grupo cada semana.': ["You'll see which library your friends are in and compete as a group every week.", 'Vais ver em que biblioteca estão os teus amigos e competir em grupo todas as semanas.'],
+    'Añadir a Marta': ['Add Marta', 'Adicionar a Marta'],
+    'Amiga añadida': ['Friend added', 'Amiga adicionada'],
+    '¡Ya sois un grupo!': ["You're a group now!", 'Já são um grupo!'],
+    'Marta está estudiando contigo. Cada lunes empieza un ranking nuevo.': ["Marta is studying with you. A new ranking starts every Monday.", 'A Marta está a estudar contigo. Todas as segundas começa um ranking novo.'],
+    'Mira dónde están y competid en grupo.': ['See where they are and compete as a group.', 'Vê onde estão e competi em grupo.'],
     'Todo listo': ['All set', 'Tudo pronto'],
     'Ya sabes usar StudySpot.': ['Now you know how to use StudySpot.', 'Já sabes usar o StudySpot.'],
     'Mira cuánta gente hay': ['See how many people there are', 'Vê quanta gente há'],
@@ -474,6 +511,9 @@
     'No usamos cookies de publicidad ni de analítica, ni rastreamos lo que haces fuera de StudySpot.': ["We don't use advertising or analytics cookies, and we don't track what you do outside StudySpot.", 'Não usamos cookies de publicidade nem de análise, nem seguimos o que fazes fora do StudySpot.'],
     '¿Dudas, un fallo o algo sobre tus datos? Escríbenos a': ['Questions, a bug or something about your data? Write to us at', 'Dúvidas, uma falha ou algo sobre os teus dados? Escreve-nos para'],
     '[correo de contacto del equipo]': ['[team contact email]', '[email de contacto da equipa]'],
+    'Créditos': ['Credits', 'Créditos'],
+    'Avatares: estilo «Toon Head» de Johan Melin, con licencia CC BY 4.0 (creativecommons.org/licenses/by/4.0), generado con DiceBear (licencia MIT).': ['Avatars: "Toon Head" style by Johan Melin, licensed CC BY 4.0 (creativecommons.org/licenses/by/4.0), generated with DiceBear (MIT licence).', 'Avatares: estilo «Toon Head» de Johan Melin, com licença CC BY 4.0 (creativecommons.org/licenses/by/4.0), gerado com o DiceBear (licença MIT).'],
+    'Mapa: Mapbox. Lector de códigos QR: jsQR (licencia Apache 2.0).': ['Map: Mapbox. QR code reader: jsQR (Apache 2.0 licence).', 'Mapa: Mapbox. Leitor de códigos QR: jsQR (licença Apache 2.0).'],
   };
 
   // Textos con datos dentro. $1, $2… se traducen a su vez si están en T (p. ej. "alta" → "high").
@@ -503,6 +543,7 @@
     [/^¿Borrar «(.+)»\?$/, ['Delete "$1"?', 'Apagar «$1»?']],
     [/^(.+) dejará de ser tu favorita\. Solo puedes tener una\.$/, ['$1 will no longer be your favourite. You can only have one.', '$1 deixará de ser a tua favorita. Só podes ter uma.']],
     [/^(.+) · Check-in a las (.+)$/, ['$1 · Checked in at $2', '$1 · Check-in às $2']],
+    [/^en (\d+:\d\d)$/, ['in $1', 'em $1']],
     [/^Acércate a (.+) y vuelve a intentarlo\.$/, ['Get closer to $1 and try again.', 'Aproxima-te de $1 e tenta de novo.']],
     [/^Has estudiado (.+) y has ganado (.+)\.$/, ['You studied for $1 and earned $2.', 'Estudaste $1 e ganhaste $2.']],
     [/^(\d+) h (\d+) min$/, ['$1 h $2 min', '$1 h $2 min']],
@@ -515,6 +556,8 @@
     [/^Escribe tu nombre \(máximo (\d+) caracteres\)\.$/, ['Enter your name (up to $1 characters).', 'Escreve o teu nome (máximo $1 caracteres).']],
     [/^El grupo ya tiene el máximo de (\d+) personas\.$/, ['The group already has the maximum of $1 people.', 'O grupo já tem o máximo de $1 pessoas.']],
     [/^Revisa los datos: nombre de (\d+) a (\d+) caracteres y objetivo de (\d+) a (\d+) puntos\.$/, ['Check the data: name of $1 to $2 characters and goal of $3 to $4 points.', 'Revê os dados: nome de $1 a $2 caracteres e objetivo de $3 a $4 pontos.']],
+    [/^Color (\d+)$/, ['Colour $1', 'Cor $1']],
+    [/^(Pelo|Peinado|Pelo largo|Cejas|Ojos|Boca|Barba|Ropa|Pecas|Pendientes|Cabeza|Nariz|Orejas|Vello facial|Gafas|Gorros) (\d+)$/, ['$1 $2', '$1 $2']],
     [/^(.+) · StudySpot$/, ['$1 · StudySpot', '$1 · StudySpot']],
   ];
 

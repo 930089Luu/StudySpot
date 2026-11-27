@@ -2,6 +2,7 @@
  * Perfil de otra persona (mejora de US06): nombre, puntos y botón de bloquear.
  * El servidor decide si se puede ver (amigo o solicitud recibida); si no, responde 404.
  */
+import { pintarAvatar } from './avatar.js';
 import { cambiarBloqueo, getPerfilContacto } from './api.js';
 import { confirmar } from './confirmar.js';
 import { MENSAJE_ERROR_GENERICO, mostrarAlerta } from './formulario.js';
@@ -42,8 +43,8 @@ async function init() {
   }
 }
 
-function mostrarPerfil({ usuario_id: usuarioId, nombre, puntos_totales: puntos, relacion }) {
-  document.getElementById('usuario-iniciales').textContent = getIniciales(nombre);
+function mostrarPerfil({ usuario_id: usuarioId, nombre, avatar, puntos_totales: puntos, relacion }) {
+  pintarAvatar(document.getElementById('usuario-iniciales'), avatar, getIniciales(nombre));
   document.getElementById('usuario-nombre').textContent = nombre;
   document.getElementById('usuario-relacion').textContent = TEXTOS_RELACION[relacion] ?? '';
   document.getElementById('usuario-puntos').textContent = formatoPuntos.format(puntos);

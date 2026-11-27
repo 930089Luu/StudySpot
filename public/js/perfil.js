@@ -2,6 +2,7 @@
  * Pantalla de perfil con los puntos totales (wireframe 6) (US04).
  * Los puntos los calcula el servidor (suma de los de cada sesión); aquí solo se muestran.
  */
+import { pintarAvatar } from './avatar.js';
 import { cerrarSesion, getPerfil } from './api.js';
 import { MENSAJE_ERROR_GENERICO, mostrarAlerta } from './formulario.js';
 import { getIniciales } from './iniciales.js';
@@ -36,8 +37,9 @@ async function init() {
   }
 }
 
-function mostrarPerfil({ nombre, email, puntos_totales: puntos }) {
-  document.getElementById('perfil-iniciales').textContent = getIniciales(nombre);
+function mostrarPerfil({ nombre, email, avatar, puntos_totales: puntos }) {
+  pintarAvatar(document.getElementById('perfil-iniciales'), avatar, getIniciales(nombre));
+  document.getElementById('perfil-editar-avatar').textContent = avatar ? 'Editar avatar' : 'Crear avatar';
   document.getElementById('perfil-nombre').textContent = nombre;
   document.getElementById('perfil-email').textContent = email;
   document.getElementById('perfil-puntos').textContent = formatoPuntos.format(puntos);

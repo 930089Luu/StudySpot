@@ -13,6 +13,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/../constantes.php';
 require_once __DIR__ . '/../Database/conexion.php';
 require_once __DIR__ . '/../Sesiones/estudio.php';
+require_once __DIR__ . '/../Usuarios/avatar.php';
 require_once __DIR__ . '/../Amigos/amistad.php';
 
 const GRUPO_ROL_ADMIN = 'admin';
@@ -109,7 +110,7 @@ function getDetalleGrupo(PDO $pdo, int $grupoId, int $usuarioId): ?array
     $grupo->execute(['id' => $grupoId]);
     $fila = $grupo->fetch();
     $miembros = $pdo->prepare(
-        'SELECT u.id, u.nombre, m.rol, m.estado FROM grupo_miembro m JOIN usuario u ON u.id = m.usuario_id
+        'SELECT u.id, u.nombre, u.avatar, m.rol, m.estado FROM grupo_miembro m JOIN usuario u ON u.id = m.usuario_id
          WHERE m.grupo_id = :grupo ORDER BY m.estado DESC, m.rol, u.nombre'
     );
     $miembros->execute(['grupo' => $grupoId]);
@@ -121,6 +122,7 @@ function getDetalleGrupo(PDO $pdo, int $grupoId, int $usuarioId): ?array
         'miembros' => array_map(static fn (array $m): array => [
             'usuario_id' => (int) $m['id'],
             'nombre' => $m['nombre'],
+            'avatar' => leerAvatar($m['avatar']),
             'es_admin' => $m['rol'] === GRUPO_ROL_ADMIN,
             'invitado' => $m['estado'] === GRUPO_INVITADO,
             'es_yo' => (int) $m['id'] === $usuarioId,

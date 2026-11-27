@@ -17,7 +17,7 @@
 </head>
 <body class="page ios">
   <!--
-    Perfil (wireframe 6, US04): tu ficha, tus puntos, amigos y grupos, y la tuerca de Ajustes.
+    Perfil (wireframe 6, US04): tu ficha, tus puntos, amigos y grupos, y la fila de Ajustes.
     Estilo iOS (26-11). Los id son los de siempre: los rellena perfil.js.
   -->
   <main class="ios-screen">
@@ -30,13 +30,7 @@
         <span>Mapa</span>
       </a>
       <span></span>
-      <a class="ios-nav__action" href="ajustes.html" aria-label="Ajustes">
-        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-          <path d="M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4z" fill="none" stroke="currentColor" stroke-width="1.8"/>
-          <path d="M19.4 13.5a7.6 7.6 0 0 0 0-3l2-1.6-2-3.4-2.4 1a7.8 7.8 0 0 0-2.6-1.5L14 2.5h-4l-.4 2.5A7.8 7.8 0 0 0 7 6.5l-2.4-1-2 3.4 2 1.6a7.6 7.6 0 0 0 0 3l-2 1.6 2 3.4 2.4-1a7.8 7.8 0 0 0 2.6 1.5l.4 2.5h4l.4-2.5a7.8 7.8 0 0 0 2.6-1.5l2.4 1 2-3.4z"
-                fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
-        </svg>
-      </a>
+      <span></span>
     </nav>
 
     <p class="ios-section__footer" id="perfil-cargando" role="status">Cargando…</p>
@@ -44,7 +38,9 @@
 
     <section class="ios-screen__panel" id="perfil" aria-labelledby="perfil-nombre" hidden>
       <header class="ios-contact">
-        <span class="ios-contact__avatar" id="perfil-iniciales" aria-hidden="true"></span>
+        <!-- Tocar el avatar abre el editor (como un Memoji) -->
+        <a class="ios-contact__avatar" id="perfil-iniciales" href="avatar.html" aria-label="Editar avatar"></a>
+        <a class="ios-contact__editar" id="perfil-editar-avatar" href="avatar.html">Crear avatar</a>
         <h1 class="ios-contact__name" id="perfil-nombre"></h1>
         <p class="ios-contact__subtitle" id="perfil-email"></p>
       </header>

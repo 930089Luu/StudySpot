@@ -4,6 +4,7 @@
  * cambia nombre y objetivo (se guardan al salir del campo, como en Ajustes de iOS).
  * Quien decide es el servidor: api/grupos.php comprueba el rol en cada acción.
  */
+import { pintarAvatar } from './avatar.js';
 import { accionGrupo, enviarSolicitudAmistad, getAmigos, getGrupo, getRanking } from './api.js';
 import { confirmar } from './confirmar.js';
 import { MENSAJE_ERROR_GENERICO, enviarFormulario, mostrarAlerta, mostrarErrorRespuesta } from './formulario.js';
@@ -80,7 +81,7 @@ function crearEscalon(persona) {
   const escalon = crearElemento('li', `ios-podium__step ios-podium__step--${posicion}`);
   escalon.setAttribute('aria-label', `${posicion}.º ${nombre}${persona.es_yo ? ' (tú)' : ''}, ${puntos} puntos`);
   const avatar = crearElemento('span', 'ios-podium__avatar');
-  avatar.append(crearAvatar(persona.iniciales, persona.color), crearTexto('span', 'ios-podium__position', `${posicion}`));
+  avatar.append(crearAvatar(persona.iniciales, persona.color, persona.avatar), crearTexto('span', 'ios-podium__position', `${posicion}`));
   escalon.append(
     avatar,
     crearTexto('span', 'ios-podium__name', persona.es_yo ? 'Tú' : getNombrePila(nombre)),
@@ -97,7 +98,7 @@ function crearFilaRanking(persona) {
   cuerpo.append(nombre);
   fila.append(
     crearTexto('span', 'ios-row__position', `${persona.posicion}`),
-    crearAvatar(persona.iniciales, persona.color),
+    crearAvatar(persona.iniciales, persona.color, persona.avatar),
     cuerpo,
     crearTexto('span', 'ios-row__value', `${persona.puntos} pts`),
   );
@@ -143,7 +144,7 @@ function mostrarPersonas({ miembros, es_admin: soyAdmin }) {
 }
 
 function crearFilaPersona(miembro, soyAdmin, hayOtraAdmin) {
-  const { usuario_id: usuarioId, nombre, es_admin: esAdmin, invitado, es_yo: esYo } = miembro;
+  const { usuario_id: usuarioId, nombre, avatar, es_admin: esAdmin, invitado, es_yo: esYo } = miembro;
   const gestionable = soyAdmin && (!esYo || hayOtraAdmin);
   const fila = crearElemento(gestionable ? 'button' : 'div', 'ios-row');
   if (gestionable) {
@@ -153,7 +154,7 @@ function crearFilaPersona(miembro, soyAdmin, hayOtraAdmin) {
   const cuerpo = crearElemento('span', 'ios-row__body');
   cuerpo.append(crearTexto('span', 'ios-row__title', esYo ? `${nombre} (tú)` : nombre));
   if (invitado) cuerpo.append(crearTexto('span', 'ios-row__subtitle', 'Invitación pendiente'));
-  fila.append(crearAvatar(getIniciales(nombre), usuarioId % NUM_COLORES), cuerpo);
+  fila.append(crearAvatar(getIniciales(nombre), usuarioId % NUM_COLORES, avatar), cuerpo);
   if (esAdmin) fila.append(crearTexto('span', 'ios-row__value', 'Admin'));
   return envolverEnLi(fila);
 }
@@ -212,7 +213,7 @@ async function pintarInvitables() {
     : 'Les llegará una invitación y entrarán cuando la acepten.';
 }
 
-function crearFilaInvitable({ usuario_id: usuarioId, nombre }) {
+function crearFilaInvitable({ usuario_id: usuarioId, nombre, avatar }) {
   const fila = crearElemento('div', 'ios-row');
   const cuerpo = crearElemento('span', 'ios-row__body');
   cuerpo.append(crearTexto('span', 'ios-row__title', nombre));
@@ -229,7 +230,7 @@ function crearFilaInvitable({ usuario_id: usuarioId, nombre }) {
       mostrarError(respuesta.cuerpo.error ?? MENSAJE_ERROR_GENERICO);
     }
   });
-  fila.append(crearAvatar(getIniciales(nombre), usuarioId % NUM_COLORES), cuerpo, boton);
+  fila.append(crearAvatar(getIniciales(nombre), usuarioId % NUM_COLORES, avatar), cuerpo, boton);
   return envolverEnLi(fila);
 }
 
@@ -321,9 +322,10 @@ async function ejecutar(llamada, recargar = true) {
   }
 }
 
-/** Círculo de color con las iniciales: el color nunca va solo. */
-function crearAvatar(iniciales, color) {
-  const avatar = crearTexto('span', `avatar-persona persona--${color}`, iniciales);
+/** El avatar de la persona o, si no tiene, un círculo de color con sus iniciales. */
+function crearAvatar(iniciales, color, dibujo = null) {
+  const avatar = crearElemento('span', `avatar-persona persona--${color}`);
+  pintarAvatar(avatar, dibujo, iniciales);
   avatar.setAttribute('aria-hidden', 'true');
   return avatar;
 }

@@ -253,6 +253,18 @@ return function (PDO $pdo): array {
                 return getPerfilContacto($pdo, $luis, $ana) === null
                     && getPerfilContacto($pdo, $ana, $luis) === null;
             }],
+        ['T144', 'Mapa de amigos: quien comparte y estudia trae el id de su biblioteca; quien no comparte → null',
+            function () use ($pdo, $zona): bool {
+                $ana = crearUsuarioPruebaConId($pdo);
+                $luis = crearUsuarioPruebaConId($pdo);
+                $marta = crearUsuarioPruebaConId($pdo);
+                crearAmistadEnBD($pdo, $ana, $luis, AMISTAD_ACEPTADA);
+                crearAmistadEnBD($pdo, $ana, $marta, AMISTAD_ACEPTADA);
+                guardarComparteUbicacion($pdo, $luis, true);
+                $estudian = hacerCheckinEnZonaPrueba($pdo, $luis, $zona) && hacerCheckinEnZonaPrueba($pdo, $marta, $zona);
+                $porId = array_column(findAmigos($pdo, $ana), 'biblioteca_id', 'usuario_id');
+                return $estudian && $porId[$luis] === $zona['biblioteca_id'] && $porId[$marta] === null;
+            }],
     ];
 };
 

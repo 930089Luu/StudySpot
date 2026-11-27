@@ -1434,6 +1434,39 @@
     var(--shadow-pin);
 }
 
+/* Amigos estudiando en esa biblioteca: sus caras pegadas al globo, como en Buscar de Apple */
+.map-pin__amigos {
+  position: absolute;
+  bottom: calc(100% - 10px);
+  left: calc(100% - 12px);
+  display: flex;
+  pointer-events: none;
+}
+
+.map-pin__amigo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border: 2px solid #ffffff;
+  border-radius: var(--radius-full);
+  background-color: var(--color-accent);
+  box-shadow: 0 2px 6px rgb(0 0 0 / 0.35);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: var(--font-weight-bold);
+}
+
+.map-pin__amigo + .map-pin__amigo {
+  margin-left: -10px;
+}
+
+.map-pin__amigo--mas {
+  background-color: #3a3a3c;
+}
+
 /* ---------- map-button: cápsula flotante sobre el mapa (check-in: "He llegado") ---------- */
 /* Mismo cristal oscuro que los globos: el mapa es siempre oscuro */
 .map-button {
@@ -2145,6 +2178,78 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Paso social de la bienvenida: un trozo de mapa oscuro con el globo real (map-pin) y las caras
+   de los amigos, y debajo el ranking del grupo */
+.demo-mapa {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 17rem;
+  max-width: 100%;
+  height: 7.5rem;
+  border-radius: 1.25rem;
+  background:
+    linear-gradient(115deg, transparent 46%, rgb(255 255 255 / 0.08) 47% 49%, transparent 50%),
+    linear-gradient(25deg, transparent 60%, rgb(255 255 255 / 0.06) 61% 63%, transparent 64%),
+    #3a3f55;
+}
+
+.demo-mapa__nueva {
+  animation: demo-mapa-entra 450ms var(--easing-standard);
+}
+
+@keyframes demo-mapa-entra {
+  0% { transform: scale(0); }
+  70% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+.demo-ranking {
+  display: flex;
+  flex-direction: column;
+  width: 17rem;
+  max-width: 100%;
+  margin: 0;
+  padding: var(--space-1) var(--space-3);
+  border-radius: 1rem;
+  background-color: var(--color-field);
+  list-style: none;
+}
+
+.demo-ranking__fila {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 2.5rem;
+  font-size: var(--font-size-sm);
+}
+
+.demo-ranking__fila + .demo-ranking__fila {
+  border-top: 1px solid var(--color-border);
+}
+
+.demo-ranking__posicion {
+  width: 1rem;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.demo-ranking__cara {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: var(--radius-full);
+}
+
+.demo-ranking__nombre {
+  flex: 1;
+  font-weight: var(--font-weight-semibold);
+}
+
+.demo-ranking__puntos {
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
 /* Resumen final, como la pantalla de "Novedades" de las apps de Apple: icono de color, título
    en negrita y una línea gris, alineado a la izquierda */
 .feature-list {
@@ -2227,4 +2332,28 @@
 
 .field__input:disabled {
   opacity: 0.6;
+}
+
+/* ---------- avatar dibujado (js/avatar.js), en cualquier círculo de persona ---------- */
+.avatar-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Con avatar: el SVG llena el círculo, sin fondo ni letras */
+.con-avatar {
+  overflow: hidden;
+  padding: 0 !important;
+  background: none !important;
+}
+
+.avatar-button {
+  overflow: hidden;
+}
+
+.avatar-button .con-avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-full);
 }

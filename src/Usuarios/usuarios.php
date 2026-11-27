@@ -19,7 +19,7 @@ function findUsuarioPorEmail(PDO $pdo, string $email): ?array
 /** Nombre y correo del usuario (nunca el hash), o null si no existe. */
 function findUsuarioPorId(PDO $pdo, int $usuarioId): ?array
 {
-    $consulta = $pdo->prepare('SELECT id, nombre, email FROM usuario WHERE id = :id');
+    $consulta = $pdo->prepare('SELECT id, nombre, email, avatar FROM usuario WHERE id = :id');
     $consulta->execute(['id' => $usuarioId]);
     $usuario = $consulta->fetch();
     return $usuario === false ? null : $usuario;

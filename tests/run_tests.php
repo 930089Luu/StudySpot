@@ -21,6 +21,7 @@ const ARCHIVOS_DE_TESTS = [
     'biblioteca_favorita.php',
     'biblioteca_abierta.php',
     'ajustes_cuenta.php',
+    'avatar.php',
 ];
 
 function ejecutarArchivo(PDO $pdo, string $archivo): array
