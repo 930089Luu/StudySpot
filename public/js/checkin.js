@@ -72,6 +72,8 @@ function extraerQrDeUrl() {
 /** Muestra solo la sección pedida. La cámara se apaga siempre que se sale del escáner. */
 function mostrarEstado(nombre) {
   if (nombre !== 'escanear') detenerEscaner();
+  // Modo estudio: toda la pantalla en oscuro mientras la sesión está abierta.
+  document.body.classList.toggle('modo-estudio', nombre === 'activa');
   for (const estado of ESTADOS) {
     document.getElementById(`estado-${estado}`).hidden = estado !== nombre;
   }
@@ -265,7 +267,7 @@ async function enviarCheckin({ latitude, longitude }) {
 
 function mostrarSesionActiva(sesion) {
   document.getElementById('sesion-biblioteca').textContent = sesion.biblioteca;
-  document.getElementById('sesion-detalle').textContent = `${sesion.zona} · Check-in a las ${sesion.hora_inicio}`;
+  document.getElementById('sesion-detalle').textContent = `${sesion.zona} · Desde las ${sesion.hora_inicio}`;
   mostrarAlerta(document.getElementById('alerta-checkout'), '');
   iniciarCronometro(sesion.segundos);
   mostrarEstado('activa');
@@ -280,12 +282,17 @@ function iniciarCronometro(segundosIniciales) {
   const elemento = document.getElementById('sesion-tiempo');
   const puntos = document.getElementById('sesion-puntos');
   const anillo = document.getElementById('sesion-anillo');
+  const siguiente = document.getElementById('sesion-siguiente');
   const inicio = performance.now();
   const actualizar = () => {
     const segundos = segundosIniciales + Math.floor((performance.now() - inicio) / MS_POR_SEGUNDO);
     elemento.textContent = formatearCronometro(segundos);
     // Lo mismo que calcula el servidor al hacer check-out: 1 punto cada 15 min, hasta 16 (4 h).
-    puntos.textContent = String(Math.min(PUNTOS_MAXIMOS, Math.floor(segundos / SEGUNDOS_POR_PUNTO)));
+    const ganados = Math.min(PUNTOS_MAXIMOS, Math.floor(segundos / SEGUNDOS_POR_PUNTO));
+    puntos.textContent = String(ganados);
+    siguiente.textContent = ganados < PUNTOS_MAXIMOS
+      ? ` · Próximo en ${formatearCuentaAtras(SEGUNDOS_POR_PUNTO - (segundos % SEGUNDOS_POR_PUNTO))}`
+      : ' · ¡Máximo conseguido!';
     anillo.style.setProperty('--progreso', String(Math.min(100, (segundos / SEGUNDOS_MAXIMOS) * 100)));
   };
   actualizar();
@@ -295,6 +302,12 @@ function iniciarCronometro(segundosIniciales) {
 function detenerCronometro() {
   clearInterval(cronometro);
   cronometro = null;
+}
+
+/** "12:05" (minutos y segundos) hasta el siguiente punto. */
+function formatearCuentaAtras(segundos) {
+  const minutos = Math.floor(segundos / SEGUNDOS_POR_MINUTO);
+  return `${minutos}:${String(segundos % SEGUNDOS_POR_MINUTO).padStart(2, '0')}`;
 }
 
 function formatearCronometro(segundos) {
