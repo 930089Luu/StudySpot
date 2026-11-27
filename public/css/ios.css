@@ -1335,21 +1335,57 @@ button.ios-row {
 }
 
 /* Icono del permiso: glifo de ubicación sobre un círculo azul, como los permisos de iOS */
+/* Icono de app con la flecha de ubicación y dos ondas que salen, como al buscar la posición */
 .checkin__permiso-icono {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 88px;
   height: 88px;
+  margin-block: var(--space-4);
   border-radius: 22px;
-  background: linear-gradient(180deg, #4a7dff, var(--color-accent));
+  background: linear-gradient(160deg, #5b8cff 0%, var(--color-accent) 70%);
   color: #ffffff;
-  box-shadow: 0 10px 24px color-mix(in srgb, var(--color-accent) 35%, transparent);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.35),
+    0 10px 24px color-mix(in srgb, var(--color-accent) 35%, transparent);
+}
+
+.checkin__permiso-icono::before,
+.checkin__permiso-icono::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: 26px;
+  background-color: color-mix(in srgb, var(--color-accent) 22%, transparent);
+  animation: permiso-onda 2.4s ease-out infinite;
+}
+
+.checkin__permiso-icono::after {
+  animation-delay: 1.2s;
+}
+
+@keyframes permiso-onda {
+  0% { transform: scale(1); opacity: 0.9; }
+  100% { transform: scale(1.7); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .checkin__permiso-icono::before,
+  .checkin__permiso-icono::after {
+    animation: none;
+    opacity: 0;
+  }
 }
 
 .checkin__permiso-icono svg {
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
+  /* Un poco hacia abajo a la izquierda: la flecha apunta arriba a la derecha y así queda centrada */
+  transform: translate(-1px, 1px);
+  filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.15));
 }
 
 /* ---------- Actividad en directo ---------- */

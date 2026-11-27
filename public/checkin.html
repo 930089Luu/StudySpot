@@ -56,9 +56,10 @@
     <!-- Permiso de ubicación, como las pantallas de permisos de iOS: icono, título, explicación y dos botones -->
     <section class="state state--sito" id="estado-permiso" aria-labelledby="titulo-permiso" hidden>
       <span class="checkin__permiso-icono" aria-hidden="true">
-        <svg viewBox="0 0 24 24" focusable="false">
-          <path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z" fill="currentColor"/>
-          <circle cx="12" cy="10" r="2.6" fill="#ffffff"/>
+        <!-- Flecha de ubicación (dibujo propio), con las puntas redondeadas por el trazo -->
+        <svg viewBox="3 3 18 18" focusable="false">
+          <path d="M19.5 4.5 4.8 10.6l6.6 1.9 1.9 6.6z" fill="currentColor" stroke="currentColor"
+                stroke-width="2.2" stroke-linejoin="round"/>
         </svg>
       </span>
       <h1 class="state__title state__title--large" id="titulo-permiso">Permitir ubicación</h1>
